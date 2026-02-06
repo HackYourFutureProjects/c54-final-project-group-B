@@ -35,7 +35,7 @@ const UserList = () => {
             users.map((user) => {
               return (
                 <li key={user._id} data-elementid={user._id}>
-                  {user.name} ({user.email})
+                  {user.username} ({user.email}) {user.isVerified ? "✅" : "❌"}
                 </li>
               );
             })}
