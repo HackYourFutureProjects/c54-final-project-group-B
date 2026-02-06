@@ -63,9 +63,10 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ username, email, password }),
     });
     if (res.ok) {
-      const data = await res.json();
-      setUser(data.user);
-      setIsAuthenticated(true);
+      // Do not log in immediately. Wait for verification.
+      // const data = await res.json();
+      // setUser(data.user);
+      // setIsAuthenticated(true);
       setIsLoading(false);
       return { success: true };
     } else {

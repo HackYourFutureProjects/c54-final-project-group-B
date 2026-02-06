@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const { login, isLoading } = useAuth();
@@ -16,7 +16,15 @@ const Login = () => {
     if (res.success) {
       navigate("/");
     } else {
-      setError(res.msg || "Login failed");
+      if (res.msg === "Please verify your email to login") {
+        setError(
+          <span>
+            Please verify your email. <Link to="/verify-code">Verify Code</Link>
+          </span>
+        );
+      } else {
+        setError(res.msg || "Login failed");
+      }
     }
   }
 

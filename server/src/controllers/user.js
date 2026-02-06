@@ -49,7 +49,9 @@ export const signup = async (req, res) => {
     // Send verification code
     await sendCode({ email: user.email, code: verificationCode });
 
-    generateTokenAndSetCookie(res, user);
+    // No auto-login after signup. User must verify first.
+    // generateTokenAndSetCookie(res, user);
+    
     const userObj = user.toObject();
     delete userObj.password;
     delete userObj.verificationCode;
