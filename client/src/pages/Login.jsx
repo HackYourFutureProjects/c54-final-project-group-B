@@ -1,0 +1,58 @@
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom";
+
+const Login = () => {
+  const { login, isLoading } = useAuth();
+  const [emailOrUsername, setEmailOrUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    const res = await login(emailOrUsername, password);
+    if (res.success) {
+      navigate("/");
+    } else {
+      setError(res.msg || "Login failed");
+    }
+  }
+
+  return (
+    <div className="auth-form-container">
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Email or Username
+          <input
+            type="text"
+            value={emailOrUsername}
+            onChange={(e) => setEmailOrUsername(e.target.value)}
+            required
+            autoFocus
+          />
+        </label>
+        <label>
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </label>
+        {error && <div className="error-msg">{error}</div>}
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
+        </button>
+      </form>
+      <p>
+        Don&apos;t have an account? <a href="/signup">Sign up</a>
+      </p>
+    </div>
+  );
+};
+
+export default Login;
