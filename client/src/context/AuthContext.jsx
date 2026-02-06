@@ -13,7 +13,11 @@ export function AuthProvider({ children }) {
       setIsLoading(true);
       try {
         const res = await fetch("/api/users/me", { credentials: "include" });
-        if (res.ok) {
+        if (res.status === 401) {
+          // Suppress error: do not log or throw
+          setUser(null);
+          setIsAuthenticated(false);
+        } else if (res.ok) {
           const data = await res.json();
           setUser(data.user);
           setIsAuthenticated(true);
@@ -21,7 +25,8 @@ export function AuthProvider({ children }) {
           setUser(null);
           setIsAuthenticated(false);
         }
-      } catch {
+      } catch (e) {
+        // Suppress all fetch errors (network, etc.)
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -54,21 +59,29 @@ export function AuthProvider({ children }) {
   }
 
   // Signup function
-  async function signup(username, email, password) {
+  async function signup(userData) {
     setIsLoading(true);
     const res = await fetch("/api/users/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify(userData),
     });
+
+    if (res.status === 409) {
+      alert("User already exists. Please log in instead.");
+      setIsLoading(false);
+      return { success: false, msg: "User already exists. Please log in instead." };
+    }
+
     if (res.ok) {
       // Do not log in immediately. Wait for verification.
       // const data = await res.json();
       // setUser(data.user);
       // setIsAuthenticated(true);
+      const data = await res.json();
       setIsLoading(false);
-      return { success: true };
+      return { success: true, ...data };
     } else {
       setIsAuthenticated(false);
       setIsLoading(false);
