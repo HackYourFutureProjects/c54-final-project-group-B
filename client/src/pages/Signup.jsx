@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
-import { Country, City }  from "country-state-city";
+import { Country, City } from "country-state-city";
 
 const Signup = () => {
   const { signup, isLoading } = useAuth();
@@ -21,15 +21,17 @@ const Signup = () => {
   const countries = Country.getAllCountries();
   // Get cities based on selected country (stored as ISO Code usually, or Name if we handle mapping)
   // The library uses ISO codes for lookup.
-  // We need to store standard names in DB as per plain text requirement, 
+  // We need to store standard names in DB as per plain text requirement,
   // but let's use the object values.
-  
+
   // To keep it simple, we store Country Name in DB.
   // But we need ISO Code to find cities.
   // So we might need separate state for selected Country Code.
   const [selectedCountryCode, setSelectedCountryCode] = useState("");
-  
-  const cities = selectedCountryCode ? City.getCitiesOfCountry(selectedCountryCode) : [];
+
+  const cities = selectedCountryCode
+    ? City.getCitiesOfCountry(selectedCountryCode)
+    : [];
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,12 +39,12 @@ const Signup = () => {
 
   function handleCountryChange(e) {
     const countryCode = e.target.value;
-    const country = countries.find(c => c.isoCode === countryCode);
+    const country = countries.find((c) => c.isoCode === countryCode);
     setSelectedCountryCode(countryCode);
-    setFormData({ 
-      ...formData, 
-      country: country ? country.name : "", 
-      city: "" // Reset city
+    setFormData({
+      ...formData,
+      country: country ? country.name : "",
+      city: "", // Reset city
     });
   }
 
@@ -61,9 +63,12 @@ const Signup = () => {
     }
 
     // Complexity Check (basic regex matching backend)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
-      setError("Password must have 1 Uppercase, 1 Number, 1 Symbol, Min 8 chars");
+      setError(
+        "Password must have 1 Uppercase, 1 Number, 1 Symbol, Min 8 chars",
+      );
       return;
     }
 
@@ -133,9 +138,9 @@ const Signup = () => {
         </label>
         <label>
           Country
-          <select 
-            name="country" 
-            onChange={handleCountryChange} 
+          <select
+            name="country"
+            onChange={handleCountryChange}
             value={selectedCountryCode}
             required
             style={{ width: "100%", padding: "0.5rem" }}
@@ -150,9 +155,9 @@ const Signup = () => {
         </label>
         <label>
           City
-          <select 
-            name="city" 
-            onChange={handleCityChange} 
+          <select
+            name="city"
+            onChange={handleCityChange}
             value={formData.city}
             required
             disabled={!selectedCountryCode}

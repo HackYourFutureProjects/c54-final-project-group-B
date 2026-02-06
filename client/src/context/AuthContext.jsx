@@ -71,7 +71,10 @@ export function AuthProvider({ children }) {
     if (res.status === 409) {
       alert("User already exists. Please log in instead.");
       setIsLoading(false);
-      return { success: false, msg: "User already exists. Please log in instead." };
+      return {
+        success: false,
+        msg: "User already exists. Please log in instead.",
+      };
     }
 
     if (res.ok) {

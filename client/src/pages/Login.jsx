@@ -20,7 +20,7 @@ const Login = () => {
         setError(
           <span>
             Please verify your email. <Link to="/verify-code">Verify Code</Link>
-          </span>
+          </span>,
         );
       } else {
         setError(res.msg || "Login failed");
