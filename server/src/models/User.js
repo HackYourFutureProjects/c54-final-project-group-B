@@ -1,33 +1,60 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
-import validateAllowedFields from "../util/validateAllowedFields.js";
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      minlength: 3,
+      maxlength: 30,
+      match: /^[a-zA-Z0-9]+$/,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      match: /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/,
+      trim: true,
+      lowercase: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 8,
+      select: false, // never return password by default
+    },
+    bio: {
+      type: String,
+      maxlength: 300,
+      default: "",
+    },
+    location: {
+      type: String,
+      default: "",
+    },
+    avatarUrl: {
+      type: String,
+      default: "",
+    },
+  },
+  { timestamps: true },
+);
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+// Hash password before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
 
-const User = mongoose.model("users", userSchema);
-
-export const validateUser = (userObject) => {
-  const errorList = [];
-  const allowedKeys = ["name", "email"];
-
-  const validatedKeysMessage = validateAllowedFields(userObject, allowedKeys);
-
-  if (validatedKeysMessage.length > 0) {
-    errorList.push(validatedKeysMessage);
-  }
-
-  if (userObject.name == null) {
-    errorList.push("name is a required field");
-  }
-
-  if (userObject.email == null) {
-    errorList.push("email is a required field");
-  }
-
-  return errorList;
+// Compare password method
+userSchema.methods.comparePassword = function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
+
+const User = mongoose.model("User", userSchema);
 
 export default User;
