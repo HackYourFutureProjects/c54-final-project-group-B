@@ -24,6 +24,16 @@ You probably want to set up your own personal mongodb database for your own usag
 
 There are two lines of `MONGODB_URL` in the `.env` file. This is because one should be used for `cypress` and the other for regular development. We've added an extra failsafe in the seeding code to only do that when connected to the `cypressDatabase` so that we don't accidentally erase someone's data.
 
+### 1.3 Authentication Development
+
+For the MVP, email verification uses a **5-digit code logged to the server console**.
+1. Sign up on the client (`/signup`).
+2. Check the terminal where `npm start` (server) is running.
+3. You will see: `Email sent to user@example.com with code: XXXXX`.
+4. Enther this code on the verification page (`/verify-code`).
+
+In production, this will be replaced by a real email service (SendGrid/Gmail).
+
 ## 2. Testing
 
 On both the client and the server side we use the `jest` framework for testing. As mentioned in the [README](./README.md) each side has their own extra libraries to mock out certain parts to create isolated tests. The jest configuration of each side is in the `jest.config.js` file.

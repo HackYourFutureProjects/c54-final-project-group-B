@@ -24,7 +24,14 @@ To run the app in dev mode you can run the following command in the main directo
 
 `npm run dev`
 
-## 2. Code structure
+## 2. Usage (Authentication MVP)
+
+1. **Sign Up**: Go to `/signup` and create an account.
+2. **Get Code**: Check your **server terminal**. You will see a 5-digit code logged there (e.g., `Email sent... code: 12345`).
+3. **Verify**: Enter the code on the `/verify-code` page.
+4. **Login**: Use your credentials to log in. (Unverified users are blocked).
+
+## 3. Code structure
 
 ```
 client
