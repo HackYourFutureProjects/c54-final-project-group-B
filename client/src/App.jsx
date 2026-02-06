@@ -5,6 +5,8 @@ import CreateUser from "./pages/User/CreateUser";
 import UserList from "./pages/User/UserList";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import VerifyEmail from "./pages/VerifyEmail";
+import ProtectedRoute from "./util/ProtectedRoute";
 
 const App = () => {
   return (
@@ -13,9 +15,14 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/user" element={<UserList />} />
-        <Route path="/user/create" element={<CreateUser />} />
+        <Route path="/user/create" element={
+          <ProtectedRoute>
+            <CreateUser />
+          </ProtectedRoute>
+        } />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
     </>
   );

@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import { generateTokenAndSetCookie } from "../util/generateToken.js";
 import { logError } from "../util/logging.js";
+import sendEmail from "../util/sendEmail.js";
+import sendCode from "../util/sendCode.js";
 import bcrypt from "bcrypt";
 
 // --- Signup ---
@@ -37,11 +39,30 @@ export const signup = async (req, res) => {
         .json({ success: false, msg: "Email or username already exists" });
     }
     const user = await User.create({ username, email, password });
+    
+    // Generate 5-digit verification code
+    const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    // Send verification code
+    await sendCode({ email: user.email, code: verificationCode });
+
     generateTokenAndSetCookie(res, user);
     const userObj = user.toObject();
     delete userObj.password;
-    res.status(201).json({ success: true, user: userObj });
+    delete userObj.verificationCode;
+    delete userObj.verificationCodeExpires;
+    
+    res.status(201).json({ 
+      success: true, 
+      user: userObj,
+      msg: "Account created! Check the server console for your 5-digit verification code." 
+    });
   } catch (error) {
+    console.error("Signup error details:", error.message);
+    console.error("Stack trace:", error.stack);
     logError(error);
     res
       .status(500)
@@ -75,6 +96,12 @@ export const login = async (req, res) => {
         .status(401)
         .json({ success: false, msg: "Invalid credentials" });
     }
+
+    // Check if user is verified
+    if (!user.isVerified) {
+      return res.status(401).json({ success: false, msg: "Please verify your email to login" });
+    }
+
     generateTokenAndSetCookie(res, user);
     const userObj = user.toObject();
     delete userObj.password;
@@ -130,5 +157,40 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     logError(error);
     res.status(500).json({ success: false, msg: "Unable to update profile" });
+  }
+};
+
+// --- Verify Email ---
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query.token ? req.query : req.body; // Support both query (link) and body (manual)
+    
+    // If getting from query, it might be ?token=xyz
+    const verificationToken = token || req.query.token;
+
+    if (!verificationToken) {
+      return res.status(400).json({ success: false, msg: "Verification token is required" });
+    }
+
+    // Find user with matching token and compatible expiry
+    const user = await User.findOne({
+      verificationToken,
+      verificationTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, msg: "Invalid or expired verification token" });
+    }
+
+    // Verify user
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ success: true, msg: "Email verified successfully. You can now login." });
+  } catch (error) {
+    logError(error);
+    res.status(500).json({ success: false, msg: "Unable to verify email" });
   }
 };
