@@ -6,6 +6,9 @@ import {
   getMe,
   updateProfile,
   verifyCode,
+  getAllUsers,
+  resendCode,
+  getVerificationStatus
 } from "../controllers/user.js";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -18,5 +21,10 @@ userRouter.post("/logout", requireAuth, logout);
 userRouter.get("/me", requireAuth, getMe);
 userRouter.put("/me", requireAuth, updateProfile);
 userRouter.post("/verify-code", verifyCode);
+userRouter.post("/resend-code", resendCode);
+userRouter.post("/verification-status", getVerificationStatus);
+
+// User List
+userRouter.get("/", getAllUsers);
 
 export default userRouter;

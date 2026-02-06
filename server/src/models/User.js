@@ -27,20 +27,24 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false, // never return password by default
     },
+    // Profile fields
+    city: {
+      type: String,
+      default: "",
+    },
+    country: {
+      type: String,
+      default: "",
+    },
     bio: {
       type: String,
-      maxlength: 300,
-      default: "",
+      default: "", // Optional
     },
-    location: {
+    profilePicture: {
       type: String,
       default: "",
     },
-    avatarUrl: {
-      type: String,
-      default: "",
-    },
-    // Email verification fields
+    // Email verification fields (MVP System)
     isVerified: {
       type: Boolean,
       default: false,
@@ -58,6 +62,14 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     verificationCodeExpires: {
+      type: Date,
+      default: null,
+    },
+    verificationRequestsCount: {
+      type: Number,
+      default: 0,
+    },
+    verificationRequestsStart: {
       type: Date,
       default: null,
     },
