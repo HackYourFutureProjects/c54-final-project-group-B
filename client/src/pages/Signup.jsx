@@ -16,29 +16,14 @@ const Signup = () => {
     setError("");
     const res = await signup(username, email, password);
     if (res.success) {
-      // Show success UI with token
-      setSuccessToken(res.token);
-      setError("");
+      // Redirect to VerifyCode page with email state
+      navigate("/verify-code", { state: { email: email } });
     } else {
       setError(res.msg || "Signup failed");
     }
   }
 
-  if (successToken) {
-    return (
-      <div className="auth-form-container">
-        <h2>Account Created!</h2>
-        <p>For MVP testing, here is your verification token:</p>
-        <div className="token-display" style={{ background: "#f0f0f0", padding: "10px", wordBreak: "break-all", margin: "10px 0" }}>
-          {successToken}
-        </div>
-        <p>
-          <a href={`/verify-email?token=${successToken}`}>Click here to verify</a>
-          <br />or copy the token and <a href="/verify-email">enter it manually</a>.
-        </p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="auth-form-container">

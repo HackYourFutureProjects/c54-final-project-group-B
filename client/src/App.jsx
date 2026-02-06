@@ -5,7 +5,7 @@ import CreateUser from "./pages/User/CreateUser";
 import UserList from "./pages/User/UserList";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import VerifyEmail from "./pages/VerifyEmail";
+import VerifyCode from "./pages/VerifyCode";
 import ProtectedRoute from "./util/ProtectedRoute";
 
 const App = () => {
@@ -22,7 +22,7 @@ const App = () => {
         } />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/verify-code" element={<VerifyCode />} />
       </Routes>
     </>
   );

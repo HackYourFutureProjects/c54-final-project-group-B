@@ -5,7 +5,7 @@ import {
   logout,
   getMe,
   updateProfile,
-  verifyEmail,
+  verifyCode,
 } from "../controllers/user.js";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -17,7 +17,6 @@ userRouter.post("/login", login);
 userRouter.post("/logout", requireAuth, logout);
 userRouter.get("/me", requireAuth, getMe);
 userRouter.put("/me", requireAuth, updateProfile);
-userRouter.get("/verify-email", verifyEmail);
-userRouter.post("/verify-email", verifyEmail); // Support POST as well if needed, but GET is standard for links
+userRouter.post("/verify-code", verifyCode);
 
 export default userRouter;
