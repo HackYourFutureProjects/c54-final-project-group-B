@@ -1,4 +1,3 @@
-
 import { AuthProvider } from "./context/AuthContext.jsx";
 
 /**

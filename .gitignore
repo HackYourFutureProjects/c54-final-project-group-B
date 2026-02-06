@@ -16,6 +16,8 @@ coverage
 cypress/videos
 cypress/screenshots
 
+# Planning and specification docs (local only)
+planning/
 
 # Logs
 logs
