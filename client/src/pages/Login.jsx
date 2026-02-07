@@ -32,25 +32,31 @@ const Login = () => {
     <div className="auth-form-container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <label>
+        <label htmlFor="emailOrUsername">
           Email or Username
-          <input
-            type="text"
-            value={emailOrUsername}
-            onChange={(e) => setEmailOrUsername(e.target.value)}
-            required
-            autoFocus
-          />
         </label>
-        <label>
+        <input
+          id="emailOrUsername"
+          name="emailOrUsername"
+          type="text"
+          value={emailOrUsername}
+          onChange={(e) => setEmailOrUsername(e.target.value)}
+          required
+          autoFocus
+          autoComplete="username"
+        />
+        <label htmlFor="password">
           Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
         </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+        />
         {error && <div className="error-msg">{error}</div>}
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}

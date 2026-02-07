@@ -89,99 +89,118 @@ const Signup = () => {
     <div className="auth-form-container">
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
-        <label>
+        <label htmlFor="username">
           Username
-          <input
-            name="username"
-            type="text"
-            value={formData.username}
-            onChange={handleChange}
-            required
-            minLength={3}
-            maxLength={30}
-            pattern="[a-zA-Z0-9]+"
-            title="3-30 alphanumeric characters"
-          />
         </label>
-        <label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          value={formData.username}
+          onChange={handleChange}
+          required
+          minLength={3}
+          maxLength={30}
+          pattern="[a-zA-Z0-9]+"
+          title="3-30 alphanumeric characters"
+          autoComplete="username"
+        />
+
+        <label htmlFor="email">
           Email
-          <input
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
         </label>
-        <label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          autoComplete="email"
+        />
+
+        <label htmlFor="password">
           Password
-          <input
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            minLength={8}
-          />
-          <small>Must include specific chars (Upper, Number, Symbol)</small>
         </label>
-        <label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+          minLength={8}
+          autoComplete="new-password"
+        />
+        <small>Must include specific chars (Upper, Number, Symbol)</small>
+
+        <label htmlFor="confirmPassword">
           Confirm Password
-          <input
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            minLength={8}
-          />
         </label>
-        <label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
+          minLength={8}
+          autoComplete="new-password"
+        />
+        <label htmlFor="country">
           Country
-          <select
-            name="country"
-            onChange={handleCountryChange}
-            value={selectedCountryCode}
-            required
-            style={{ width: "100%", padding: "0.5rem" }}
-          >
-            <option value="">Select Country</option>
-            {countries.map((country) => (
-              <option key={country.isoCode} value={country.isoCode}>
-                {country.name}
-              </option>
-            ))}
-          </select>
         </label>
-        <label>
+        <select
+          id="country"
+          name="country"
+          onChange={handleCountryChange}
+          value={selectedCountryCode}
+          required
+          style={{ width: "100%", padding: "0.5rem" }}
+          autoComplete="country-name"
+        >
+          <option value="">Select Country</option>
+          {countries.map((country) => (
+            <option key={country.isoCode} value={country.isoCode}>
+              {country.name}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="city">
           City
-          <select
-            name="city"
-            onChange={handleCityChange}
-            value={formData.city}
-            required
-            disabled={!selectedCountryCode}
-            style={{ width: "100%", padding: "0.5rem" }}
-          >
-            <option value="">Select City</option>
-            {cities.map((city, index) => (
-              <option key={`${city.name}-${index}`} value={city.name}>
-                {city.name}
-              </option>
-            ))}
-          </select>
         </label>
-        <label>
+        <select
+          id="city"
+          name="city"
+          onChange={handleCityChange}
+          value={formData.city}
+          required
+          disabled={!selectedCountryCode}
+          style={{ width: "100%", padding: "0.5rem" }}
+          autoComplete="address-level2"
+        >
+          <option value="">Select City</option>
+          {cities.map((city, index) => (
+            <option key={`${city.name}-${index}`} value={city.name}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="bio">
           Bio
-          <textarea
-            name="bio"
-            value={formData.bio}
-            onChange={handleChange}
-            required
-            rows="3"
-            style={{ width: "100%", padding: "0.5rem" }}
-          />
         </label>
+        <textarea
+          id="bio"
+          name="bio"
+          value={formData.bio}
+          onChange={handleChange}
+          required
+          rows="3"
+          style={{ width: "100%", padding: "0.5rem" }}
+          autoComplete="off"
+        />
         {error && <div className="error-msg">{error}</div>}
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Signing up..." : "Sign Up"}

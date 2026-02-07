@@ -128,30 +128,37 @@ const VerifyCode = () => {
       <h2>Verify Code</h2>
       <p>Enter the 5-digit code sent to the server console.</p>
       <form onSubmit={handleSubmit}>
-        <label>
+        <label htmlFor="email">
           Email
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="Enter your email"
-          />
         </label>
-        <label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          placeholder="Enter your email"
+          autoComplete="email"
+        />
+
+        <label htmlFor="code">
           Verification Code
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-            maxLength={5}
-            minLength={5}
-            placeholder="12345"
-            pattern="\d{5}"
-            title="5-digit numeric code"
-          />
         </label>
+        <input
+          id="code"
+          name="code"
+          type="text"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          required
+          maxLength={5}
+          minLength={5}
+          placeholder="12345"
+          pattern="\d{5}"
+          title="5-digit numeric code"
+          autoComplete="one-time-code"
+        />
         {error && <div className="error-msg">{error}</div>}
         {success && <div className="success-msg">{success}</div>}
         <button type="submit" disabled={isLoading}>
