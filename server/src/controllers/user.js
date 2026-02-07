@@ -155,12 +155,15 @@ export const logout = (req, res) => {
 
 // --- Get Current User ---
 export const getMe = (req, res) => {
+  // tryAuth middleware ensures req.user is either the user object or null/undefined
   if (!req.user) {
-    return res.status(401).json({ success: false, msg: "Not authenticated" });
+    // Return 200 OK, but with success:false or user:null
+    // This allows the frontend to know "request succeeded, but user is not logged in" without a 401 error
+    return res.status(200).json({ success: true, isAuthenticated: false, user: null });
   }
   const userObj = req.user.toObject ? req.user.toObject() : req.user;
   delete userObj.password;
-  res.status(200).json({ success: true, user: userObj });
+  res.status(200).json({ success: true, isAuthenticated: true, user: userObj });
 };
 
 // --- Update Profile ---

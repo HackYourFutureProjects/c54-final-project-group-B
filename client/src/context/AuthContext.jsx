@@ -13,20 +13,24 @@ export function AuthProvider({ children }) {
       setIsLoading(true);
       try {
         const res = await fetch("/api/users/me", { credentials: "include" });
-        if (res.status === 401) {
-          // Suppress error: do not log or throw
-          setUser(null);
-          setIsAuthenticated(false);
-        } else if (res.ok) {
+        // Response is always 200 now, even if not logged in
+        if (res.ok) {
           const data = await res.json();
-          setUser(data.user);
-          setIsAuthenticated(true);
+          // Check for the user object or isAuthenticated flag
+          if (data.user) {
+            setUser(data.user);
+            setIsAuthenticated(true);
+          } else {
+            // Server returned 200 but said user is null
+            setUser(null);
+            setIsAuthenticated(false);
+          }
         } else {
+            // Fallback for true errors (500, etc)
           setUser(null);
           setIsAuthenticated(false);
         }
       } catch (e) {
-        // Suppress all fetch errors (network, etc.)
         setUser(null);
         setIsAuthenticated(false);
       } finally {
