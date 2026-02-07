@@ -1,8 +1,10 @@
-
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 import User from "./src/models/User.js";
 
-const uri = "process.env.MONGODB_URI";
+dotenv.config();
+
+const uri = process.env.MONGODB_URI;
 
 const viewUsers = async () => {
   try {

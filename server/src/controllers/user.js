@@ -1,7 +1,6 @@
 import User from "../models/User.js";
 import { generateTokenAndSetCookie } from "../util/generateToken.js";
 import { logError } from "../util/logging.js";
-import sendEmail from "../util/sendEmail.js";
 import sendCode from "../util/sendCode.js";
 import bcrypt from "bcrypt";
 
@@ -11,7 +10,7 @@ import { Filter } from "bad-words";
 export const signup = async (req, res) => {
   try {
     const { username, email, password, city, country, bio } = req.body;
-    
+
     // 1. Check Required Fields
     if (!username || !email || !password || !city || !country || !bio) {
       return res
@@ -22,7 +21,10 @@ export const signup = async (req, res) => {
     // 2. Profanity Check
     const filter = new Filter();
     if (filter.isProfane(username) || filter.isProfane(bio)) {
-      return res.status(400).json({ success: false, msg: "Username or Bio contains inappropriate language" });
+      return res.status(400).json({
+        success: false,
+        msg: "Username or Bio contains inappropriate language",
+      });
     }
 
     // 3. Username Format
@@ -33,14 +35,15 @@ export const signup = async (req, res) => {
     }
 
     // 4. Email Format
-    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+    if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
       return res
         .status(400)
         .json({ success: false, msg: "Invalid email format" });
     }
 
     // 5. Password Complexity
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
         success: false,
@@ -54,20 +57,22 @@ export const signup = async (req, res) => {
         .status(409)
         .json({ success: false, msg: "Email or username already exists" });
     }
-    const user = await User.create({ 
-      username, 
-      email, 
+    const user = await User.create({
+      username,
+      email,
       password,
       city,
       country,
       bio,
       profilePicture: "",
       verificationRequestsCount: 1,
-      verificationRequestsStart: Date.now() 
+      verificationRequestsStart: Date.now(),
     });
-    
+
     // Generate 5-digit verification code
-    const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+    const verificationCode = Math.floor(
+      10000 + Math.random() * 90000,
+    ).toString();
     user.verificationCode = verificationCode;
     user.verificationCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
@@ -77,21 +82,20 @@ export const signup = async (req, res) => {
 
     // No auto-login after signup. User must verify first.
     // generateTokenAndSetCookie(res, user);
-    
+
     const userObj = user.toObject();
     delete userObj.password;
     delete userObj.verificationCode;
     delete userObj.verificationCodeExpires;
-    
-    res.status(201).json({ 
-      success: true, 
+
+    res.status(201).json({
+      success: true,
       user: userObj,
       msg: "Account created! Check the server console for your 5-digit verification code.",
-      verificationCode: verificationCode // For MVP testing convenience 
+      verificationCode: verificationCode, // For MVP testing convenience
     });
   } catch (error) {
-    console.error("Signup error details:", error.message);
-    console.error("Stack trace:", error.stack);
+    // Error details are handled by logError utility
     logError(error);
     res
       .status(500)
@@ -128,7 +132,9 @@ export const login = async (req, res) => {
 
     // Check if user is verified
     if (!user.isVerified) {
-      return res.status(401).json({ success: false, msg: "Please verify your email to login" });
+      return res
+        .status(401)
+        .json({ success: false, msg: "Please verify your email to login" });
     }
 
     generateTokenAndSetCookie(res, user);
@@ -159,7 +165,9 @@ export const getMe = (req, res) => {
   if (!req.user) {
     // Return 200 OK, but with success:false or user:null
     // This allows the frontend to know "request succeeded, but user is not logged in" without a 401 error
-    return res.status(200).json({ success: true, isAuthenticated: false, user: null });
+    return res
+      .status(200)
+      .json({ success: true, isAuthenticated: false, user: null });
   }
   const userObj = req.user.toObject ? req.user.toObject() : req.user;
   delete userObj.password;
@@ -193,40 +201,56 @@ export const updateProfile = async (req, res) => {
 };
 
 // --- Verify 5-Digit Code ---
+// This function handles the verification of the 5-digit code sent to the user's email.
+// It checks if the code is correct and not expired.
 export const verifyCode = async (req, res) => {
   try {
     const { email, code } = req.body;
-    
+
+    // Check if both email and code are provided
     if (!email || !code) {
-      return res.status(400).json({ success: false, msg: "Email and code are required" });
+      return res
+        .status(400)
+        .json({ success: false, msg: "Email and code are required" });
     }
 
+    // Find the user by email
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    // If user is not found, return error
     if (!user) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
 
+    // If user is already verified, return success message
     if (user.isVerified) {
-      return res.status(200).json({ success: true, msg: "Email already verified" });
+      return res
+        .status(200)
+        .json({ success: true, msg: "Email already verified" });
     }
 
+    // Check if the code matches and is not expired
     if (
       !user.verificationCode ||
       user.verificationCode !== code ||
       user.verificationCodeExpires < Date.now()
     ) {
-      return res.status(400).json({ success: false, msg: "Invalid or expired code" });
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid or expired code" });
     }
 
-    // Verify user
+    // Mark user as verified and clear the verification code
     user.isVerified = true;
     user.verificationCode = undefined;
     user.verificationCodeExpires = undefined;
     // user.verificationRequestsCount = 0; // Optional: Reset on success? No requirement, but good practice.
     await user.save();
 
-    res.status(200).json({ success: true, msg: "Email verified successfully. You can now login." });
+    res.status(200).json({
+      success: true,
+      msg: "Email verified successfully. You can now login.",
+    });
   } catch (error) {
     logError(error);
     res.status(500).json({ success: false, msg: "Unable to verify code" });
@@ -250,18 +274,23 @@ export const resendCode = async (req, res) => {
     }
 
     // 1. Check if current code is still valid (Wait 15 mins rule)
-    if (user.verificationCodeExpires && user.verificationCodeExpires > Date.now()) {
-      const remaining = Math.ceil((user.verificationCodeExpires - Date.now()) / 1000 / 60);
-      return res.status(400).json({ 
-        success: false, 
-        msg: `Please wait ${remaining} minutes before requesting a new code.` 
+    if (
+      user.verificationCodeExpires &&
+      user.verificationCodeExpires > Date.now()
+    ) {
+      const remaining = Math.ceil(
+        (user.verificationCodeExpires - Date.now()) / 1000 / 60,
+      );
+      return res.status(400).json({
+        success: false,
+        msg: `Please wait ${remaining} minutes before requesting a new code.`,
       });
     }
 
     // 2. Rate Limiting (3 per 8 hours)
     const EIGHT_HOURS = 8 * 60 * 60 * 1000;
     const now = Date.now();
-    
+
     // Initialize if missing (backward compatibility)
     if (!user.verificationRequestsStart) {
       user.verificationRequestsStart = now;
@@ -276,14 +305,16 @@ export const resendCode = async (req, res) => {
     }
 
     if (user.verificationRequestsCount >= 3) {
-      return res.status(429).json({ 
-        success: false, 
-        msg: "Limit exceeded. You cannot sign up/resend code. Try again tomorrow (in 8 hours)." 
+      return res.status(429).json({
+        success: false,
+        msg: "Limit exceeded. You cannot sign up/resend code. Try again tomorrow (in 8 hours).",
       });
     }
 
     // Generate New Code
-    const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+    const verificationCode = Math.floor(
+      10000 + Math.random() * 90000,
+    ).toString();
     user.verificationCode = verificationCode;
     user.verificationCodeExpires = now + 15 * 60 * 1000;
     user.verificationRequestsCount += 1;
@@ -291,13 +322,12 @@ export const resendCode = async (req, res) => {
 
     await sendCode({ email: user.email, code: verificationCode });
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       msg: "New code sent! Check server console.",
       nextExpiry: user.verificationCodeExpires,
-      verificationCode: verificationCode // For MVP testing convenience 
+      verificationCode: verificationCode, // For MVP testing convenience
     });
-
   } catch (error) {
     logError(error);
     res.status(500).json({ success: false, msg: "Unable to resend code" });
@@ -316,17 +346,19 @@ export const getVerificationStatus = async (req, res) => {
     res.status(200).json({
       success: true,
       expiresAt: user.verificationCodeExpires,
-      isVerified: user.isVerified
+      isVerified: user.isVerified,
     });
-  } catch(error) {
-    console.error(error);
+  } catch (error) {
+    // Error is handled by logError utility
     res.status(500).json({ success: false });
   }
 };
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select("username email isVerified avatarUrl");
+    const users = await User.find({}).select(
+      "username email isVerified avatarUrl",
+    );
     res.status(200).json({ success: true, result: users });
   } catch (error) {
     logError(error);

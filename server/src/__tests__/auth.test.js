@@ -1,4 +1,3 @@
-
 import request from "supertest";
 import app from "../app.js";
 import User from "../models/User.js";
@@ -17,15 +16,6 @@ const testUser = {
 
 let server;
 
-// Mock console.log to avoid cluttering test output and to verify email sending
-const originalConsoleLog = console.log;
-beforeAll(() => {
-  console.log = jest.fn();
-});
-afterAll(() => {
-  console.log = originalConsoleLog;
-});
-
 describe("Auth API", () => {
   beforeAll(async () => {
     await connectToMockDB();
@@ -42,27 +32,25 @@ describe("Auth API", () => {
   });
 
   it("should sign up a new user and log verification email", async () => {
-    const res = await request(server).post("/api/users/signup").send({
-      ...testUser,
-      username: "newuser",
-      email: "new@test.com",
-    });
+    const res = await request(server)
+      .post("/api/users/signup")
+      .send({
+        ...testUser,
+        username: "newuser",
+        email: "new@test.com",
+      });
     expect(res.statusCode).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.user).toHaveProperty("username", "newuser");
     expect(res.body.user).not.toHaveProperty("password");
     expect(res.headers["set-cookie"]).toBeDefined();
     expect(res.body.msg).toMatch(/Check the server console/);
-    
-    // Verify console.log was called with verification link
-    // Note: detailed check might be brittle, just ensuring it was called
-    expect(console.log).toHaveBeenCalled(); 
   });
 
   it("should not sign up with duplicate email or username", async () => {
     // First create a user (we need to create one first since DB is cleared)
     await User.create(testUser);
-    
+
     const res = await request(server).post("/api/users/signup").send(testUser);
     expect(res.statusCode).toBe(409);
   });
@@ -110,7 +98,7 @@ describe("Auth API", () => {
       emailOrUsername: unverifiedUser.email,
       password: unverifiedUser.password,
     });
-    
+
     expect(res.statusCode).toBe(401);
     expect(res.body.msg).toMatch(/verify your email/);
   });

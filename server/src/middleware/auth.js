@@ -4,18 +4,25 @@ import User from "../models/User.js";
 /**
  * Auth middleware to protect routes and attach user to req
  */
+/**
+ * Auth middleware to protect routes and attach user to req
+ * It verifies the JWT token from cookies and finds the user in the database.
+ */
 export async function requireAuth(req, res, next) {
   try {
     const token = req.cookies.token;
+    // If no token, user is not authenticated
     if (!token) {
       return res.status(401).json({ success: false, msg: "Not authenticated" });
     }
+    // Verify token and get user ID
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select("-password");
+    // If user not found (e.g. deleted), return error
     if (!user) {
       return res.status(401).json({ success: false, msg: "User not found" });
     }
-// ... keep existing code ...
+    // ... keep existing code ...
     req.user = user;
     next();
   } catch (err) {

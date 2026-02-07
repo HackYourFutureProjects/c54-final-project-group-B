@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const VerifyCode = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Keep this line as it is used
   const location = useLocation();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -25,24 +25,24 @@ const VerifyCode = () => {
       fetch("/api/users/verification-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.expiresAt) {
-          const expires = new Date(data.expiresAt).getTime();
-          const now = Date.now();
-          const diff = Math.ceil((expires - now) / 1000);
-          if (diff > 0) {
-            setCountdown(diff);
-            setCanResend(false);
-          } else {
-            setCountdown(0);
-            setCanResend(true);
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.expiresAt) {
+            const expires = new Date(data.expiresAt).getTime();
+            const now = Date.now();
+            const diff = Math.ceil((expires - now) / 1000);
+            if (diff > 0) {
+              setCountdown(diff);
+              setCanResend(false);
+            } else {
+              setCountdown(0);
+              setCanResend(true);
+            }
           }
-        }
-      })
-      .catch(err => console.error(err));
+        })
+        .catch((err) => console.error(err));
     }
   }, [email]);
 
@@ -53,7 +53,7 @@ const VerifyCode = () => {
       return;
     }
     const timer = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev <= 1) {
           setCanResend(true);
           return 0;
@@ -67,7 +67,7 @@ const VerifyCode = () => {
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
   const handleResend = async () => {
@@ -82,21 +82,21 @@ const VerifyCode = () => {
       const data = await res.json();
       if (data.success) {
         setSuccess(data.msg);
-        if (data.verificationCode) console.log("Your Code:", data.verificationCode);
+        if (data.verificationCode)
+          console.log("Your Code:", data.verificationCode);
         // Reset countdown to 15 mins (900s)
-        setCountdown(900); 
+        setCountdown(900);
         setCanResend(false);
       } else {
         setError(data.msg);
       }
-    } catch (err) {
+    } catch {
       setError("Resend failed");
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleSubmit = async () => {
+    setIsLoading(true); // Removed e.preventDefault() as it is not needed
     setError("");
     setSuccess("");
 
@@ -116,7 +116,7 @@ const VerifyCode = () => {
       } else {
         setError(data.msg || "Verification failed");
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -128,9 +128,7 @@ const VerifyCode = () => {
       <h2>Verify Code</h2>
       <p>Enter the 5-digit code sent to the server console.</p>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="email">
-          Email
-        </label>
+        <label htmlFor="email">Email</label>
         <input
           id="email"
           name="email"
@@ -142,9 +140,7 @@ const VerifyCode = () => {
           autoComplete="email"
         />
 
-        <label htmlFor="code">
-          Verification Code
-        </label>
+        <label htmlFor="code">Verification Code</label>
         <input
           id="code"
           name="code"
@@ -168,20 +164,22 @@ const VerifyCode = () => {
 
       <div style={{ marginTop: "1rem", textAlign: "center" }}>
         {countdown > 0 ? (
-           <p style={{ color: "#666" }}>Resend available in: {formatTime(countdown)}</p>
+          <p style={{ color: "#666" }}>
+            Resend available in: {formatTime(countdown)}
+          </p>
         ) : (
-           <button 
-             onClick={handleResend} 
-             disabled={!canResend}
-             style={{ 
-               backgroundColor: "#f0f0f0", 
-               color: "#333", 
-               border: "1px solid #ccc",
-               marginTop: "10px"
-             }}
-           >
-             Resend Code
-           </button>
+          <button
+            onClick={handleResend}
+            disabled={!canResend}
+            style={{
+              backgroundColor: "#f0f0f0",
+              color: "#333",
+              border: "1px solid #ccc",
+              marginTop: "10px",
+            }}
+          >
+            Resend Code
+          </button>
         )}
       </div>
     </div>

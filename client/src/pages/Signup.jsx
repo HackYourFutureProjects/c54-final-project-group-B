@@ -44,7 +44,7 @@ const Signup = () => {
     setFormData({
       ...formData,
       country: country ? country.name : "",
-      city: "", // Reset city
+      city: "", // Reset city when country changes
     });
   }
 
@@ -56,13 +56,13 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
-    // Frontend Checks
+    // Frontend Checks: Passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    // Complexity Check (basic regex matching backend)
+    // Complexity Check (basic regex matching backend requirements)
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
@@ -72,12 +72,13 @@ const Signup = () => {
       return;
     }
 
-    // Prepare data (exclude confirmPassword)
+    // Prepare data (exclude confirmPassword) and call signup
     const res = await signup({
       ...formData,
       // confirmPassword is not sent to backend
     });
     if (res.success) {
+      // If successful, redirect to verification page
       if (res.verificationCode) console.log("Your Code:", res.verificationCode);
       navigate("/verify-code", { state: { email: formData.email } });
     } else {
@@ -89,9 +90,7 @@ const Signup = () => {
     <div className="auth-form-container">
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="username">
-          Username
-        </label>
+        <label htmlFor="username">Username</label>
         <input
           id="username"
           name="username"
@@ -106,9 +105,7 @@ const Signup = () => {
           autoComplete="username"
         />
 
-        <label htmlFor="email">
-          Email
-        </label>
+        <label htmlFor="email">Email</label>
         <input
           id="email"
           name="email"
@@ -119,9 +116,7 @@ const Signup = () => {
           autoComplete="email"
         />
 
-        <label htmlFor="password">
-          Password
-        </label>
+        <label htmlFor="password">Password</label>
         <input
           id="password"
           name="password"
@@ -134,9 +129,7 @@ const Signup = () => {
         />
         <small>Must include specific chars (Upper, Number, Symbol)</small>
 
-        <label htmlFor="confirmPassword">
-          Confirm Password
-        </label>
+        <label htmlFor="confirmPassword">Confirm Password</label>
         <input
           id="confirmPassword"
           name="confirmPassword"
@@ -147,9 +140,7 @@ const Signup = () => {
           minLength={8}
           autoComplete="new-password"
         />
-        <label htmlFor="country">
-          Country
-        </label>
+        <label htmlFor="country">Country</label>
         <select
           id="country"
           name="country"
@@ -167,9 +158,7 @@ const Signup = () => {
           ))}
         </select>
 
-        <label htmlFor="city">
-          City
-        </label>
+        <label htmlFor="city">City</label>
         <select
           id="city"
           name="city"
@@ -188,9 +177,7 @@ const Signup = () => {
           ))}
         </select>
 
-        <label htmlFor="bio">
-          Bio
-        </label>
+        <label htmlFor="bio">Bio</label>
         <textarea
           id="bio"
           name="bio"

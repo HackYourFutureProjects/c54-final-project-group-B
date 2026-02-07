@@ -4,10 +4,9 @@ import App from "./App.jsx";
 import AppWrapper from "./AppWrapper";
 
 // Suppress external extension errors (e.g., page-events.js)
-window.onerror = function (message, source, lineno, colno, error) {
+window.onerror = function (message) {
   if (message && message.toString().includes("reading 'length'")) {
-    // Return true to prevent default browser error logging
-    return true; 
+    return true;
   }
   return false;
 };

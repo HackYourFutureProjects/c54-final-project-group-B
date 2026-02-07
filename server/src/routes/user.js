@@ -8,7 +8,7 @@ import {
   verifyCode,
   getAllUsers,
   resendCode,
-  getVerificationStatus
+  getVerificationStatus,
 } from "../controllers/user.js";
 import { requireAuth, tryAuth } from "../middleware/auth.js";
 

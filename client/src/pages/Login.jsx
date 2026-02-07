@@ -14,8 +14,10 @@ const Login = () => {
     setError("");
     const res = await login(emailOrUsername, password);
     if (res.success) {
+      // If login successful, go to home
       navigate("/");
     } else {
+      // Handle unverified user case
       if (res.msg === "Please verify your email to login") {
         setError(
           <span>
@@ -32,9 +34,7 @@ const Login = () => {
     <div className="auth-form-container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="emailOrUsername">
-          Email or Username
-        </label>
+        <label htmlFor="emailOrUsername">Email or Username</label>
         <input
           id="emailOrUsername"
           name="emailOrUsername"
@@ -45,9 +45,7 @@ const Login = () => {
           autoFocus
           autoComplete="username"
         />
-        <label htmlFor="password">
-          Password
-        </label>
+        <label htmlFor="password">Password</label>
         <input
           id="password"
           name="password"

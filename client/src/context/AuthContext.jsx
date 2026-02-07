@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check auth status on mount
+  // This effect runs once when the component mounts to check if the user is already logged in.
   useEffect(() => {
     async function fetchMe() {
       setIsLoading(true);
@@ -21,16 +22,16 @@ export function AuthProvider({ children }) {
             setUser(data.user);
             setIsAuthenticated(true);
           } else {
-            // Server returned 200 but said user is null
+            // Server returned 200 but said user is null (not logged in)
             setUser(null);
             setIsAuthenticated(false);
           }
         } else {
-            // Fallback for true errors (500, etc)
+          // Fallback for true errors (500, etc)
           setUser(null);
           setIsAuthenticated(false);
         }
-      } catch (e) {
+      } catch {
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -41,6 +42,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Login function
+  // Sends login credentials to the server and updates state if successful.
   async function login(emailOrUsername, password) {
     setIsLoading(true);
     const res = await fetch("/api/users/login", {
@@ -63,6 +65,7 @@ export function AuthProvider({ children }) {
   }
 
   // Signup function
+  // Registers a new user. It does NOT automatically log them in; they must verify email first.
   async function signup(userData) {
     setIsLoading(true);
     const res = await fetch("/api/users/signup", {
@@ -83,9 +86,7 @@ export function AuthProvider({ children }) {
 
     if (res.ok) {
       // Do not log in immediately. Wait for verification.
-      // const data = await res.json();
-      // setUser(data.user);
-      // setIsAuthenticated(true);
+      // The backend returns the user object and verification details.
       const data = await res.json();
       setIsLoading(false);
       return { success: true, ...data };
@@ -130,6 +131,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }
