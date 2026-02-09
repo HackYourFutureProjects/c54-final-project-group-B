@@ -1,8 +1,6 @@
 import User from "../models/User.js";
-import { generateTokenAndSetCookie } from "../util/generateToken.js";
 import { logError } from "../util/logging.js";
 import sendCode from "../util/sendCode.js";
-import bcrypt from "bcrypt";
 
 import { Filter } from "bad-words";
 
@@ -105,4 +103,3 @@ export const signup = async (req, res) => {
 
 // --- Login/Logout/Profile/Verification ---
 // These features will be added in subsequent PRs.
-
