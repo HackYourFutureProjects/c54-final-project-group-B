@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Nav from "./components/Nav";
 import Home from "./pages/Home/Home";
 import CreateUser from "./pages/User/CreateUser";
+import Signup from "./pages/Signup";
 import UserList from "./pages/User/UserList";
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/user" element={<UserList />} />
         <Route path="/user/create" element={<CreateUser />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </>
   );

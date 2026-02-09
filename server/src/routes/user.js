@@ -1,9 +1,31 @@
 import express from "express";
-import { createUser, getUsers } from "../controllers/user.js";
+import {
+  signup,
+  login,
+  logout,
+  getMe,
+  updateProfile,
+  verifyCode,
+  getAllUsers,
+  resendCode,
+  getVerificationStatus,
+} from "../controllers/user.js";
+import { requireAuth, tryAuth } from "../middleware/auth.js";
 
 const userRouter = express.Router();
 
-userRouter.get("/", getUsers);
-userRouter.post("/", createUser);
+// Auth routes
+// Auth routes
+userRouter.post("/signup", signup);
+// userRouter.post("/login", login);
+// userRouter.post("/logout", requireAuth, logout);
+// userRouter.get("/me", tryAuth, getMe);
+// userRouter.put("/me", requireAuth, updateProfile);
+// userRouter.post("/verify-code", verifyCode);
+// userRouter.post("/resend-code", resendCode);
+// userRouter.post("/verification-status", getVerificationStatus);
+
+// User List
+// userRouter.get("/", getAllUsers);
 
 export default userRouter;
