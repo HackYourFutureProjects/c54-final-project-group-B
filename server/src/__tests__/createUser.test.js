@@ -22,110 +22,106 @@ afterAll(async () => {
   await closeMockDatabase();
 });
 
-const testUserBase = { name: "John", email: "john@doe.com" };
+const testUserBase = {
+  name: "John",
+  email: "john@doe.com",
+  password: "password123",
+  city: "Amsterdam",
+  country: "Netherlands",
+  bio: "Hello",
+};
 
 describe("POST /api/users", () => {
-  it("Should return a bad request if no user object is given", (done) => {
-    request
-      .post("/api/users")
-      .then((response) => {
-        expect(response.status).toBe(400);
-
-        const { body } = response;
-        expect(body.success).toBe(false);
-        // Check that there is an error message
-        expect(body.msg.length).not.toBe(0);
-
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
+  it("Should return a bad request if no user object is given", async () => {
+    const response = await request.post("/api/users");
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg.length).not.toBe(0);
   });
 
-  it("Should return a bad request if the user object does not have a name", (done) => {
-    const testUser = { email: testUserBase.email };
-
-    request
-      .post("/api/users")
-      .send({ user: testUser })
-      .then((response) => {
-        expect(response.status).toBe(400);
-
-        const { body } = response;
-        expect(body.success).toBe(false);
-        // Check that there is an error message
-        expect(body.msg.length).not.toBe(0);
-
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
-  });
-
-  it("Should return a bad request if the user object does not have an email", (done) => {
-    const testUser = { name: testUserBase.name };
-
-    request
-      .post("/api/users")
-      .send({ user: testUser })
-      .then((response) => {
-        expect(response.status).toBe(400);
-
-        const { body } = response;
-        expect(body.success).toBe(false);
-        // Check that there is an error message
-        expect(body.msg.length).not.toBe(0);
-
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
-  });
-
-  it("Should return a bad request if the user object has extra fields", (done) => {
-    const testUser = { ...testUserBase, foo: "bar" };
-
-    request
-      .post("/api/users")
-      .send({ user: testUser })
-      .then((response) => {
-        expect(response.status).toBe(400);
-
-        const { body } = response;
-        expect(body.success).toBe(false);
-        // Check that there is an error message
-        expect(body.msg.length).not.toBe(0);
-
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
-  });
-
-  it("Should return a success state if a correct user is given", async () => {
+  it("Should return a bad request if the user object does not have a name", async () => {
     const testUser = { ...testUserBase };
+    delete testUser.name;
+    const response = await request.post("/api/users").send({ user: testUser });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg).toContain("name");
+  });
 
-    return request
+  it("Should return a bad request if the user object does not have an email", async () => {
+    const testUser = { ...testUserBase };
+    delete testUser.email;
+    const response = await request.post("/api/users").send({ user: testUser });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg).toContain("email");
+  });
+
+  it("Should return a bad request if the user object does not have a password", async () => {
+    const testUser = { ...testUserBase };
+    delete testUser.password;
+    const response = await request.post("/api/users").send({ user: testUser });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg).toContain("password");
+  });
+
+  it("Should return a bad request if the user object does not have a city", async () => {
+    const testUser = { ...testUserBase };
+    delete testUser.city;
+    const response = await request.post("/api/users").send({ user: testUser });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg).toContain("city");
+  });
+
+  it("Should return a bad request if the user object does not have a country", async () => {
+    const testUser = { ...testUserBase };
+    delete testUser.country;
+    const response = await request.post("/api/users").send({ user: testUser });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg).toContain("country");
+  });
+
+  it("Should return a bad request if the user object has extra fields", async () => {
+    const testUser = { ...testUserBase, foo: "bar" };
+    const response = await request.post("/api/users").send({ user: testUser });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg).toContain("foo");
+  });
+
+  it("Should return a success state if a correct user is given and verify password hashing", async () => {
+    const response = await request
       .post("/api/users")
-      .send({ user: testUser })
-      .then((response) => {
-        expect(response.status).toBe(201);
+      .send({ user: testUserBase });
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
 
-        const { body } = response;
-        expect(body.success).toBe(true);
-        expect(body.user.name).toEqual(testUser.name);
-        expect(body.user.email).toEqual(testUser.email);
+    const { user } = response.body;
+    expect(user.name).toEqual(testUserBase.name);
+    expect(user.email).toEqual(testUserBase.email);
+    // Password should trigger be removed from response
+    expect(user.password).toBeUndefined();
 
-        // Check that it was added to the DB
-        return findUserInMockDB(body.user._id);
-      })
-      .then((userInDb) => {
-        expect(userInDb.name).toEqual(testUser.name);
-        expect(userInDb.email).toEqual(testUser.email);
-      });
+    // Check DB for hashing
+    const userInDb = await findUserInMockDB(user._id);
+    expect(userInDb.name).toEqual(testUserBase.name);
+    expect(userInDb.email).toEqual(testUserBase.email);
+    expect(userInDb.password).not.toEqual(testUserBase.password); // Should be hashed
+    expect(userInDb.password).toMatch(/^\$2b\$/); // bcrypt hash format
+  });
+
+  it("Should failing if email already exists", async () => {
+    // effective only because we clear DB between tests, otherwise we need a unique email
+    await request.post("/api/users").send({ user: testUserBase });
+
+    const response = await request
+      .post("/api/users")
+      .send({ user: testUserBase });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.msg).toEqual("Email already in use");
   });
 });
