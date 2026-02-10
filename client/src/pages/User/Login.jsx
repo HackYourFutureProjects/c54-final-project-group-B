@@ -31,7 +31,7 @@ const Login = () => {
 
   const validateForm = () => {
     if (!email.trim()) {
-      setValidationError("Email is required");
+      setValidationError("Email or Username is required");
       return false;
     }
     if (!password) {
@@ -75,10 +75,10 @@ const Login = () => {
       <form onSubmit={handleSubmit} noValidate className={styles.formContainer}>
         <InputField
           name="email"
-          type="email"
+          type="text"
           value={email}
           onChange={setEmail}
-          placeholder="Email"
+          placeholder="Email or Username"
         />
         <InputField
           name="password"

@@ -65,7 +65,9 @@ export const createUser = async (req, res) => {
   } catch (error) {
     logError(error);
     if (error.code === 11000) {
-      res.status(400).json({ success: false, msg: "Email already in use" });
+      res
+        .status(400)
+        .json({ success: false, msg: "Email or Name already in use" });
       return;
     }
     res
@@ -85,7 +87,9 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [{ email: email }, { name: email }],
+    });
 
     if (!user) {
       return res
