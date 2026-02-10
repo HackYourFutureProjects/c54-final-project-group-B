@@ -1,5 +1,11 @@
 import { validateListing } from "../models/Listing.js";
 
+// Helper to create listing without specific field
+const omit = (obj, key) => {
+  const { [key]: _, ...rest } = obj;
+  return rest;
+};
+
 describe("Listing Model", () => {
   describe("validateListing", () => {
     const validListing = {
@@ -26,20 +32,17 @@ describe("Listing Model", () => {
     });
 
     it("should return error when title is missing", () => {
-      const { title: _, ...listing } = validListing;
-      const errors = validateListing(listing);
+      const errors = validateListing(omit(validListing, "title"));
       expect(errors).toContain("title is a required field");
     });
 
     it("should return error when description is missing", () => {
-      const { description: _, ...listing } = validListing;
-      const errors = validateListing(listing);
+      const errors = validateListing(omit(validListing, "description"));
       expect(errors).toContain("description is a required field");
     });
 
     it("should return error when price is missing", () => {
-      const { price: _, ...listing } = validListing;
-      const errors = validateListing(listing);
+      const errors = validateListing(omit(validListing, "price"));
       expect(errors).toContain("price is a required field");
     });
 
@@ -68,14 +71,12 @@ describe("Listing Model", () => {
     });
 
     it("should return error when ownerId is missing", () => {
-      const { ownerId: _, ...listing } = validListing;
-      const errors = validateListing(listing);
+      const errors = validateListing(omit(validListing, "ownerId"));
       expect(errors).toContain("ownerId is a required field");
     });
 
     it("should return error when location is missing", () => {
-      const { location: _, ...listing } = validListing;
-      const errors = validateListing(listing);
+      const errors = validateListing(omit(validListing, "location"));
       expect(errors).toContain("location is a required field");
     });
 

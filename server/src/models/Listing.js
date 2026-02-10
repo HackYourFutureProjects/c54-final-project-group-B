@@ -6,7 +6,7 @@ const listingSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   images: [{ type: String }],
-  price: { type: Number, required: true },
+  price: { type: mongoose.Schema.Types.Decimal128, required: true },
   status: {
     type: String,
     enum: ["active", "sold", "cancelled"],
