@@ -1,23 +1,25 @@
 import jwt from "jsonwebtoken";
-import { logError } from "../util/logging.js";
+import { jwtConfig } from "../config/jwt.js";
 
-const auth = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
     return res
       .status(401)
-      .json({ success: false, msg: "Auth token not found" });
+      .json({ success: false, msg: "Not authorized, no token" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const decoded = jwt.verify(token, jwtConfig.secret);
+    req.user = decoded.id; // Attach user ID to request
     next();
-  } catch (error) {
-    logError(error);
-    return res.status(401).json({ success: false, msg: "Invalid token" });
+  } catch (err) {
+    console.error("JWT verification failed:", err.message);
+    return res
+      .status(401)
+      .json({ success: false, msg: "Not authorized, token failed" });
   }
 };
 
-export default auth;
+export default authMiddleware;

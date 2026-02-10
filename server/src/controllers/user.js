@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import User, { validateUser } from "../models/User.js";
 import { logError } from "../util/logging.js";
 import validationErrorMessage from "../util/validationErrorMessage.js";
+import { jwtConfig } from "../config/jwt.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -105,16 +106,11 @@ export const loginUser = async (req, res) => {
         .json({ success: false, msg: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+    const token = jwt.sign({ id: user._id }, jwtConfig.secret, {
+      expiresIn: jwtConfig.expiresIn,
     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 3600000, // 1 hour
-    });
+    res.cookie("token", token, jwtConfig.cookie);
 
     const userResponse = user.toObject();
     delete userResponse.password;
@@ -124,4 +120,9 @@ export const loginUser = async (req, res) => {
     logError(error);
     res.status(500).json({ success: false, msg: "Unable to login user" });
   }
+};
+
+export const logoutUser = (req, res) => {
+  res.clearCookie("token", jwtConfig.cookie);
+  res.status(200).json({ success: true, msg: "Logged out successfully" });
 };

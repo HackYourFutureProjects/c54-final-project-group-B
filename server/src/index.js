@@ -3,6 +3,16 @@ import dotenv from "dotenv";
 import express from "express";
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  const error = new Error("JWT_SECRET is not defined in .env file");
+  // Use console.error directly since logError might depend on other things,
+  // but logError is imported later. I'll import logging.js properly or reuse line 7 import?
+  // Imports are hoisted in ESM? Yes.
+  // But let's be safe and put it after imports or use console.error for fatal crash.
+  console.error(error.message);
+  process.exit(1);
+}
+
 import app from "./app.js";
 import { logInfo, logError } from "./util/logging.js";
 import connectDB from "./db/connectDB.js";
