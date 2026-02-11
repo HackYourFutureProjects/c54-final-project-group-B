@@ -4,6 +4,7 @@ import Home from "./pages/Home/Home";
 import CreateUser from "./pages/User/CreateUser";
 import UserList from "./pages/User/UserList";
 import Login from "./pages/User/Login";
+import VerifyCode from "./pages/User/VerifyCode";
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
         <Route path="/user" element={<UserList />} />
         <Route path="/signup" element={<CreateUser />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-code" element={<VerifyCode />} />
       </Routes>
     </>
   );
