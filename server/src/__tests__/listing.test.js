@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import supertest from "supertest";
 import mongoose from "mongoose";
 
@@ -12,12 +13,25 @@ import User from "../models/User.js";
 
 const request = supertest(app);
 
+// Mock the authenticate middleware using global to bypass jest.mock scoping
+jest.mock("../middleware/auth.js", () => ({
+  authenticate: (req, res, next) => {
+    if (global.__mockAuthUser) {
+      req.user = global.__mockAuthUser;
+      next();
+    } else {
+      res.status(401).json({ success: false, msg: "Not authorized" });
+    }
+  },
+}));
+
 beforeAll(async () => {
   await connectToMockDB();
 });
 
 afterEach(async () => {
   await clearMockDatabase();
+  global.__mockAuthUser = null;
 });
 
 afterAll(async () => {
@@ -29,6 +43,9 @@ const createTestUser = async () => {
   const user = await User.create({
     name: "Test User",
     email: "test@example.com",
+    password: "TestPassword123!",
+    country: "Netherlands",
+    city: "Amsterdam",
   });
   return user;
 };
@@ -41,7 +58,18 @@ const testListingBase = {
 };
 
 describe("POST /api/listings", () => {
+  it("Should return 401 if not authenticated", async () => {
+    global.__mockAuthUser = null;
+    const response = await request
+      .post("/api/listings")
+      .send({ listing: testListingBase });
+
+    expect(response.status).toBe(401);
+    expect(response.body.success).toBe(false);
+  });
+
   it("Should return a bad request if no listing object is given", async () => {
+    global.__mockAuthUser = await createTestUser();
     const response = await request.post("/api/listings");
 
     expect(response.status).toBe(400);
@@ -50,6 +78,7 @@ describe("POST /api/listings", () => {
   });
 
   it("Should return a bad request if listing is null", async () => {
+    global.__mockAuthUser = await createTestUser();
     const response = await request
       .post("/api/listings")
       .send({ listing: null });
@@ -59,6 +88,7 @@ describe("POST /api/listings", () => {
   });
 
   it("Should return a bad request if listing is missing required fields", async () => {
+    global.__mockAuthUser = await createTestUser();
     const testListing = { title: "Bike" };
 
     const response = await request
@@ -69,18 +99,22 @@ describe("POST /api/listings", () => {
     expect(response.body.success).toBe(false);
   });
 
-  it("Should create a listing successfully", async () => {
-    const user = await createTestUser();
-    const testListing = { ...testListingBase, ownerId: user._id.toString() };
+  it("Should create a listing successfully with ownerId from auth", async () => {
+    global.__mockAuthUser = await createTestUser();
 
     const response = await request
       .post("/api/listings")
-      .send({ listing: testListing });
+      .send({ listing: testListingBase });
 
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
-    expect(response.body.listing.title).toEqual(testListing.title);
-    expect(response.body.listing.price).toEqual(testListing.price);
+    expect(response.body.listing.title).toEqual(testListingBase.title);
+    expect(response.body.listing.price.$numberDecimal).toEqual(
+      testListingBase.price.toString(),
+    );
+    expect(response.body.listing.ownerId).toEqual(
+      global.__mockAuthUser._id.toString(),
+    );
   });
 });
 
@@ -186,7 +220,7 @@ describe("PUT /api/listings/:id", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.listing.price).toBe(450);
+    expect(response.body.listing.price.$numberDecimal).toBe("450");
   });
 
   it("Should return 404 for non-existent listing", async () => {

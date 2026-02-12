@@ -6,6 +6,7 @@ import {
   updateListing,
   deleteListing,
 } from "../controllers/listing.js";
+import { authenticate } from "../middleware/auth.js";
 
 const listingRouter = express.Router();
 
@@ -15,8 +16,8 @@ listingRouter.get("/", getListings);
 // GET /api/listings/:id - Get single listing
 listingRouter.get("/:id", getListingById);
 
-// POST /api/listings - Create a new listing
-listingRouter.post("/", createListing);
+// POST /api/listings - Create a new listing (requires authentication)
+listingRouter.post("/", authenticate, createListing);
 
 // PUT /api/listings/:id - Update listing
 listingRouter.put("/:id", updateListing);
