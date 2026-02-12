@@ -12,7 +12,6 @@ describe("Listing Model", () => {
       title: "Mountain Bike",
       description: "Great condition mountain bike",
       price: 500,
-      ownerId: "507f1f77bcf86cd799439011",
       location: "Amsterdam",
     };
 
@@ -68,11 +67,6 @@ describe("Listing Model", () => {
       const listing = { ...validListing, price: 0 };
       const errors = validateListing(listing);
       expect(errors).toHaveLength(0);
-    });
-
-    it("should return error when ownerId is missing", () => {
-      const errors = validateListing(omit(validListing, "ownerId"));
-      expect(errors).toContain("ownerId is a required field");
     });
 
     it("should return error when location is missing", () => {

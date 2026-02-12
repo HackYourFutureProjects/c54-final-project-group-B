@@ -86,6 +86,17 @@ export const createListing = async (req, res) => {
         .json({ success: false, msg: validationErrorMessage(errorList) });
     }
 
+    // Ensure request is authenticated before using req.user
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        msg: "Authentication required",
+      });
+    }
+
+    // Set ownerId from authenticated user instead of request body
+    listing.ownerId = req.user._id;
+
     const newListing = await Listing.create(listing);
     res.status(201).json({ success: true, listing: newListing });
   } catch (error) {
