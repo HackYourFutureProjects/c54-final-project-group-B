@@ -7,10 +7,11 @@ import Login from "./pages/User/Login";
 import VerifyCode from "./pages/User/VerifyCode";
 import ForgotPassword from "./pages/User/ForgotPassword";
 import ResetPassword from "./pages/User/ResetPassword";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const App = () => {
   return (
-    <>
+    <AuthProvider>
       <Nav />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -21,7 +22,7 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
-    </>
+    </AuthProvider>
   );
 };
 
