@@ -12,9 +12,10 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const onSuccess = (data) => {
+  const onSuccess = () => {
     // In PR #1, we'll just log success and redirect
-    console.log("Login success:", data);
+    // In PR #1, we'll just log success and redirect
+    // console.log("Login success:", data); // Removed for production
     setEmail("");
     setPassword("");
     setValidationError("");
