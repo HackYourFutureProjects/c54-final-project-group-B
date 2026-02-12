@@ -1,4 +1,6 @@
 import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import userRouter from "./routes/user.js";
 import listingRouter from "./routes/listing.js";
@@ -8,7 +10,9 @@ const app = express();
 
 // Tell express to use the json middleware
 app.use(express.json());
+app.use(cookieParser());
 
+app.use(cors());
 /****** Attach routes ******/
 /**
  * We use /api/ at the start of every route!

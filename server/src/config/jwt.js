@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const getJwtSecret = () => {
+export const getJwtSecret = () => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error("JWT_SECRET is missing from environment variables");
@@ -28,5 +28,3 @@ export const cookieConfig = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
 };
-
-export { getJwtSecret };

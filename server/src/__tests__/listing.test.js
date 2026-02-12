@@ -46,6 +46,7 @@ const createTestUser = async () => {
     password: "TestPassword123!",
     country: "Netherlands",
     city: "Amsterdam",
+    agreedToTerms: true,
   });
   return user;
 };
