@@ -88,6 +88,18 @@ const Login = () => {
           onChange={setPassword}
           placeholder="Password"
         />
+        <div style={{ textAlign: "right", marginBottom: "12px" }}>
+          <Link
+            to="/forgot-password"
+            style={{
+              fontSize: "14px",
+              color: "#4f46e5",
+              textDecoration: "none",
+            }}
+          >
+            Forgot Password?
+          </Link>
+        </div>
         <SubmitButton isLoading={isLoading}>Login</SubmitButton>
       </form>
       {statusComponent}
