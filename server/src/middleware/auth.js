@@ -2,24 +2,15 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { logError } from "../util/logging.js";
 
-const getJwtSecret = () => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error("JWT_SECRET is missing from environment variables");
-  }
-  return secret;
-};
+import { getJwtSecret } from "../config/jwt.js";
 
 export const authenticate = async (req, res, next) => {
   try {
     let token;
 
-    // 1. Check for token in cookies
     if (req.cookies?.token) {
       token = req.cookies.token;
-    }
-    // 2. Check for token in Authorization header (Bearer token)
-    else if (
+    } else if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
     ) {
@@ -34,26 +25,34 @@ export const authenticate = async (req, res, next) => {
     }
 
     try {
-      // Verify token
       const decoded = jwt.verify(token, getJwtSecret());
 
-      // Check if user still exists
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(decoded.id).select(
+        "-password -verificationCode -verificationCodeExpiry",
+      );
+
       if (!user) {
         return res.status(401).json({
           success: false,
-          msg: "The user belonging to this token no longer does exist",
+          msg: "The user belonging to this token no longer exists",
         });
       }
 
-      // Grant access to protected route
       req.user = user;
       next();
     } catch (error) {
-      return res.status(401).json({
-        success: false,
-        msg: "Not authorized to access this route",
-      });
+      // Only treat known JWT verification errors as unauthorized.
+      if (
+        error.name === "TokenExpiredError" ||
+        error.name === "JsonWebTokenError"
+      ) {
+        return res.status(401).json({
+          success: false,
+          msg: "Not authorized to access this route",
+        });
+      }
+      // Let unexpected errors bubble up to the outer handler
+      throw error;
     }
   } catch (error) {
     logError(error);
