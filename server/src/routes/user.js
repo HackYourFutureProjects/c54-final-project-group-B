@@ -5,6 +5,8 @@ import {
   loginUser,
   verifyEmail,
   resendVerificationCode,
+  requestPasswordReset,
+  resetPassword,
 } from "../controllers/user.js";
 
 const userRouter = express.Router();
@@ -14,5 +16,7 @@ userRouter.post("/", createUser);
 userRouter.post("/login", loginUser);
 userRouter.post("/verify", verifyEmail);
 userRouter.post("/resend-code", resendVerificationCode);
+userRouter.post("/request-reset", requestPasswordReset);
+userRouter.post("/reset-password", resetPassword);
 
 export default userRouter;
