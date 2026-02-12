@@ -14,6 +14,7 @@ import User from "../models/User.js";
 const request = supertest(app);
 
 // Mock the authenticate middleware using global to bypass jest.mock scoping
+// Mock the authenticate middleware using global to bypass jest.mock scoping
 jest.mock("../middleware/auth.js", () => ({
   authenticate: (req, res, next) => {
     if (global.__mockAuthUser) {
@@ -23,6 +24,9 @@ jest.mock("../middleware/auth.js", () => ({
       res.status(401).json({ success: false, msg: "Not authorized" });
     }
   },
+  requireVerified: (req, res, next) => next(),
+  requireOwnership: () => (req, res, next) => next(),
+  optionalAuth: (req, res, next) => next(),
 }));
 
 beforeAll(async () => {

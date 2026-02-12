@@ -66,19 +66,54 @@ export const getListingById = async (req, res) => {
   }
 };
 
+// Whitelist of fields allowed in requests (excluding ownerId which is auto-assigned)
+const ALLOWED_FIELDS = [
+  "title",
+  "description",
+  "price",
+  "location",
+  "type",
+  "leaseDuration",
+  "brand",
+  "model",
+  "year",
+  "condition",
+  "mileage",
+  "images",
+];
+
+// Helper to filter object to only allowed fields
+const filterFields = (obj) => {
+  const filtered = {};
+  Object.keys(obj).forEach((key) => {
+    if (ALLOWED_FIELDS.includes(key)) {
+      filtered[key] = obj[key];
+    }
+  });
+  return filtered;
+};
+
 // POST create new listing
 export const createListing = async (req, res) => {
   try {
-    const listing = req.body?.listing;
+    const listingData = req.body?.listing;
 
-    if (!isPlainObject(listing)) {
+    if (!isPlainObject(listingData)) {
       return res.status(400).json({
         success: false,
-        msg: `You need to provide a 'listing' object. Received: ${JSON.stringify(listing)}`,
+        msg: "You need to provide a 'listing' object.",
       });
     }
 
-    const errorList = validateListing(listing);
+    // Filter fields to prevent mass assignment of sensitive fields like ownerId
+    const cleanListing = filterFields(listingData);
+
+    // Auto-assign ownerId from authenticated user
+    // req.user is guaranteed by authenticate middleware
+    cleanListing.ownerId = req.user._id;
+
+    // Validate using the model's validation logic (which checks required fields)
+    const errorList = validateListing(cleanListing);
 
     if (errorList.length > 0) {
       return res
@@ -86,18 +121,7 @@ export const createListing = async (req, res) => {
         .json({ success: false, msg: validationErrorMessage(errorList) });
     }
 
-    // Ensure request is authenticated before using req.user
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({
-        success: false,
-        msg: "Authentication required",
-      });
-    }
-
-    // Set ownerId from authenticated user instead of request body
-    listing.ownerId = req.user._id;
-
-    const newListing = await Listing.create(listing);
+    const newListing = await Listing.create(cleanListing);
     res.status(201).json({ success: true, listing: newListing });
   } catch (error) {
     logError(error);
@@ -111,14 +135,10 @@ export const createListing = async (req, res) => {
 // PUT update listing
 export const updateListing = async (req, res) => {
   try {
-    const { id } = req.params;
     const updates = req.body?.listing;
 
-    if (!isValidObjectId(id)) {
-      return res
-        .status(400)
-        .json({ success: false, msg: "Invalid listing ID" });
-    }
+    // req.resource is attached by requireOwnership middleware
+    const { id } = req.params;
 
     if (!isPlainObject(updates)) {
       return res.status(400).json({
@@ -127,10 +147,17 @@ export const updateListing = async (req, res) => {
       });
     }
 
-    const listing = await Listing.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    // Filter updates
+    const cleanUpdates = filterFields(updates);
+
+    const listing = await Listing.findByIdAndUpdate(
+      id,
+      { $set: cleanUpdates },
+      {
+        new: true,
+        runValidators: true, // Force validation on update
+      },
+    );
 
     if (!listing) {
       return res.status(404).json({ success: false, msg: "Listing not found" });
@@ -149,13 +176,8 @@ export const updateListing = async (req, res) => {
 // DELETE listing
 export const deleteListing = async (req, res) => {
   try {
+    // req.resource is attached by requireOwnership middleware
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res
-        .status(400)
-        .json({ success: false, msg: "Invalid listing ID" });
-    }
 
     const listing = await Listing.findByIdAndDelete(id);
 

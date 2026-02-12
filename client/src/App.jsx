@@ -8,6 +8,8 @@ import Login from "./pages/User/Login";
 import VerifyCode from "./pages/User/VerifyCode";
 import ForgotPassword from "./pages/User/ForgotPassword";
 import ResetPassword from "./pages/User/ResetPassword";
+import ProtectedRoute from "./components/ProtectedRoute";
+import RequireVerified from "./components/RequireVerified";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const App = () => {
@@ -18,7 +20,16 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/user" element={<UserList />} />
         <Route path="/user/create" element={<CreateUser />} />
-        <Route path="/listing/create" element={<CreateListing />} />
+        <Route
+          path="/listing/create"
+          element={
+            <ProtectedRoute>
+              <RequireVerified>
+                <CreateListing />
+              </RequireVerified>
+            </ProtectedRoute>
+          }
+        />
         <Route path="/signup" element={<CreateUser />} />
         <Route path="/login" element={<Login />} />
         <Route path="/verify-code" element={<VerifyCode />} />

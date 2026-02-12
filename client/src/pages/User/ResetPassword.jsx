@@ -96,6 +96,8 @@ const ResetPassword = () => {
           value={code}
           onChange={setCode}
           placeholder="6-digit code"
+          required
+          autoComplete="one-time-code"
         />
         <InputField
           label="New Password"
@@ -104,6 +106,8 @@ const ResetPassword = () => {
           value={newPassword}
           onChange={setNewPassword}
           placeholder="Min 8 chars"
+          required
+          autoComplete="new-password"
         />
         <InputField
           label="Confirm Password"
@@ -112,6 +116,8 @@ const ResetPassword = () => {
           value={confirmPassword}
           onChange={setConfirmPassword}
           placeholder="Re-enter password"
+          required
+          autoComplete="new-password"
         />
 
         {validationError && (

@@ -83,6 +83,8 @@ const Login = () => {
           value={email}
           onChange={setEmail}
           placeholder="Email"
+          required
+          autoComplete="email"
         />
         <InputField
           name="password"
@@ -90,6 +92,8 @@ const Login = () => {
           value={password}
           onChange={setPassword}
           placeholder="Password"
+          required
+          autoComplete="current-password"
         />
         <div style={{ textAlign: "right", marginBottom: "12px" }}>
           <Link

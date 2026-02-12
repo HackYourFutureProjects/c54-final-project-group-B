@@ -8,13 +8,19 @@ import { logInfo, logError } from "./util/logging.js";
 import connectDB from "./db/connectDB.js";
 import testRouter from "./testRouter.js";
 
-// The environment should set the port
-const port = process.env.PORT;
+// Check for required environment variables
+const requiredEnv = ["JWT_SECRET", "MONGODB_URL", "EMAIL_USER", "EMAIL_PASS"];
+const missing = requiredEnv.filter((key) => !process.env[key]);
 
-if (port == null) {
-  // If this fails, make sure you have created a `.env` file in the right place with the PORT set
-  logError(new Error("Cannot find a PORT number, did you create a .env file?"));
+if (missing.length > 0) {
+  console.error(
+    `❌ CRITICAL: Missing environment variables: ${missing.join(", ")}`,
+  );
+  process.exit(1);
 }
+
+// The environment should set the port
+const port = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {

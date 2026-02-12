@@ -104,6 +104,8 @@ const VerifyCode = () => {
           onChange={setCode}
           placeholder="Enter 6-digit code"
           // dataTestId="verify-code-input"
+          autoComplete="one-time-code"
+          required
         />
         <SubmitButton isLoading={isLoading}>Verify Email</SubmitButton>
       </form>

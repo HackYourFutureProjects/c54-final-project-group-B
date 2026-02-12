@@ -195,6 +195,8 @@ const CreateUser = () => {
           onChange={setUsername}
           placeholder="Username (3-30 alphanumeric)"
           dataTestId={TEST_ID.usernameInput}
+          required
+          autoComplete="username"
         />
         <InputField
           name="email"
@@ -203,6 +205,8 @@ const CreateUser = () => {
           onChange={setEmail}
           placeholder="Email"
           dataTestId={TEST_ID.emailInput}
+          required
+          autoComplete="email"
         />
         <InputField
           name="password"
@@ -211,6 +215,8 @@ const CreateUser = () => {
           onChange={setPassword}
           placeholder="Password (min 8 chars, mixed case, number, symbol)"
           dataTestId={TEST_ID.passwordInput}
+          required
+          autoComplete="new-password"
         />
         <InputField
           name="confirmPassword"
@@ -219,6 +225,8 @@ const CreateUser = () => {
           onChange={setConfirmPassword}
           placeholder="Confirm Password"
           dataTestId={TEST_ID.confirmPasswordInput}
+          required
+          autoComplete="new-password"
         />
         <SelectField
           name="country"

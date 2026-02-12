@@ -12,6 +12,12 @@ const listingSchema = new mongoose.Schema({
     enum: ["active", "sold", "cancelled"],
     default: "active",
   },
+  type: {
+    type: String,
+    enum: ["used", "lease"],
+    default: "used",
+  },
+  leaseDuration: { type: Number }, // In months
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
@@ -23,7 +29,7 @@ const listingSchema = new mongoose.Schema({
   year: { type: Number },
   condition: {
     type: String,
-    enum: ["new", "like-new", "good", "fair", "poor"],
+    enum: ["new", "like-new", "good", "fair", "poor"], // Removed empty string option if it existed in frontend logic
   },
   mileage: { type: Number },
   createdAt: { type: Date, default: Date.now },
@@ -37,6 +43,8 @@ const ALLOWED_KEYS = [
   "ownerId",
   "images",
   "status",
+  "type",
+  "leaseDuration",
   "brand",
   "model",
   "year",

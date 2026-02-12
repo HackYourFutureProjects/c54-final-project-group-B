@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { logError, logInfo } from "../util/logging.js";
+import { logError, logInfo, logWarn } from "../util/logging.js";
 
 /**
  * Get the current email configuration from environment variables
@@ -51,9 +51,9 @@ const sendMail = async ({ to, subject, html, text, code }, type) => {
     logInfo(`${type} email sent to ${to} via Mailtrap Sandbox`);
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
-      console.log(`DEV FALLBACK -> ${type} Email failed:`, error.message);
-      console.log("Recipient:", to);
-      console.log(`${type} Code:`, code);
+      logWarn(`DEV FALLBACK -> ${type} Email failed: ${error.message}`);
+      logInfo(`Recipient: ${to}`);
+      logInfo(`${type} Code: ${code}`);
     } else {
       logError(error);
       throw error;

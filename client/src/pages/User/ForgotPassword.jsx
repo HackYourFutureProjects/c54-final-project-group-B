@@ -49,6 +49,8 @@ const ForgotPassword = () => {
           value={email}
           onChange={setEmail}
           placeholder="Enter your email"
+          required
+          autoComplete="email"
         />
         <SubmitButton isLoading={isLoading}>Send Reset Code</SubmitButton>
       </form>

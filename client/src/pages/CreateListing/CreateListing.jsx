@@ -98,13 +98,28 @@ const CreateListing = () => {
 
       <h1>Create New Listing</h1>
 
-      <form onSubmit={handleSubmit} className="create-listing__form">
+      <form
+        onSubmit={handleSubmit}
+        className="create-listing__form"
+        noValidate
+        autoComplete="on"
+      >
         {successMessage && (
-          <div className="create-listing__success">{successMessage}</div>
+          <div
+            className="create-listing__success"
+            role="status"
+            aria-live="polite"
+          >
+            {successMessage}
+          </div>
         )}
 
         {(formError || error) && (
-          <div className="create-listing__error">
+          <div
+            className="create-listing__error"
+            role="alert"
+            aria-live="assertive"
+          >
             {formError || "Error creating listing. Please try again."}
           </div>
         )}
@@ -119,6 +134,8 @@ const CreateListing = () => {
             onChange={handleChange}
             placeholder="e.g., Mountain Bike"
             data-testid={TEST_ID.titleInput}
+            required
+            autoComplete="off"
           />
         </div>
 
@@ -132,6 +149,8 @@ const CreateListing = () => {
             placeholder="Describe your bike..."
             rows={4}
             data-testid={TEST_ID.descriptionInput}
+            required
+            autoComplete="off"
           />
         </div>
 
@@ -144,6 +163,8 @@ const CreateListing = () => {
               value={formData.type}
               onChange={handleChange}
               data-testid={TEST_ID.typeSelect}
+              required
+              autoComplete="off"
             >
               <option value="used">For Sale</option>
               <option value="lease">For Lease</option>
@@ -163,6 +184,8 @@ const CreateListing = () => {
               placeholder="0"
               min="0"
               data-testid={TEST_ID.priceInput}
+              required
+              autoComplete="transaction-amount"
             />
           </div>
         </div>
@@ -178,6 +201,8 @@ const CreateListing = () => {
               onChange={handleChange}
               placeholder="e.g., 6"
               min="1"
+              required
+              autoComplete="off"
             />
           </div>
         )}
@@ -192,6 +217,8 @@ const CreateListing = () => {
             onChange={handleChange}
             placeholder="e.g., Amsterdam"
             data-testid={TEST_ID.locationInput}
+            required
+            autoComplete="address-level2"
           />
         </div>
 
@@ -205,6 +232,7 @@ const CreateListing = () => {
               value={formData.brand}
               onChange={handleChange}
               placeholder="e.g., Trek"
+              autoComplete="off"
             />
           </div>
 
@@ -217,6 +245,7 @@ const CreateListing = () => {
               value={formData.model}
               onChange={handleChange}
               placeholder="e.g., Marlin 5"
+              autoComplete="off"
             />
           </div>
         </div>
@@ -231,6 +260,7 @@ const CreateListing = () => {
               value={formData.year}
               onChange={handleChange}
               placeholder="e.g., 2022"
+              autoComplete="off"
             />
           </div>
 
@@ -241,6 +271,7 @@ const CreateListing = () => {
               name="condition"
               value={formData.condition}
               onChange={handleChange}
+              autoComplete="off"
             >
               <option value="">Select condition</option>
               <option value="new">New</option>
