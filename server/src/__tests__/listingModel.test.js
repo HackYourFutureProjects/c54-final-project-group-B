@@ -69,6 +69,23 @@ describe("Listing Model", () => {
       expect(errors).toHaveLength(0);
     });
 
+    it("should NOT return error when ownerId is missing (set by controller)", () => {
+      const errors = validateListing(omit(validListing, "ownerId"));
+      expect(errors).toHaveLength(0);
+    });
+
+    it("should allow ownerId when provided (for controller usage)", () => {
+      const listingWithOwnerId = {
+        title: "Mountain Bike",
+        description: "Great condition mountain bike",
+        price: 500,
+        location: "Amsterdam",
+        ownerId: "507f1f77bcf86cd799439011",
+      };
+      const errors = validateListing(listingWithOwnerId);
+      expect(errors).toHaveLength(0);
+    });
+
     it("should return error when location is missing", () => {
       const errors = validateListing(omit(validListing, "location"));
       expect(errors).toContain("location is a required field");
