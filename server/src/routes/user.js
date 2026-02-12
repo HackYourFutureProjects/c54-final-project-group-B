@@ -7,6 +7,8 @@ import {
   resendVerificationCode,
   requestPasswordReset,
   resetPassword,
+  getMe,
+  logoutUser,
 } from "../controllers/user.js";
 
 const userRouter = express.Router();
@@ -18,5 +20,7 @@ userRouter.post("/verify", verifyEmail);
 userRouter.post("/resend-code", resendVerificationCode);
 userRouter.post("/request-reset", requestPasswordReset);
 userRouter.post("/reset-password", resetPassword);
+userRouter.get("/me", getMe);
+userRouter.post("/logout", logoutUser);
 
 export default userRouter;

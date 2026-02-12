@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import InputField from "../../components/form/InputField";
 import SubmitButton from "../../components/form/SubmitButton";
+import { useAuth } from "../../hooks/useAuth";
 import styles from "./VerifyCode.module.css";
 
 const VerifyCode = () => {
@@ -46,7 +47,13 @@ const VerifyCode = () => {
     });
   };
 
-  const onSuccess = () => {
+  const { login } = useAuth();
+
+  const onSuccess = (data) => {
+    // Update global auth state with user data
+    if (data?.user) {
+      login(data.user);
+    }
     navigate("/");
   };
 

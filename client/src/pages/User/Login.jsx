@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import InputField from "../../components/form/InputField";
 import SubmitButton from "../../components/form/SubmitButton";
+import { useAuth } from "../../hooks/useAuth";
 import styles from "./CreateUser.module.css";
 
 const Login = () => {
@@ -11,11 +12,12 @@ const Login = () => {
   const [validationError, setValidationError] = useState("");
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const onSuccess = () => {
-    // In PR #1, we'll just log success and redirect
+  const onSuccess = (data) => {
     // In PR #1, we'll just log success and redirect
     // console.log("Login success:", data); // Removed for production
+    login(data.user); // Update global auth state
     setEmail("");
     setPassword("");
     setValidationError("");

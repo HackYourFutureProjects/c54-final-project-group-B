@@ -3,7 +3,7 @@ import { logError } from "../util/logging.js";
 import validationErrorMessage from "../util/validationErrorMessage.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { signToken, cookieConfig } from "../config/jwt.js";
+import { signToken, verifyToken, cookieConfig } from "../config/jwt.js";
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -360,5 +360,42 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
     logError(error);
     res.status(500).json({ success: false, msg: "Unable to reset password" });
+  }
+};
+
+export const getMe = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ success: false, msg: "Not authenticated" });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return res.status(401).json({ success: false, msg: "Invalid token" });
+    }
+
+    const user = await User.findById(decoded.id).select(
+      "-password -verificationCode -verificationCodeExpiry -passwordResetCode -passwordResetCodeExpiry -passwordResetCodeUsed",
+    );
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    logError(error);
+    // Only return 401 for expected auth failures, 500 for unexpected errors
+    res.status(500).json({ success: false, msg: "Internal server error" });
+  }
+};
+
+export const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("token", cookieConfig);
+    res.status(200).json({ success: true, msg: "Logged out successfully" });
+  } catch (error) {
+    logError(error);
+    res.status(500).json({ success: false, msg: "Unable to logout" });
   }
 };
