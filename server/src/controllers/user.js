@@ -2,7 +2,9 @@ import User, { validateUser } from "../models/User.js";
 import { logError } from "../util/logging.js";
 import validationErrorMessage from "../util/validationErrorMessage.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { signToken, cookieConfig } from "../config/jwt.js";
+import { sendVerificationEmail } from "../utils/emailService.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -50,13 +52,24 @@ export const createUser = async (req, res) => {
       ...user,
       password: hashedPassword,
       isVerified: false,
+      verificationCode: crypto.randomInt(100000, 999999).toString(),
+      verificationCodeExpiry: Date.now() + 15 * 60 * 1000, // 15 mins
     };
 
     const newUser = await User.create(userPayload);
 
-    // Remove password from response
+    // Send verification email
+    try {
+      await sendVerificationEmail(newUser.email, userPayload.verificationCode);
+    } catch (error) {
+      logError(error);
+    }
+
+    // Remove sensitive data from response
     const userResponse = newUser.toObject();
     delete userResponse.password;
+    delete userResponse.verificationCode;
+    delete userResponse.verificationCodeExpiry;
 
     res.status(201).json({ success: true, user: userResponse });
   } catch (error) {
@@ -117,5 +130,57 @@ export const loginUser = async (req, res) => {
     res
       .status(500)
       .json({ success: false, msg: "Internal server error during login" });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Email and code are required" });
+    }
+
+    const user = await User.findOne({ email }).select(
+      "+verificationCode +verificationCodeExpiry",
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    if (user.isVerified) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "User already verified" });
+    }
+
+    if (user.verificationCode !== code) {
+      return res.status(400).json({ success: false, msg: "Invalid code" });
+    }
+
+    if (Date.now() > user.verificationCodeExpiry) {
+      return res.status(400).json({ success: false, msg: "Code expired" });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = undefined;
+    user.verificationCodeExpiry = undefined;
+    await user.save();
+
+    const token = signToken(user);
+    res.cookie("token", token, cookieConfig);
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    delete userResponse.verificationCode;
+    delete userResponse.verificationCodeExpiry;
+
+    res.status(200).json({ success: true, user: userResponse });
+  } catch (error) {
+    logError(error);
+    res.status(500).json({ success: false, msg: "Verification failed" });
   }
 };

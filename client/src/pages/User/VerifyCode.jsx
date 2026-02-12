@@ -15,7 +15,7 @@ const VerifyCode = () => {
     navigate("/");
   };
 
-  const { isLoading, error, performFetch, cancelFetch } = useFetch(
+  const { isLoading, error, performFetch } = useFetch(
     "/users/verify",
     onSuccess,
   );
@@ -26,8 +26,8 @@ const VerifyCode = () => {
       // For now, redirect to login as they might have signed up but navigated away
       navigate("/login");
     }
-    return cancelFetch;
-  }, [email, navigate, cancelFetch]);
+    // Removing cancelFetch from here as it triggers abort on re-render due to useFetch implementation
+  }, [email, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
