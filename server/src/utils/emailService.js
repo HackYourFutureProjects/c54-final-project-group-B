@@ -29,7 +29,8 @@ const getEmailConfig = () => ({
 const sendMail = async ({ to, subject, html, text, code }, type) => {
   try {
     const transporter = nodemailer.createTransport(getEmailConfig());
-    const senderEmail = process.env.MAILTRAP_SENDER_EMAIL || "noreply@bicyclel.com";
+    const senderEmail =
+      process.env.MAILTRAP_SENDER_EMAIL || "noreply@bicyclel.com";
     const senderName = process.env.MAILTRAP_SENDER_NAME || "BiCycleL";
 
     const mailOptions = {
@@ -43,7 +44,7 @@ const sendMail = async ({ to, subject, html, text, code }, type) => {
     // Manual timeout wrapper to guarantee fail-fast behavior
     const sendMailPromise = transporter.sendMail(mailOptions);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Email sending timed out")), 10000)
+      setTimeout(() => reject(new Error("Email sending timed out")), 10000),
     );
 
     await Promise.race([sendMailPromise, timeoutPromise]);
@@ -75,8 +76,11 @@ export const sendVerificationEmail = async (email, code) => {
     </div>
   `;
   const text = `Your verification code is: ${code}. This code will expire in 15 minutes.`;
-  
-  await sendMail({ to: email, subject: "Verify your email", html, text, code }, "Verification");
+
+  await sendMail(
+    { to: email, subject: "Verify your email", html, text, code },
+    "Verification",
+  );
 };
 
 /**
@@ -95,5 +99,8 @@ export const sendPasswordResetEmail = async (email, code) => {
   `;
   const text = `Your password reset code is: ${code}. This code will expire in 15 minutes.`;
 
-  await sendMail({ to: email, subject: "Reset your password", html, text, code }, "Reset");
+  await sendMail(
+    { to: email, subject: "Reset your password", html, text, code },
+    "Reset",
+  );
 };
