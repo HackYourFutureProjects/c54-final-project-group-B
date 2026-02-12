@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { logError } from "../util/logging.js";
 
 const getJwtSecret = () => {
   const secret = process.env.JWT_SECRET;
@@ -28,6 +29,7 @@ export const verifyToken = (token) => {
   try {
     return jwt.verify(token, getJwtSecret());
   } catch (error) {
+    logError(error);
     return null;
   }
 };
