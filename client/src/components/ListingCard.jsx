@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import "../../styles/ListingCard.css";
@@ -22,19 +21,17 @@ const ListingCard = ({ listing }) => {
 
       <div className="listing-card__content">
         <h3 className="listing-card__title">{title}</h3>
-        
+
         <div className="listing-card__price">
           €{price}
-          {type === "lease" && <span className="listing-card__period">/month</span>}
+          {type === "lease" && (
+            <span className="listing-card__period">/month</span>
+          )}
         </div>
 
         <div className="listing-card__details">
-          <span className="listing-card__location">
-            📍 {location}
-          </span>
-          <span className="listing-card__condition">
-            {condition}
-          </span>
+          <span className="listing-card__location">📍 {location}</span>
+          <span className="listing-card__condition">{condition}</span>
         </div>
 
         <Link to={`/listings/${_id}`} className="listing-card__button">
