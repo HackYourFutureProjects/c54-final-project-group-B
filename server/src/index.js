@@ -1,7 +1,6 @@
 // Load our .env variables
-import dotenv from "dotenv";
+import "dotenv/config";
 import express from "express";
-dotenv.config();
 
 import app from "./app.js";
 import { logInfo, logError } from "./util/logging.js";
