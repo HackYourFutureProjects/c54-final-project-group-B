@@ -18,7 +18,7 @@ const ListingCard = ({ listing }) => {
   if (price && typeof price === "object") {
     if (price.$numberDecimal) {
       displayPrice = price.$numberDecimal;
-    } else if (price.value) {
+    } else if (price.value != null) {
       displayPrice = price.value;
     }
   }
@@ -70,6 +70,9 @@ ListingCard.propTypes = {
       PropTypes.shape({
         value: PropTypes.number,
         currency: PropTypes.string,
+      }),
+      PropTypes.shape({
+        $numberDecimal: PropTypes.string,
       }),
     ]).isRequired,
     images: PropTypes.arrayOf(PropTypes.string),

@@ -38,10 +38,23 @@ const CreateListing = () => {
     setSuccessMessage("Listing created successfully!");
     setFormError("");
     const timer = setTimeout(() => {
-      navigate(`/listings/${data.result._id}`);
+      // Fix: Use data.listing._id instead of data.result._id to match API response
+      const listingId = data.listing?._id || data.result?._id;
+      if (listingId) {
+        navigate(`/listings/${listingId}`);
+      } else {
+        navigate("/");
+      }
     }, 1500);
     return () => clearTimeout(timer);
   });
+
+  // Fix: Cleanup Blob URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previews]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -61,6 +74,40 @@ const CreateListing = () => {
   const handleSelectCondition = (value) => {
     setFormData((prev) => ({ ...prev, condition: value }));
     setIsDropdownOpen(false);
+    // Return focus to the trigger after selection for accessibility
+    const trigger = dropdownRef.current?.querySelector(".dropdown-selected");
+    if (trigger) trigger.focus();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setIsDropdownOpen(!isDropdownOpen);
+    } else if (e.key === "Escape") {
+      setIsDropdownOpen(false);
+    } else if (e.key === "ArrowDown" && isDropdownOpen) {
+      e.preventDefault();
+      const firstOption =
+        dropdownRef.current?.querySelector(".dropdown-option");
+      firstOption?.focus();
+    }
+  };
+
+  const handleOptionKeyDown = (e, value) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleSelectCondition(value);
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      e.target.nextElementSibling?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      e.target.previousElementSibling?.focus();
+    } else if (e.key === "Escape") {
+      setIsDropdownOpen(false);
+      const trigger = dropdownRef.current?.querySelector(".dropdown-selected");
+      if (trigger) trigger.focus();
+    }
   };
 
   // Helper to convert File to Base64 for the database
@@ -75,18 +122,32 @@ const CreateListing = () => {
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    if (previews.length + files.length > 5) {
+
+    // Filter out huge files (e.g. > 2MB)
+    const validFiles = files.filter((file) => {
+      const isValidSize = file.size <= 2 * 1024 * 1024; // 2MB
+      if (!isValidSize) {
+        setFormError(`File ${file.name} is too large. Max 2MB allowed.`);
+      }
+      return isValidSize;
+    });
+
+    if (validFiles.length < files.length) {
+      return; // Stop if any file was invalid
+    }
+
+    if (previews.length + validFiles.length > 5) {
       setFormError("You can only upload a maximum of 5 images.");
       return;
     }
 
     // 1. Create immediate Blob URL previews for the UI
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...newPreviews]);
 
     // 2. Convert files to Base64 strings for the actual Data Submission
     try {
-      const base64Promises = files.map((file) => fileToBase64(file));
+      const base64Promises = validFiles.map((file) => fileToBase64(file));
       const base64Images = await Promise.all(base64Promises);
 
       setFormData((prev) => ({
@@ -94,7 +155,9 @@ const CreateListing = () => {
         images: [...prev.images, ...base64Images],
       }));
       setFormError("");
-    } catch {
+    } catch (err) {
+      // Fix: Log error to console
+      console.error("Image processing error:", err);
       setFormError("Error processing images. Please try smaller files.");
     }
   };
@@ -173,8 +236,9 @@ const CreateListing = () => {
             )}
             {(formError || error) && (
               <div className="create-listing__error">
+                {/* Fix: use error directly or toString method */}
                 {formError ||
-                  (error && error.message) ||
+                  (error && error.toString()) ||
                   "Error creating listing."}
               </div>
             )}
@@ -314,8 +378,13 @@ const CreateListing = () => {
                 <label>Condition</label>
                 <div className="custom-dropdown" ref={dropdownRef}>
                   <div
+                    tabIndex="0"
+                    role="combobox"
+                    aria-expanded={isDropdownOpen}
+                    aria-label="Select condition"
                     className={`dropdown-selected ${isDropdownOpen ? "open" : ""}`}
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    onKeyDown={handleKeyDown}
                   >
                     {formData.condition
                       ? conditionOptions.find(
@@ -324,12 +393,18 @@ const CreateListing = () => {
                       : "Select condition"}
                   </div>
                   {isDropdownOpen && (
-                    <div className="dropdown-options">
+                    <div className="dropdown-options" role="listbox">
                       {conditionOptions.map((option) => (
                         <div
                           key={option.value}
+                          tabIndex="0"
+                          role="option"
+                          aria-selected={formData.condition === option.value}
                           className={`dropdown-option ${formData.condition === option.value ? "selected" : ""}`}
                           onClick={() => handleSelectCondition(option.value)}
+                          onKeyDown={(e) =>
+                            handleOptionKeyDown(e, option.value)
+                          }
                         >
                           {option.label}
                         </div>

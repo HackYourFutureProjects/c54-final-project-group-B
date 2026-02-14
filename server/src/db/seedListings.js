@@ -64,7 +64,7 @@ const seedListings = [
     condition: "good",
     brand: "Batavus",
     images: [
-      "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1528191710846-99b8717a2833?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     ],
     location: "Den Haag",
     ownerId: new mongoose.Types.ObjectId(),
