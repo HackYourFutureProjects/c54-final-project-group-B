@@ -4,12 +4,25 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import userRouter from "./routes/user.js";
-import listingRouter from "./routes/listing.js";
+// User controller imports
+import {
+  createUser,
+  getUsers,
+  loginUser,
+  verifyEmail,
+  resendVerificationCode,
+  requestPasswordReset,
+  resetPassword,
+  getMe,
+  logoutUser,
+} from "./controllers/user.js";
+
+// Middleware
+import { authenticate } from "./middleware/auth.js"; // Your existing middleware
 import { globalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/error.js";
 
-// Create an express server
+// Create Express app
 const app = express();
 
 // Security & Logging Middleware
@@ -18,7 +31,6 @@ app.use(morgan("dev"));
 app.use(globalLimiter);
 
 // Standard Middleware
-// Tell express to use the json middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -28,16 +40,35 @@ app.use(
   }),
 );
 
-// Routes
-/****** Attach routes ******/
-/**
- * We use /api/ at the start of every route!
- * As we also host our client code on heroku we want to separate the API endpoints.
- */
+// ===== Routes =====
+
+// User Router
+const userRouter = express.Router();
+
+userRouter.get("/", getUsers);
+userRouter.post("/", createUser);
+userRouter.post("/login", loginUser);
+userRouter.post("/verify", verifyEmail);
+userRouter.post("/resend-code", resendVerificationCode);
+userRouter.post("/request-reset", requestPasswordReset);
+userRouter.post("/reset-password", resetPassword);
+userRouter.get("/me", getMe);
+userRouter.post("/logout", logoutUser);
+
+// Profile route protected with authenticate middleware
+userRouter.get("/profile", authenticate, async (req, res) => {
+  // Middleware provides req.user
+  res.json(req.user);
+});
+
+// Attach userRouter
 app.use("/api/users", userRouter);
+
+// Listing Router (existing)
+import listingRouter from "./routes/listing.js";
 app.use("/api/listings", listingRouter);
 
-// Error Handling
+// Error Handling Middleware
 app.use(errorHandler);
 
 export default app;
