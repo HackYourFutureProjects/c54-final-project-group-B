@@ -1,48 +1,67 @@
 import { useEffect, useState } from "react";
-import useFetch from "../../hooks/useFetch";
 
-const Favorites = () => {
+export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const onSuccess = (data) => {
-    setFavorites(data.result || []);
+  const loadFavorites = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch("/api/favorites", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data?.msg || "Failed to load favorites");
+        setFavorites([]);
+        return;
+      }
+
+      setFavorites(data?.result || []);
+    } catch (err) {
+      console.error(err);
+      setError("Network error");
+      setFavorites([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const { isLoading, error, performFetch, cancelFetch } = useFetch(
-    "/favorites",
-    onSuccess,
-  );
-
   useEffect(() => {
-    performFetch({
-      method: "GET",
-      credentials: "include",
-    });
-
-    return cancelFetch;
+    loadFavorites();
   }, []);
 
-  if (isLoading) return <p>Loading favorites...</p>;
-  if (error) return <p>{error.toString()}</p>;
+  if (loading) return <p>Loading favorites...</p>;
+
+  if (error) {
+    return (
+      <div>
+        <p style={{ color: "red" }}>{error}</p>
+        <button type="button" onClick={loadFavorites}>
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!favorites.length) return <p>No favorites yet.</p>;
 
   return (
     <div>
       <h1>My Favorites</h1>
-
-      {favorites.length === 0 ? (
-        <p>No favorites yet.</p>
-      ) : (
-        <ul>
-          {favorites.map((l) => (
-            <li key={l._id}>
-              <strong>{l.title}</strong> — {String(l.price)}
-              {/* <Link to={`/listings/${l._id}`}>View</Link> */}
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul>
+        {favorites.map((listing) => (
+          <li key={listing._id}>
+            {listing.title || listing.name || listing._id}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
-
-export default Favorites;
+}
