@@ -40,10 +40,7 @@ const ListingCard = ({ listing }) => {
       <div className="listing-card__image-container">
         <img src={imageUrl} alt={title} className="listing-card__image" />
 
-        {/* ❤️ Favorite button above*/}
-        <div style={{ position: "absolute", top: 8, right: 8 }}>
-          <FavoriteButton listingId={_id} />
-        </div>
+        <FavoriteButton listingId={_id} />
 
         {condition && <span className="listing-card__badge">{condition}</span>}
       </div>
