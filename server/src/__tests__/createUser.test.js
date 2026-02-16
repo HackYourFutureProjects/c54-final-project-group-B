@@ -60,7 +60,7 @@ describe("POST /api/users", () => {
       .send({ user: testUser })
       .then((response) => {
         expect(response.status).toBe(400);
-        expect(response.body.msg).toContain("required");
+        expect(response.body.msg).toContain("must be accepted");
         done();
       })
       .catch((err) => done(err));

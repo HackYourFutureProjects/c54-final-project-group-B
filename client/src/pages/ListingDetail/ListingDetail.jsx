@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import useFetch from "../../hooks/useFetch";
 import "../../styles/ListingDetail.css";
 import "../../styles/ListingDetail.css";
@@ -7,6 +8,8 @@ import "../../styles/ListingDetail.css";
 const ListingDetail = () => {
   /* Step 1: Initialize State */
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [listing, setListing] = useState(null);
 
   const {
@@ -92,7 +95,16 @@ const ListingDetail = () => {
           <div className="action-buttons">
             <button
               className="btn-contact"
-              onClick={() => alert("Contact functionality coming soon!")}
+              onClick={() => {
+                if (!user) {
+                  navigate("/login");
+                } else if (user._id === listing.ownerId) {
+                  alert("You cannot chat with yourself!");
+                } else {
+                  const sellerId = listing.ownerId?._id || listing.ownerId;
+                  navigate(`/chat/${id}?receiverId=${sellerId}`);
+                }
+              }}
             >
               Contact Seller
             </button>

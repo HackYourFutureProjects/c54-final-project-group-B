@@ -1,62 +1,55 @@
-import { logInfo, logWarning, logError } from "../logging.js";
+import logger, { logInfo, logWarn, logError } from "../logging.js";
 
 describe("logging", () => {
-  it("logInfo should log to the console.log", () => {
-    /**
-     * Here we tell jest to look at the console.log function so we can track the calls.
-     * We also provide a mockImplementation, so that during the test we don't actually write to the console.
-     */
-    const consoleLogMock = jest.spyOn(console, "log").mockImplementation();
+  it("logInfo should log to the logger.info", () => {
+    const loggerInfoMock = jest.spyOn(logger, "info").mockImplementation();
 
-    // first check that it hasn't been called yet
-    expect(consoleLogMock).toHaveBeenCalledTimes(0);
+    expect(loggerInfoMock).toHaveBeenCalledTimes(0);
 
-    // do your action
     logInfo("Some message");
 
-    // check that it has been called purely by your action
-    expect(consoleLogMock).toHaveBeenCalledTimes(1);
+    expect(loggerInfoMock).toHaveBeenCalledTimes(1);
 
-    // If we ever mock something with a mockImplementation we ALWAYS need to restore it afterwards, or it will be mocked for other tests
-    consoleLogMock.mockRestore();
+    loggerInfoMock.mockRestore();
   });
 
-  it("logWarning should log to the console.warn", () => {
-    const consoleWarnMock = jest.spyOn(console, "warn").mockImplementation();
+  it("logWarn should log to the logger.warn", () => {
+    const loggerWarnMock = jest.spyOn(logger, "warn").mockImplementation();
 
-    expect(consoleWarnMock).toHaveBeenCalledTimes(0);
+    expect(loggerWarnMock).toHaveBeenCalledTimes(0);
 
-    logWarning("Some message");
+    logWarn("Some message");
 
-    expect(consoleWarnMock).toHaveBeenCalledTimes(1);
+    expect(loggerWarnMock).toHaveBeenCalledTimes(1);
 
-    consoleWarnMock.mockRestore();
+    loggerWarnMock.mockRestore();
   });
 
-  it("logError should log simple messages to the console.error", () => {
-    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+  it("logError should log simple messages to the logger.error", () => {
+    const loggerErrorMock = jest.spyOn(logger, "error").mockImplementation();
 
-    expect(consoleErrorMock).toHaveBeenCalledTimes(0);
+    expect(loggerErrorMock).toHaveBeenCalledTimes(0);
+    const err = new Error("Some message");
+    logError(err);
 
-    logError("Some message");
+    expect(loggerErrorMock).toHaveBeenCalledTimes(1);
 
-    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
-
-    consoleErrorMock.mockRestore();
+    loggerErrorMock.mockRestore();
   });
 
-  it("logError should log Error objects with stack to the console.error", () => {
-    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+  it("logError should log Error objects with stack to the logger.error", () => {
+    const loggerErrorMock = jest.spyOn(logger, "error").mockImplementation();
 
-    expect(consoleErrorMock).toHaveBeenCalledTimes(0);
-    // Errors should also log the stack
+    expect(loggerErrorMock).toHaveBeenCalledTimes(0);
     const errMessage = "My error";
     const err = new Error(errMessage);
     logError(err);
 
-    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
-    expect(consoleErrorMock).toHaveBeenLastCalledWith(errMessage, err.stack);
+    expect(loggerErrorMock).toHaveBeenCalledTimes(1);
+    expect(loggerErrorMock).toHaveBeenLastCalledWith(errMessage, {
+      stack: err.stack,
+    });
 
-    consoleErrorMock.mockRestore();
+    loggerErrorMock.mockRestore();
   });
 });
