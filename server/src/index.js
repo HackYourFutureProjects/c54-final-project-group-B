@@ -7,6 +7,32 @@ import app from "./app.js";
 import { logInfo, logError } from "./util/logging.js";
 import connectDB from "./db/connectDB.js";
 import testRouter from "./testRouter.js";
+import http from "http";
+import { Server } from "socket.io";
+import Message from "./models/Message.js";
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  socket.on("join_room", (room) => {
+    socket.join(room);
+  });
+
+  socket.on("send_message", async (msg) => {
+    try {
+      const savedMessage = await Message.create(msg);
+      io.to(msg.room).emit("receive_message", savedMessage);
+    } catch (error) {
+      logError(error);
+    }
+  });
+});
 
 // Check for required environment variables
 const requiredEnv = [
@@ -36,7 +62,7 @@ if (port == null) {
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(port, () => {
+    server.listen(port, () => {
       logInfo(`Server started on port ${port}`);
     });
   } catch (error) {

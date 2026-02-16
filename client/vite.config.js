@@ -18,7 +18,11 @@ export default defineConfig(({ command, mode }) => {
 
       // Proxy /api requests to the API server. This will avoid any CORS issues.
       proxy: {
-        '/api': backendProxyTarget,
+        "/api": backendProxyTarget,
+        "/socket.io": {
+          target: backendProxyTarget,
+          ws: true,
+        },
       },
     },
   };

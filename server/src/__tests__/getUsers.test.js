@@ -33,8 +33,22 @@ describe("GET /api/users", () => {
   });
 
   it("Should return all the users in the db", async () => {
-    const testUser1 = { name: "John", email: "john@doe.com" };
-    const testUser2 = { name: "Jane", email: "jane@doe.com" };
+    const testUser1 = {
+      name: "John",
+      email: "john@doe.com",
+      password: "Password123!",
+      city: "Amsterdam",
+      country: "Netherlands",
+      agreedToTerms: true,
+    };
+    const testUser2 = {
+      name: "Jane",
+      email: "jane@doe.com",
+      password: "Password123!",
+      city: "Utrecht",
+      country: "Netherlands",
+      agreedToTerms: true,
+    };
 
     await addUserToMockDB(testUser1);
     await addUserToMockDB(testUser2);
