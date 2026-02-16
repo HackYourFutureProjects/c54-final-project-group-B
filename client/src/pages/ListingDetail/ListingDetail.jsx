@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import "../../styles/ListingDetail.css";
-import "../../styles/ListingDetail.css";
+import FavoriteButton from "../../components/FavoriteButton";
 
 const ListingDetail = () => {
-  /* Step 1: Initialize State */
   const { id } = useParams();
   const [listing, setListing] = useState(null);
 
@@ -27,9 +26,9 @@ const ListingDetail = () => {
     return <div className="listing-detail-container">Loading...</div>;
   if (error)
     return <div className="listing-detail-container">Error: {error}</div>;
-  if (!listing) return null; // or a "Not Found" component
+  if (!listing) return null;
 
-  // Handle price display logic locally
+  // Handle price display
   let displayPrice = listing.price;
   if (listing.price && typeof listing.price === "object") {
     if (listing.price.$numberDecimal) {
@@ -39,7 +38,6 @@ const ListingDetail = () => {
     }
   }
 
-  // Derive currency explicitly
   let currency = "EUR";
   if (
     listing.price &&
@@ -48,6 +46,7 @@ const ListingDetail = () => {
   ) {
     currency = listing.price.currency;
   }
+
   const currencySymbol = currency === "USD" ? "$" : "€";
 
   const imageUrl =
@@ -57,22 +56,22 @@ const ListingDetail = () => {
 
   return (
     <div className="listing-detail-container">
-      {/* Back Link */}
       <Link to="/" className="back-link">
         ← Back to Marketplace
       </Link>
 
       <div className="listing-content">
-        {/* Left Column: Image */}
+        {/* Image */}
         <div className="image-container">
           <img src={imageUrl} alt={listing.title} className="listing-image" />
         </div>
 
-        {/* Right Column: Details */}
+        {/* Details */}
         <div className="details-container">
           {listing.brand && <span className="brand-name">{listing.brand}</span>}
 
           <h1 className="listing-title">{listing.title}</h1>
+
           <div className="listing-price">
             {currencySymbol}
             {displayPrice}
@@ -83,9 +82,7 @@ const ListingDetail = () => {
               <span className="badge badge-condition">{listing.condition}</span>
             )}
             {listing.location && (
-              <span className="badge badge-location">
-                <span aria-hidden="true">📍</span> {listing.location}
-              </span>
+              <span className="badge badge-location">{listing.location}</span>
             )}
           </div>
 
@@ -96,22 +93,20 @@ const ListingDetail = () => {
             >
               Contact Seller
             </button>
-            <button
-              className="btn-favorite"
-              onClick={() => alert("Added to favorites!")}
-            >
-              Add to Favorites
-            </button>
+
+            <FavoriteButton listingId={listing._id} variant="button" />
           </div>
 
           <div className="specs-section">
             <h3>Specifications</h3>
+
             {listing.brand && (
               <div className="spec-row">
                 <span className="spec-label">Brand:</span>
                 <span className="spec-value">{listing.brand}</span>
               </div>
             )}
+
             {listing.condition && (
               <div className="spec-row">
                 <span className="spec-label">Condition:</span>
@@ -121,7 +116,6 @@ const ListingDetail = () => {
           </div>
         </div>
 
-        {/* Description Section */}
         {listing.description && (
           <div className="description-section">
             <h3>Description</h3>
