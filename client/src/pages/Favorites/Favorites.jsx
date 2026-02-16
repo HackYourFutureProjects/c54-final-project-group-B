@@ -1,48 +1,50 @@
 import { useEffect, useState } from "react";
+import useFetch from "../../hooks/useFetch";
+import ListingCard from "../../components/ListingCard";
+import FavoriteButton from "../../components/FavoriteButton";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
+
+  const { isLoading, error, performFetch, cancelFetch } = useFetch(
+    "/favorites",
+    (data) => {
+      setFavorites(data?.result || []);
+    },
+  );
 
   const loadFavorites = async () => {
+    setLocalError("");
     try {
-      setLoading(true);
-      setError("");
-
-      const res = await fetch("/api/favorites", {
+      await performFetch({
         method: "GET",
         credentials: "include",
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data?.msg || "Failed to load favorites");
-        setFavorites([]);
-        return;
-      }
-
-      setFavorites(data?.result || []);
     } catch (err) {
       console.error(err);
-      setError("Network error");
-      setFavorites([]);
-    } finally {
-      setLoading(false);
+      setLocalError("Failed to load favorites");
     }
   };
 
   useEffect(() => {
-    loadFavorites();
+    const fetchData = async () => {
+      await loadFavorites();
+    };
+
+    fetchData();
+
+    return () => cancelFetch();
   }, []);
 
-  if (loading) return <p>Loading favorites...</p>;
+  const finalError = localError || error;
 
-  if (error) {
+  if (isLoading) return <p>Loading favorites...</p>;
+
+  if (finalError) {
     return (
       <div>
-        <p style={{ color: "red" }}>{error}</p>
+        <p style={{ color: "red" }}>{finalError.toString()}</p>
         <button type="button" onClick={loadFavorites}>
           Retry
         </button>
@@ -53,15 +55,24 @@ export default function Favorites() {
   if (!favorites.length) return <p>No favorites yet.</p>;
 
   return (
-    <div>
+    <div className="home-container">
       <h1>My Favorites</h1>
-      <ul>
+
+      <div className="listing-grid">
         {favorites.map((listing) => (
-          <li key={listing._id}>
-            {listing.title || listing.name || listing._id}
-          </li>
+          <div key={listing._id} style={{ position: "relative" }}>
+            <ListingCard listing={listing} />
+
+            <div style={{ marginTop: 8 }}>
+              <FavoriteButton
+                listingId={listing._id}
+                variant="button"
+                onToggled={loadFavorites}
+              />
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
