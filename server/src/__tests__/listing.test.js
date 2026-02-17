@@ -176,7 +176,7 @@ describe("GET /api/listings", () => {
     expect(response.body.result.length).toBe(2);
   });
 
-  it("Should hide sold items by default", async () => {
+  it("Should show both active and sold items by default", async () => {
     const user = await createTestUser();
     await Listing.create({
       ...testListingBase,
@@ -192,8 +192,10 @@ describe("GET /api/listings", () => {
     const response = await request.get("/api/listings");
 
     expect(response.status).toBe(200);
-    expect(response.body.result.length).toBe(1);
-    expect(response.body.result[0].status).toBe("active");
+    expect(response.body.result.length).toBe(2);
+    const statuses = response.body.result.map((l) => l.status);
+    expect(statuses).toContain("active");
+    expect(statuses).toContain("sold");
   });
 
   it("Should filter listings by status", async () => {

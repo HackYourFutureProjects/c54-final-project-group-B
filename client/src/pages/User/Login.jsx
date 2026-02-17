@@ -25,16 +25,10 @@ const Login = () => {
     navigate(from, { replace: true });
   };
 
-  const onError = (data) => {
-    if (data.necessitatesVerification) {
-      navigate("/verify-code", { state: { email: data.email } });
-    }
-  };
 
   const { isLoading, error, performFetch, cancelFetch } = useFetch(
     "/users/login",
     onSuccess,
-    onError,
   );
 
   useEffect(() => {

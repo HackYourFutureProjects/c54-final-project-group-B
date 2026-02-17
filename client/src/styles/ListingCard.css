@@ -56,6 +56,12 @@
   z-index: 2;
 }
 
+.listing-card__badge--sold {
+  background-color: #d32f2f; /* Red for sold */
+  left: 12px;
+  right: auto;
+}
+
 /* Content Section */
 .listing-card__content {
   padding: 16px;
