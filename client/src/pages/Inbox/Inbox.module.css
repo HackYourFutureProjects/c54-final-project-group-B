@@ -20,6 +20,33 @@
   gap: 1.25rem;
 }
 
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab {
+  padding: 0.6rem 2rem;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: #e0e0e0;
+}
+
+.activeTab {
+  background: var(--primary-color, #8e24aa);
+  color: white;
+}
+
 .card {
   display: flex;
   justify-content: space-between;
@@ -157,4 +184,40 @@
   .messagePreview {
     text-align: left;
   }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.unreadDot {
+  width: 10px;
+  height: 10px;
+  background-color: var(--primary-color, #8e24aa);
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 0 5px rgba(142, 36, 170, 0.5);
+}
+
+.archiveButton {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.archiveButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  opacity: 1;
 }

@@ -19,18 +19,72 @@ const io = new Server(server, {
   },
 });
 
+// Map to track online users (userId -> Set of socketIds)
+const onlineUsers = new Map();
+
 io.on("connection", (socket) => {
-  socket.on("join_room", (room) => {
+  let currentUserId = null;
+
+  socket.on("join_room", (data) => {
+    // data can be just room string or { room, userId }
+    const { room, userId } = typeof data === "string" ? { room: data } : data;
     socket.join(room);
+
+    if (userId) {
+      currentUserId = userId;
+      if (!onlineUsers.has(userId)) {
+        onlineUsers.set(userId, new Set());
+      }
+      onlineUsers.get(userId).add(socket.id);
+      io.emit("user_status_change", { userId, status: "online" });
+    }
   });
 
   socket.on("send_message", async (msg) => {
     try {
+      // Check if receiver is online and in the same room
+      // This is slightly complex to track who is in which room,
+      // but for now let's just create the message.
       const savedMessage = await Message.create(msg);
       io.to(msg.room).emit("receive_message", savedMessage);
     } catch (error) {
       logError(error);
     }
+  });
+
+  socket.on("typing", (data) => {
+    socket.to(data.room).emit("typing_status", {
+      userId: data.userId,
+      isTyping: true,
+    });
+  });
+
+  socket.on("stop_typing", (data) => {
+    socket.to(data.room).emit("typing_status", {
+      userId: data.userId,
+      isTyping: false,
+    });
+  });
+
+  socket.on("disconnect", () => {
+    if (currentUserId && onlineUsers.has(currentUserId)) {
+      onlineUsers.get(currentUserId).delete(socket.id);
+      if (onlineUsers.get(currentUserId).size === 0) {
+        onlineUsers.delete(currentUserId);
+        io.emit("user_status_change", {
+          userId: currentUserId,
+          status: "offline",
+        });
+      }
+    }
+  });
+
+  // Helper to check online status
+  socket.on("check_online_status", (userId) => {
+    socket.emit("online_status_result", {
+      userId,
+      isOnline: onlineUsers.has(userId),
+    });
   });
 });
 
