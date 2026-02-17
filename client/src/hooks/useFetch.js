@@ -5,6 +5,7 @@ import { useState } from "react";
  *
  * route - This is the route you want to access on the server. It should NOT include the /api part, so should be /user or /user/{id}
  * onReceived - a function that will be called with the response of the server. Will only be called if everything went well!
+ * onError - an optional function that will be called with the response of the server if something went wrong.
  *
  * Our hook will give you an object with the properties:
  *
@@ -13,7 +14,7 @@ import { useState } from "react";
  * performFetch - this function will trigger the fetching. It is up to the user of the hook to determine when to do this!
  * cancelFetch - this function will cancel the fetch, call it when your component is unmounted
  */
-const useFetch = (route, onReceived) => {
+const useFetch = (route, onReceived, onError) => {
   /**
    * We use the AbortController which is supported by all modern browsers to handle cancellations
    * For more info: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
@@ -69,6 +70,7 @@ const useFetch = (route, onReceived) => {
       if (jsonResult.success === true) {
         onReceived(jsonResult);
       } else {
+        if (onError) onError(jsonResult);
         setError(
           jsonResult.msg ||
             `The result from our API did not have an error message. Received: ${JSON.stringify(

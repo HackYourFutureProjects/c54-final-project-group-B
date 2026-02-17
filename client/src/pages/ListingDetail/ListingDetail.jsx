@@ -199,6 +199,7 @@ const ListingDetail = () => {
                 </button>
                 <button
                   className="btn-favorite"
+                  disabled={listing.status === "sold"}
                   onClick={() => alert("Added to favorites!")}
                 >
                   Add to Favorites

@@ -176,6 +176,26 @@ describe("GET /api/listings", () => {
     expect(response.body.result.length).toBe(2);
   });
 
+  it("Should hide sold items by default", async () => {
+    const user = await createTestUser();
+    await Listing.create({
+      ...testListingBase,
+      ownerId: user._id,
+      status: "active",
+    });
+    await Listing.create({
+      ...testListingBase,
+      ownerId: user._id,
+      status: "sold",
+    });
+
+    const response = await request.get("/api/listings");
+
+    expect(response.status).toBe(200);
+    expect(response.body.result.length).toBe(1);
+    expect(response.body.result[0].status).toBe("active");
+  });
+
   it("Should filter listings by status", async () => {
     const user = await createTestUser();
     await Listing.create({
