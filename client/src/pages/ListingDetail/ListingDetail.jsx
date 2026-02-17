@@ -208,6 +208,22 @@ const ListingDetail = () => {
             )}
           </div>
 
+          {/* Seller Info Section */}
+          <div className="seller-info-section">
+            <h3 className="seller-info-title">Seller Information</h3>
+            <div className="seller-card">
+              <div className="seller-avatar">
+                {listing.ownerId?.name?.charAt(0).toUpperCase() || "U"}
+              </div>
+              <div className="seller-details">
+                <span className="seller-name">
+                  {listing.ownerId?.name || "Unknown Seller"}
+                </span>
+                <span className="seller-email">Verified User</span>
+              </div>
+            </div>
+          </div>
+
           <div className="specs-section">
             <h3>Specifications</h3>
             {listing.brand && (

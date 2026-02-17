@@ -17,7 +17,8 @@ export const getMessagesByRoom = async (req, res) => {
 
     const messages = await Message.find(query)
       .sort({ createdAt: -1 }) // Sort latest first for pagination
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .populate("senderId", "name");
 
     // Reverse to return chronological order
     const result = messages.reverse();

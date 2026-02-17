@@ -38,7 +38,14 @@ const ListingCard = ({ listing }) => {
 
       <div className="listing-card__content">
         <div className="listing-card__header">
-          {brand && <span className="listing-card__brand">{brand}</span>}
+          <div className="listing-card__meta">
+            {brand && <span className="listing-card__brand">{brand}</span>}
+            {listing.ownerId && listing.ownerId.name && (
+              <span className="listing-card__seller">
+                by {listing.ownerId.name}
+              </span>
+            )}
+          </div>
           <h3 className="listing-card__title">{title}</h3>
         </div>
 

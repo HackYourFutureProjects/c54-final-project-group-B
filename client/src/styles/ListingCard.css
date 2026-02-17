@@ -141,3 +141,21 @@
   background-color: var(--accent-color);
   color: black;
 }
+
+/* Seller Info */
+.listing-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.listing-card__brand {
+  margin-bottom: 0;
+}
+
+.listing-card__seller {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-style: italic;
+}
