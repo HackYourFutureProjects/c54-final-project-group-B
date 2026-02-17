@@ -44,6 +44,15 @@ testRouter.post("/seed", async (req, res) => {
           agreedToTerms: true,
           isVerified: true,
         },
+        {
+          name: "Teammate Tom",
+          email: "teammate@test.com",
+          password: "Password123!",
+          city: "Amsterdam",
+          country: "Netherlands",
+          agreedToTerms: true,
+          isVerified: true,
+        },
       ],
     };
 
@@ -60,15 +69,38 @@ testRouter.post("/seed", async (req, res) => {
     const createdUsers = await User.create(hashedUsers);
 
     // Add a listing for the seller
-    await Listing.create({
+    const listing = await Listing.create({
       title: "Vintage Gazelle Bike",
       description: "A beautiful vintage Gazelle bike in excellent condition.",
       price: 250,
       location: "Amsterdam",
       brand: "Gazelle",
       condition: "good",
-      ownerId: createdUsers[0]._id, // First user is the seller
+      ownerId: createdUsers[0]._id, // Sam
     });
+
+    const Message = mongoose.model("Message");
+    const room = `${createdUsers[0]._id}-${createdUsers[1]._id}-${listing._id}`;
+
+    // Add some initial messages
+    await Message.create([
+      {
+        senderId: createdUsers[1]._id, // Ben
+        receiverId: createdUsers[0]._id, // Sam
+        listingId: listing._id,
+        room: room,
+        content: "Hi Sam, is this bike still available?",
+        read: false,
+      },
+      {
+        senderId: createdUsers[0]._id, // Sam
+        receiverId: createdUsers[1]._id, // Ben
+        listingId: listing._id,
+        room: room,
+        content: "Yes Ben! It is.",
+        read: true,
+      },
+    ]);
 
     // Fetch to add to the return
     const finalUsers = await User.find();
