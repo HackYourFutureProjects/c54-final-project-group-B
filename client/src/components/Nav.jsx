@@ -68,6 +68,18 @@ const Nav = () => {
             Favorites
           </NavLink>
         </li>
+        {user && (
+          <li>
+            <NavLink
+              to="/inbox"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              Inbox
+            </NavLink>
+          </li>
+        )}
       </ul>
 
       {/* RIGHT: Auth Actions */}

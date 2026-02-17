@@ -3,11 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
-import favoriteRouter from "./routes/favorite.js";
 
 import userRouter from "./routes/user.js";
 import listingRouter from "./routes/listing.js";
-import messageRouter from "./routes/message.js";
 import { globalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/error.js";
 
@@ -15,18 +13,7 @@ import { errorHandler } from "./middleware/error.js";
 const app = express();
 
 // Security & Logging Middleware
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        "img-src": ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
-        "connect-src": ["'self'", "https://api.cloudinary.com"],
-      },
-    },
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-  }),
-);
+app.use(helmet());
 app.use(morgan("dev"));
 app.use(globalLimiter);
 
@@ -49,8 +36,6 @@ app.use(
  */
 app.use("/api/users", userRouter);
 app.use("/api/listings", listingRouter);
-app.use("/api/favorites", favoriteRouter);
-app.use("/api/messages", messageRouter);
 
 // Error Handling
 app.use(errorHandler);
