@@ -176,6 +176,28 @@ describe("GET /api/listings", () => {
     expect(response.body.result.length).toBe(2);
   });
 
+  it("Should show both active and sold items by default", async () => {
+    const user = await createTestUser();
+    await Listing.create({
+      ...testListingBase,
+      ownerId: user._id,
+      status: "active",
+    });
+    await Listing.create({
+      ...testListingBase,
+      ownerId: user._id,
+      status: "sold",
+    });
+
+    const response = await request.get("/api/listings");
+
+    expect(response.status).toBe(200);
+    expect(response.body.result.length).toBe(2);
+    const statuses = response.body.result.map((l) => l.status);
+    expect(statuses).toContain("active");
+    expect(statuses).toContain("sold");
+  });
+
   it("Should filter listings by status", async () => {
     const user = await createTestUser();
     await Listing.create({

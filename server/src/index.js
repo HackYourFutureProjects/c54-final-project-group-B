@@ -10,6 +10,7 @@ import testRouter from "./testRouter.js";
 import http from "http";
 import { Server } from "socket.io";
 import Message from "./models/Message.js";
+import ConversationStatus from "./models/ConversationStatus.js";
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -21,6 +22,29 @@ const io = new Server(server, {
 
 // Map to track online users (userId -> Set of socketIds)
 const onlineUsers = new Map();
+
+const broadcastUserStatus = async (userId, status) => {
+  try {
+    const statuses = await ConversationStatus.find({ userId });
+    statuses.forEach((s) => {
+      // Notify the specific chat room
+      io.to(s.room).emit("user_status_change", { userId, status });
+
+      // Notify the other user's personal room for app-wide sync (e.g., Inbox)
+      // Room format: listingId_userId1_userId2
+      const parts = s.room.split("_");
+      const otherUserId = parts[1] === userId ? parts[2] : parts[1];
+      if (otherUserId) {
+        io.to(`user_${otherUserId}`).emit("user_status_change", {
+          userId,
+          status,
+        });
+      }
+    });
+  } catch (err) {
+    logError(err);
+  }
+};
 
 io.on("connection", (socket) => {
   let currentUserId = null;
@@ -44,12 +68,13 @@ io.on("connection", (socket) => {
 
     if (userId) {
       currentUserId = userId;
+      // Join personal room for app-wide notifications (Inbox, etc.)
+      socket.join(`user_${userId}`);
+
       if (!onlineUsers.has(userId)) {
         onlineUsers.set(userId, new Set());
-        // Private Status: Only notify people this user has conversations with
-        // For simplicity in this demo, we broadcast, but in a real app we'd query DB
-        // Here we'll just emit to the rooms the user is in
-        io.to(room).emit("user_status_change", { userId, status: "online" });
+        // Notify shared contacts about new online status
+        broadcastUserStatus(userId, "online");
       }
       onlineUsers.get(userId).add(socket.id);
     }
@@ -95,21 +120,31 @@ io.on("connection", (socket) => {
       onlineUsers.get(currentUserId).delete(socket.id);
       if (onlineUsers.get(currentUserId).size === 0) {
         onlineUsers.delete(currentUserId);
-        // We don't have the room context here, so we broadcast or handle via state
-        io.emit("user_status_change", {
-          userId: currentUserId,
-          status: "offline",
-        });
+        // Targeted Offline Notification
+        broadcastUserStatus(currentUserId, "offline");
       }
     }
   });
 
-  // Helper to check online status
-  socket.on("check_online_status", (userId) => {
-    socket.emit("online_status_result", {
-      userId,
-      isOnline: onlineUsers.has(userId),
-    });
+  // Helper to check online status (Hardened: only for contacts)
+  socket.on("check_online_status", async (targetUserId) => {
+    if (!currentUserId) return;
+    try {
+      // Verify if users share a conversation before disclosing status
+      const sharedRoom = await ConversationStatus.findOne({
+        userId: currentUserId,
+        room: { $regex: targetUserId },
+      });
+
+      if (sharedRoom) {
+        socket.emit("online_status_result", {
+          userId: targetUserId,
+          isOnline: onlineUsers.has(targetUserId),
+        });
+      }
+    } catch (err) {
+      logError(err);
+    }
   });
 });
 

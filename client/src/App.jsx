@@ -5,6 +5,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RequireVerified from "./components/RequireVerified";
 
+import PublicOnlyRoute from "./components/PublicOnlyRoute";
+
 // Lazy loaded components
 const Home = lazy(() => import("./pages/Home/Home"));
 const CreateUser = lazy(() => import("./pages/User/CreateUser"));
@@ -26,15 +28,19 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/user" element={<UserList />} />
-          <Route path="/user/create" element={<CreateUser />} />
-          <Route path="/signup" element={<CreateUser />} />
           <Route path="/listings/:id" element={<ListingDetail />} />
           <Route path="/chat/:id" element={<Chat />} />
           <Route path="/inbox" element={<Inbox />} />
-          <Route path="/login" element={<Login />} />
           <Route path="/verify-code" element={<VerifyCode />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Public Only Routes */}
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<CreateUser />} />
+            <Route path="/user/create" element={<CreateUser />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
