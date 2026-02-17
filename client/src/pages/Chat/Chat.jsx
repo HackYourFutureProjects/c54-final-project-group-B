@@ -22,6 +22,7 @@ const Chat = () => {
   const [isOnline, setIsOnline] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(null); // For "Copied" toast
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -63,9 +64,7 @@ const Chat = () => {
         }
       })
       .catch((err) => console.error("Failed to load listing:", err));
-
-    return () => setIsLoadingHistory(false);
-  }, [room, user, listingId]);
+  }, [room, user, listingId]); // Removing 'listingId' from dependency as it's stable from useParams
 
   // 2. Initialize Socket Connection and Listeners
   useEffect(() => {
@@ -171,7 +170,16 @@ const Chat = () => {
     // Send via socket for real-time update
     socketRef.current.emit("send_message", messageData);
     socketRef.current.emit("stop_typing", { room, userId: user._id });
+    socketRef.current.emit("stop_typing", { room, userId: user._id });
     setNewMessage("");
+  };
+
+  const handleCopyUsername = (username) => {
+    if (!username) return;
+    navigator.clipboard.writeText(username).then(() => {
+      setCopyFeedback(username);
+      setTimeout(() => setCopyFeedback(null), 2000);
+    });
   };
 
   if (!user) {
@@ -226,22 +234,61 @@ const Chat = () => {
         ) : messages.length === 0 ? (
           <div className={styles.empty}>No messages yet. Say hello!</div>
         ) : (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`${styles.message} ${
-                msg.senderId === user._id ? styles.sent : styles.received
-              }`}
-            >
-              <div className={styles.messageText}>{msg.content}</div>
-              <div className={styles.timeStamp}>
-                {new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+          messages.map((msg, index) => {
+            const isSender = (msg.senderId._id || msg.senderId) === user._id;
+            const senderName = msg.senderId.name || "User";
+
+            return (
+              <div
+                key={index}
+                className={`${styles.message} ${
+                  isSender ? styles.sent : styles.received
+                }`}
+              >
+                {!isSender && (
+                  <div
+                    className={styles.senderName}
+                    onClick={() => handleCopyUsername(senderName)}
+                    title="Click to copy username"
+                  >
+                    {senderName}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={styles.copyIcon}
+                    >
+                      <rect
+                        x="9"
+                        y="9"
+                        width="13"
+                        height="13"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    {copyFeedback === senderName && (
+                      <span className={styles.copyFeedback}>Copied!</span>
+                    )}
+                  </div>
+                )}
+                <div className={styles.messageText}>{msg.content}</div>
+                <div className={styles.timeStamp}>
+                  {new Date(msg.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         {isOtherTyping && (
           <div className={styles.typingIndicator}>Someone is typing...</div>
