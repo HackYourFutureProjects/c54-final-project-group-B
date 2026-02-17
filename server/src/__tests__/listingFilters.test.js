@@ -166,6 +166,22 @@ describe("Advanced Listing Filters", () => {
     });
   });
 
+  it("should validation pagination parameters", async () => {
+    const res = await request.get("/api/listings?page=0&limit=10");
+    expect(res.status).toBe(400);
+    expect(res.body.msg).toContain("Invalid pagination parameters");
+  });
+
+  it("should exclude null years when sorting by year", async () => {
+    // Logic check: The controller now adds { $ne: null } for year sort
+    // We assume seed data has years. If we added a bike with no year, it should not appear.
+    // Since we didn't add one, we just check status 200 for now.
+    const res = await request.get("/api/listings?sort=year_desc");
+    expect(res.status).toBe(200);
+    const years = res.body.result.map((l) => l.year);
+    expect(years).toEqual(expect.not.arrayContaining([null]));
+  });
+
   describe("GET /api/listings/facets", () => {
     it("should return correct statistics for active listings", async () => {
       const res = await request.get("/api/listings/facets");

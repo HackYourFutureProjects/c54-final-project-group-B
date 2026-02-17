@@ -81,10 +81,13 @@ export const getListings = async (req, res) => {
 
     // 3. Multi-Select Filters (Brand, Category, Condition)
     if (brand) {
-      // Expecting brand to be a comma-separated string if from query params, or array
       const brands = Array.isArray(brand) ? brand : brand.split(",");
-      if (brands.length > 0)
-        filter.brand = { $in: brands.map((b) => new RegExp(b, "i")) };
+      if (brands.length > 0) {
+        // Sanitize regex input to prevent ReDoS
+        filter.brand = {
+          $in: brands.map((b) => new RegExp(escapeRegex(b), "i")),
+        };
+      }
     }
 
     if (category) {
@@ -121,7 +124,27 @@ export const getListings = async (req, res) => {
 
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
+
+    // Validate pagination
+    if (
+      !Number.isInteger(pageNum) ||
+      !Number.isInteger(limitNum) ||
+      pageNum < 1 ||
+      limitNum < 1 ||
+      limitNum > 100
+    ) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid pagination parameters: page must be >= 1 and limit must be between 1 and 100.",
+      });
+    }
+
     const skip = (pageNum - 1) * limitNum;
+
+    // Handle nulls in sorting
+    if (sortBy === "price" || sortBy === "year") {
+      filter[sortBy] = { ...filter[sortBy], $ne: null };
+    }
 
     const [listings, totalCount] = await Promise.all([
       Listing.find(filter)
@@ -338,8 +361,17 @@ export const getListingFacets = async (req, res) => {
     ]);
 
     const result = stats[0];
-    const priceRange = result.priceRange[0] || { minPrice: 0, maxPrice: 10000 };
-    // Convert Decimal128 to float for frontend
+    // Handle empty results gracefully
+    const hasPriceRange =
+      stats[0] &&
+      stats[0].priceRange &&
+      Array.isArray(stats[0].priceRange) &&
+      stats[0].priceRange.length > 0;
+
+    const priceRange = hasPriceRange
+      ? stats[0].priceRange[0]
+      : { minPrice: 0, maxPrice: 0 };
+
     if (priceRange.minPrice && priceRange.minPrice.toString)
       priceRange.minPrice = parseFloat(priceRange.minPrice.toString());
     if (priceRange.maxPrice && priceRange.maxPrice.toString)
@@ -347,13 +379,17 @@ export const getListingFacets = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      minPrice: priceRange.minPrice,
-      maxPrice: priceRange.maxPrice,
-      brands: result.brands.map((b) => ({ name: b._id, count: b.count })),
-      categories: result.categories.map((c) => ({
-        name: c._id,
-        count: c.count,
-      })),
+      minPrice: priceRange.minPrice || 0,
+      maxPrice: priceRange.maxPrice || 0,
+      brands: result.brands
+        .filter((b) => b._id != null)
+        .map((b) => ({ name: b._id, count: b.count })),
+      categories: result.categories
+        .filter((c) => c._id != null)
+        .map((c) => ({
+          name: c._id,
+          count: c.count,
+        })),
     });
   } catch (error) {
     logError(error);
