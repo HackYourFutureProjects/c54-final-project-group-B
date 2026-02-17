@@ -4,21 +4,9 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
 
-// User controller imports
-import {
-  createUser,
-  getUsers,
-  loginUser,
-  verifyEmail,
-  resendVerificationCode,
-  requestPasswordReset,
-  resetPassword,
-  getMe,
-  logoutUser,
-} from "./controllers/user.js";
-
-// Middleware
-import { authenticate } from "./middleware/auth.js"; // Your existing middleware
+import userRouter from "./routes/user.js";
+import listingRouter from "./routes/listing.js";
+import messageRouter from "./routes/message.js";
 import { globalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/error.js";
 
@@ -26,7 +14,18 @@ import { errorHandler } from "./middleware/error.js";
 const app = express();
 
 // Security & Logging Middleware
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "img-src": ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
+        "connect-src": ["'self'", "https://api.cloudinary.com"],
+      },
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 app.use(morgan("dev"));
 app.use(globalLimiter);
 
@@ -67,6 +66,7 @@ app.use("/api/users", userRouter);
 // Listing Router (existing)
 import listingRouter from "./routes/listing.js";
 app.use("/api/listings", listingRouter);
+app.use("/api/messages", messageRouter);
 
 // Error Handling Middleware
 app.use(errorHandler);

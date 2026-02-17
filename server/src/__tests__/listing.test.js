@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 import supertest from "supertest";
-import mongoose from "mongoose";
+import mockMongoose from "mongoose";
 
 import {
   connectToMockDB,
@@ -36,15 +36,20 @@ jest.mock("../middleware/auth.js", () => ({
   // Mock ownership to always pass unless we specifically test failure (handled by controller tests mostly)
   // In a real integration test we'd want this to check DB, but for now we trust unit tests
   requireOwnership: (Model) => async (req, res, next) => {
-    // Simulate resource attachment if needed, or just pass
-    // We can look up the resource to set req.resource for the controller
-    if (req.params.id) {
-      const resource = await Model.findById(req.params.id);
-      if (resource) {
-        req.resource = resource;
-        // We could enforce ownership here in the mock if we wanted
-        // if (resource.ownerId.toString() !== req.user?._id?.toString()) ...
+    const { id } = req.params;
+    if (id && !mockMongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid listing ID" });
+    }
+    if (id) {
+      const resource = await Model.findById(id);
+      if (!resource) {
+        return res
+          .status(404)
+          .json({ success: false, msg: "Listing not found" });
       }
+      req.resource = resource;
     }
     next();
   },
@@ -73,6 +78,7 @@ const createTestUser = async () => {
     country: "Netherlands",
     city: "Amsterdam",
     agreedToTerms: true,
+    isVerified: true,
   });
   return user;
 };
@@ -136,10 +142,10 @@ describe("POST /api/listings", () => {
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
     expect(response.body.listing.title).toEqual(testListingBase.title);
-    expect(response.body.listing.price.$numberDecimal).toEqual(
+    expect(response.body.listing.price).toEqual(
       testListingBase.price.toString(),
     );
-    expect(response.body.listing.ownerId).toEqual(
+    expect(response.body.listing.ownerId.toString()).toEqual(
       global.__mockAuthUser._id.toString(),
     );
   });
@@ -202,7 +208,7 @@ describe("GET /api/listings/:id", () => {
   });
 
   it("Should return 404 for non-existent listing", async () => {
-    const fakeId = new mongoose.Types.ObjectId();
+    const fakeId = new mockMongoose.Types.ObjectId();
     const response = await request.get(`/api/listings/${fakeId}`);
 
     expect(response.status).toBe(404);
@@ -226,6 +232,7 @@ describe("GET /api/listings/:id", () => {
 
 describe("PUT /api/listings/:id", () => {
   it("Should return 400 for invalid ObjectId", async () => {
+    global.__mockAuthUser = await createTestUser();
     const response = await request
       .put("/api/listings/not-a-valid-id")
       .send({ listing: { price: 450 } });
@@ -236,6 +243,7 @@ describe("PUT /api/listings/:id", () => {
 
   it("Should update a listing", async () => {
     const user = await createTestUser();
+    global.__mockAuthUser = user;
     const listing = await Listing.create({
       ...testListingBase,
       ownerId: user._id,
@@ -247,11 +255,12 @@ describe("PUT /api/listings/:id", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.listing.price.$numberDecimal).toBe("450");
+    expect(response.body.listing.price).toBe("450");
   });
 
   it("Should return 404 for non-existent listing", async () => {
-    const fakeId = new mongoose.Types.ObjectId();
+    global.__mockAuthUser = await createTestUser();
+    const fakeId = new mockMongoose.Types.ObjectId();
     const response = await request
       .put(`/api/listings/${fakeId}`)
       .send({ listing: { price: 450 } });
@@ -262,6 +271,7 @@ describe("PUT /api/listings/:id", () => {
 
 describe("DELETE /api/listings/:id", () => {
   it("Should return 400 for invalid ObjectId", async () => {
+    global.__mockAuthUser = await createTestUser();
     const response = await request.delete("/api/listings/not-a-valid-id");
 
     expect(response.status).toBe(400);
@@ -270,6 +280,7 @@ describe("DELETE /api/listings/:id", () => {
 
   it("Should delete a listing", async () => {
     const user = await createTestUser();
+    global.__mockAuthUser = user;
     const listing = await Listing.create({
       ...testListingBase,
       ownerId: user._id,
@@ -285,7 +296,8 @@ describe("DELETE /api/listings/:id", () => {
   });
 
   it("Should return 404 for non-existent listing", async () => {
-    const fakeId = new mongoose.Types.ObjectId();
+    global.__mockAuthUser = await createTestUser();
+    const fakeId = new mockMongoose.Types.ObjectId();
     const response = await request.delete(`/api/listings/${fakeId}`);
 
     expect(response.status).toBe(404);

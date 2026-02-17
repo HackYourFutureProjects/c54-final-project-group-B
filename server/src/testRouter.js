@@ -1,14 +1,18 @@
 import express from "express";
 import mongoose from "mongoose";
-import User, { validateUser } from "./models/User.js";
+import User from "./models/User.js";
+import Listing from "./models/Listing.js";
+import bcrypt from "bcrypt";
 
 import { logError } from "./util/logging.js";
-import validationErrorMessage from "./util/validationErrorMessage.js";
 
 const testRouter = express.Router();
 
 testRouter.post("/seed", async (req, res) => {
-  if (!process.env.MONGODB_URL.includes("cypressDatabase")) {
+  if (
+    !process.env.MONGODB_URL.includes("cypressDatabase") &&
+    !process.env.MONGODB_URL.includes("c54-group-b")
+  ) {
     const msg =
       "The database you are trying to seed is not the cypress database! Did you forget to change your .env variable?";
     logError(msg);
@@ -23,38 +27,90 @@ testRouter.post("/seed", async (req, res) => {
     const data = {
       users: [
         {
-          name: "Rob",
-          email: "rob@hackyourfuture.net",
+          name: "Seller Sam",
+          email: "seller@test.com",
+          password: "Password123!",
+          city: "Amsterdam",
+          country: "Netherlands",
+          agreedToTerms: true,
+          isVerified: true,
+        },
+        {
+          name: "Buyer Ben",
+          email: "buyer@test.com",
+          password: "Password123!",
+          city: "Rotterdam",
+          country: "Netherlands",
+          agreedToTerms: true,
+          isVerified: true,
+        },
+        {
+          name: "Teammate Tom",
+          email: "teammate@test.com",
+          password: "Password123!",
+          city: "Amsterdam",
+          country: "Netherlands",
+          agreedToTerms: true,
+          isVerified: true,
         },
       ],
     };
 
-    // Validate users to the database
-    data.users.forEach((user) => {
-      const errorList = validateUser(user);
-
-      if (errorList.length > 0) {
-        const err = new Error(
-          `Invalid user in seed data. Errors: ${validationErrorMessage(
-            errorList,
-          )}. User attempting to be inserted: ${JSON.stringify(user)}`,
-        );
-
-        logError(err);
-        throw err;
-      }
-    });
+    // Hash passwords for seed users
+    const salt = await bcrypt.genSalt(10);
+    const hashedUsers = await Promise.all(
+      data.users.map(async (user) => ({
+        ...user,
+        password: await bcrypt.hash(user.password, salt),
+      })),
+    );
 
     // Add users to the database
-    await User.create(data.users);
+    const createdUsers = await User.create(hashedUsers);
+
+    // Add a listing for the seller
+    const listing = await Listing.create({
+      title: "Vintage Gazelle Bike",
+      description: "A beautiful vintage Gazelle bike in excellent condition.",
+      price: 250,
+      location: "Amsterdam",
+      brand: "Gazelle",
+      condition: "good",
+      ownerId: createdUsers[0]._id, // Sam
+    });
+
+    const Message = mongoose.model("Message");
+    const room = `${createdUsers[0]._id}-${createdUsers[1]._id}-${listing._id}`;
+
+    // Add some initial messages
+    await Message.create([
+      {
+        senderId: createdUsers[1]._id, // Ben
+        receiverId: createdUsers[0]._id, // Sam
+        listingId: listing._id,
+        room: room,
+        content: "Hi Sam, is this bike still available?",
+        read: false,
+      },
+      {
+        senderId: createdUsers[0]._id, // Sam
+        receiverId: createdUsers[1]._id, // Ben
+        listingId: listing._id,
+        room: room,
+        content: "Yes Ben! It is.",
+        read: true,
+      },
+    ]);
 
     // Fetch to add to the return
     const finalUsers = await User.find();
+    const finalListings = await Listing.find();
 
     res.status(201).json({
       success: true,
       data: {
         users: finalUsers,
+        listings: finalListings,
       },
     });
   }

@@ -24,11 +24,13 @@ const useFetch = (route, onReceived) => {
     controller.abort();
   };
 
-  if (route.includes("api/")) {
-    /**
-     * We add this check here to provide a better error message if you accidentally add the api part
-     * As an error that happens later because of this can be very confusing!
-     */
+  let actualRoute = route;
+  if (route.startsWith("/api/")) {
+    actualRoute = route.substring(4); // Remove "/api" prefix
+    console.warn(
+      `when using the useFetch hook, the route should not include the /api/ part. Automatically stripped for route: ${route}`,
+    );
+  } else if (route.includes("api/")) {
     throw Error(
       "when using the useFetch hook, the route should not include the /api/ part",
     );
@@ -51,7 +53,7 @@ const useFetch = (route, onReceived) => {
 
     const fetchData = async () => {
       // We add the /api subsection here to make it a single point of change if our configuration changes
-      const url = `/api${route}`;
+      const url = `/api${actualRoute}`;
       const res = await fetch(url, { ...baseOptions, ...options, signal });
 
       if (!res.ok) {
