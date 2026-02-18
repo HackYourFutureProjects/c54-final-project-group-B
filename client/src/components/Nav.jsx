@@ -3,11 +3,14 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import TEST_ID from "./Nav.testid";
 import "../styles/Nav.css";
+import { useTheme } from "../contexts/ThemeContext";
 
 const Nav = () => {
   const { user, logout } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
+
+  const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -15,15 +18,12 @@ const Nav = () => {
       try {
         const res = await fetch("/api/messages/unread-total");
         if (!res.ok) {
-          if (res.status === 401) return; // Silent for unauthorized
+          if (res.status === 401) return;
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const data = await res.json();
-        if (data.success) {
-          setUnreadCount(data.result);
-        }
+        if (data.success) setUnreadCount(data.result);
       } catch (err) {
-        // Only log serious unexpected errors
         if (err.name !== "AbortError") {
           console.error("Failed to fetch unread count:", err);
         }
@@ -31,7 +31,6 @@ const Nav = () => {
     };
 
     fetchUnreadCount();
-    // Poll every 30 seconds as a fallback
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [user]);
@@ -97,6 +96,7 @@ const Nav = () => {
             Favorites
           </NavLink>
         </li>
+
         {user && (
           <li>
             <NavLink
@@ -114,8 +114,17 @@ const Nav = () => {
         )}
       </ul>
 
-      {/* RIGHT: Auth Actions */}
+      {/* RIGHT: Auth Actions + Theme Toggle */}
       <div className="navbar-actions">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="theme-toggle"
+          aria-label="Toggle theme"
+        >
+          {isDark ? "☀️ Light" : "🌙 Dark"}
+        </button>
+
         {user ? (
           <>
             <span className="user-greeting">Hi, {user.name || "User"}</span>
