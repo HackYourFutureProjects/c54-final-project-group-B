@@ -193,6 +193,7 @@ describe("Advanced Listing Filters", () => {
       const locations = res.body.result.map((l) => l.location);
       expect(locations).toContain("Amsterdam");
       expect(locations).not.toContain("Rotterdam");
+      expect(locations).not.toContain("Utrecht");
     });
 
     it("should find all cities within large radius", async () => {

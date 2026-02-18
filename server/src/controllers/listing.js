@@ -12,9 +12,17 @@ const geocodeLocation = async (locationString) => {
   try {
     const encoded = encodeURIComponent(locationString);
     const url = `https://nominatim.openstreetmap.org/search?q=${encoded}&format=json&limit=1`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const response = await fetch(url, {
       headers: { "User-Agent": "BiCycleL/1.0" },
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
+    if (!response.ok) {
+      logError(`Geocoding failed with status ${response.status}`);
+      return null;
+    }
     const data = await response.json();
     if (data && data.length > 0) {
       return {
@@ -79,12 +87,32 @@ export const getListings = async (req, res) => {
       ? { status }
       : { status: { $in: ["active", "sold"] } };
 
-    // Geospatial filter: if lat, lng, and radius are provided, use $geoWithin
-    if (lat && lng && radius) {
-      const radiusInRadians = parseFloat(radius) / 6371; // Earth radius in km
+    // Geospatial filter: validate lat, lng, and radius before using $geoWithin
+    if (lat !== undefined && lng !== undefined && radius !== undefined) {
+      const parsedLat = parseFloat(lat);
+      const parsedLng = parseFloat(lng);
+      const parsedRadius = parseFloat(radius);
+
+      if (
+        !isFinite(parsedLat) ||
+        !isFinite(parsedLng) ||
+        !isFinite(parsedRadius) ||
+        parsedLat < -90 ||
+        parsedLat > 90 ||
+        parsedLng < -180 ||
+        parsedLng > 180 ||
+        parsedRadius <= 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          msg: "Invalid geospatial params: lat must be [-90,90], lng must be [-180,180], radius must be > 0",
+        });
+      }
+
+      const radiusInRadians = parsedRadius / 6371; // Earth radius in km
       filter.coordinates = {
         $geoWithin: {
-          $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInRadians],
+          $centerSphere: [[parsedLng, parsedLat], radiusInRadians],
         },
       };
     } else if (location) {

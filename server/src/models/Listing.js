@@ -47,9 +47,25 @@ const listingSchema = new mongoose.Schema({
     type: {
       type: String,
       enum: ["Point"],
+      required: function () {
+        return this.coordinates != null && this.coordinates.coordinates != null;
+      },
     },
     coordinates: {
       type: [Number], // [longitude, latitude]
+      validate: {
+        validator: function (val) {
+          if (!val || val.length === 0) return true; // optional
+          return (
+            val.length === 2 &&
+            val[0] >= -180 &&
+            val[0] <= 180 &&
+            val[1] >= -90 &&
+            val[1] <= 90
+          );
+        },
+        message: "Coordinates must be [longitude, latitude] with valid ranges",
+      },
     },
   },
   brand: { type: String },
