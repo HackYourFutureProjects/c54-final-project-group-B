@@ -5,6 +5,9 @@ dotenv.config();
 
 import app from "./app.js";
 import { logInfo, logError } from "./util/logging.js";
+
+console.log(" [DEBUG] Index.js loaded. Starting startup sequence...");
+
 import connectDB from "./db/connectDB.js";
 import testRouter from "./testRouter.js";
 import http from "http";
