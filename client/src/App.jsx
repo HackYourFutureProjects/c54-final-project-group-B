@@ -2,11 +2,11 @@ import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Nav from "./components/Nav";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 import Favorites from "./pages/Favorites/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RequireVerified from "./components/RequireVerified";
-
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 
 // Lazy loaded components
@@ -24,37 +24,39 @@ const Inbox = lazy(() => import("./pages/Inbox/Inbox"));
 
 const App = () => {
   return (
-    <AuthProvider>
-      <Nav />
-      <Suspense fallback={<div className="loading-fallback">Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/user" element={<UserList />} />
-          <Route path="/listings/:id" element={<ListingDetail />} />
-          <Route path="/chat/:id" element={<Chat />} />
-          <Route path="/inbox" element={<Inbox />} />
-          <Route path="/verify-code" element={<VerifyCode />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <Nav />
+        <Suspense fallback={<div className="loading-fallback">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/user" element={<UserList />} />
+            <Route path="/listings/:id" element={<ListingDetail />} />
+            <Route path="/chat/:id" element={<Chat />} />
+            <Route path="/inbox" element={<Inbox />} />
+            <Route path="/verify-code" element={<VerifyCode />} />
 
-          {/* Public Only Routes */}
-          <Route element={<PublicOnlyRoute />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<CreateUser />} />
-            <Route path="/user/create" element={<CreateUser />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-          </Route>
-
-          <Route path="/favorites" element={<Favorites />} />
-
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<RequireVerified />}>
-              <Route path="/listing/create" element={<CreateListing />} />
+            {/* Public Only Routes */}
+            <Route element={<PublicOnlyRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<CreateUser />} />
+              <Route path="/user/create" element={<CreateUser />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
             </Route>
-          </Route>
-        </Routes>
-      </Suspense>
-    </AuthProvider>
+
+            <Route path="/favorites" element={<Favorites />} />
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<RequireVerified />}>
+                <Route path="/listing/create" element={<CreateListing />} />
+              </Route>
+            </Route>
+          </Routes>
+        </Suspense>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
