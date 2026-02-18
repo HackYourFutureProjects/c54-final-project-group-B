@@ -17,9 +17,8 @@ export const AuthProvider = ({ children }) => {
           const data = await response.json();
           setUser(data.user);
         }
-      } catch (error) {
-        // Session check failed, user not logged in
-        console.error("Session check failed:", error);
+      } catch {
+        // Session check failed, user not logged in. Silence to keep console clean.
       } finally {
         setIsLoading(false);
       }

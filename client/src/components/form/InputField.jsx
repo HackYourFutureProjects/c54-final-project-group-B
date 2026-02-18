@@ -7,6 +7,7 @@ const InputField = ({
   onChange,
   placeholder,
   dataTestId,
+  ...rest
 }) => (
   <div className={styles.inputGroup}>
     <label htmlFor={name}>{placeholder}</label>
@@ -17,6 +18,7 @@ const InputField = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       data-testid={dataTestId}
+      {...rest}
     />
   </div>
 );

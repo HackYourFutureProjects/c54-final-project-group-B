@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import InputField from "../../components/form/InputField";
 import SubmitButton from "../../components/form/SubmitButton";
@@ -9,19 +9,20 @@ import styles from "./CreateUser.module.css";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [validationError, setValidationError] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+  const from = location.state?.from || "/";
 
   const onSuccess = (data) => {
-    // In PR #1, we'll just log success and redirect
-    // console.log("Login success:", data); // Removed for production
-    login(data.user); // Update global auth state
+    login(data.user);
     setEmail("");
     setPassword("");
     setValidationError("");
-    navigate("/");
+    navigate(from, { replace: true });
   };
 
   const { isLoading, error, performFetch, cancelFetch } = useFetch(
@@ -58,19 +59,20 @@ const Login = () => {
       body: JSON.stringify({
         email,
         password,
+        rememberMe,
       }),
     });
   };
 
-  let statusComponent = null;
+  let statusComponents = null;
   if (validationError) {
-    statusComponent = (
+    statusComponents = (
       <div className={styles.validationError}>{validationError}</div>
     );
   } else if (error != null) {
-    statusComponent = <div className={styles.error}>{error.toString()}</div>;
+    statusComponents = <div className={styles.error}>{error.toString()}</div>;
   } else if (isLoading) {
-    statusComponent = <div className={styles.loading}>Logging in...</div>;
+    statusComponents = <div className={styles.loading}>Logging in...</div>;
   }
 
   return (
@@ -93,21 +95,24 @@ const Login = () => {
           placeholder="Password"
           autoComplete="current-password"
         />
-        <div style={{ textAlign: "right", marginBottom: "12px" }}>
-          <Link
-            to="/forgot-password"
-            style={{
-              fontSize: "14px",
-              color: "#4f46e5",
-              textDecoration: "none",
-            }}
-          >
+
+        <div className={styles.rememberMeContainer}>
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            Remember Me
+          </label>
+          <Link to="/forgot-password" className={styles.forgotPasswordLink}>
             Forgot Password?
           </Link>
         </div>
+
         <SubmitButton isLoading={isLoading}>Login</SubmitButton>
       </form>
-      {statusComponent}
+      {statusComponents}
       <p className={styles.loginLink}>
         Don&apos;t have an account? <Link to="/signup">Sign Up</Link>
       </p>

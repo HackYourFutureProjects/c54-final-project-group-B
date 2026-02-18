@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import InputField from "../../components/form/InputField";
 import SubmitButton from "../../components/form/SubmitButton";
-import styles from "./VerifyCode.module.css";
+import PasswordStrengthMeter from "../../components/PasswordStrengthMeter";
+import styles from "./CreateUser.module.css";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -96,6 +97,7 @@ const ResetPassword = () => {
           value={code}
           onChange={setCode}
           placeholder="6-digit code"
+          autoComplete="one-time-code"
         />
         <InputField
           label="New Password"
@@ -104,7 +106,9 @@ const ResetPassword = () => {
           value={newPassword}
           onChange={setNewPassword}
           placeholder="Min 8 chars"
+          autoComplete="new-password"
         />
+        <PasswordStrengthMeter password={newPassword} />
         <InputField
           label="Confirm Password"
           name="confirmPassword"
@@ -112,6 +116,7 @@ const ResetPassword = () => {
           value={confirmPassword}
           onChange={setConfirmPassword}
           placeholder="Re-enter password"
+          autoComplete="new-password"
         />
 
         {validationError && (

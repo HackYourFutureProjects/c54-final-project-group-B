@@ -34,7 +34,7 @@ export const createUser = async (req, res) => {
       });
     }
 
-    // 1️⃣ Normalize boolean at controller boundary
+    // Normalize boolean values for consistency
     if (user.agreedToTerms !== undefined) {
       user.agreedToTerms = user.agreedToTerms === true;
     }
@@ -48,7 +48,7 @@ export const createUser = async (req, res) => {
     }
 
     // Hash password before saving
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(user.password, salt);
 
     const userPayload = {
@@ -56,7 +56,7 @@ export const createUser = async (req, res) => {
       password: hashedPassword,
       isVerified: false,
       verificationCode: crypto.randomInt(100000, 999999).toString(),
-      verificationCodeExpiry: Date.now() + 15 * 60 * 1000, // 15 mins
+      verificationCodeExpiry: Date.now() + 15 * 60 * 1000, // Code valid for 15 minutes
     };
 
     const newUser = await User.create(userPayload);
@@ -97,7 +97,7 @@ export const loginUser = async (req, res) => {
         .json({ success: false, msg: "Email and password are required" });
     }
 
-    // 1. Lookup
+    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res
@@ -105,24 +105,52 @@ export const loginUser = async (req, res) => {
         .json({ success: false, msg: "Invalid credentials" });
     }
 
-    // 2. Password Match
+    // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
+
+    if (user.lockoutUntil && user.lockoutUntil > Date.now()) {
+      const remainingTime = Math.ceil((user.lockoutUntil - Date.now()) / 60000);
+      return res.status(429).json({
+        success: false,
+        msg: `Account temporarily locked due to failed security checks. Try again in ${remainingTime} minutes.`,
+      });
+    }
+
     if (!isMatch) {
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+      if (user.failedLoginAttempts >= 5) {
+        user.lockoutUntil = Date.now() + 15 * 60 * 1000; // Account locked for 15 minutes
+        user.failedLoginAttempts = 0;
+      }
+      await user.save();
       return res
         .status(401)
         .json({ success: false, msg: "Invalid credentials" });
     }
 
-    // 3. Verified Guard (PR #1 requirement)
+    const { rememberMe } = req.body;
+    const currentCookieConfig = { ...cookieConfig };
+    if (rememberMe) {
+      currentCookieConfig.maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+    }
+
+    // Ensure email is verified
     if (user.isVerified !== true) {
       return res.status(403).json({
         success: false,
         msg: "Please verify your email first",
+        necessitatesVerification: true,
+        email: user.email,
       });
     }
 
+    // Success - Reset counters
+    user.failedLoginAttempts = 0;
+    user.lockoutUntil = undefined;
+    await user.save();
+
     const token = signToken(user);
-    res.cookie("token", token, cookieConfig);
+    res.cookie("token", token, currentCookieConfig);
 
     const userResponse = user.toObject();
     delete userResponse.password;
@@ -147,11 +175,19 @@ export const verifyEmail = async (req, res) => {
     }
 
     const user = await User.findOne({ email }).select(
-      "+verificationCode +verificationCodeExpiry",
+      "+verificationCode +verificationCodeExpiry +failedAttempts +lockoutUntil",
     );
 
     if (!user) {
       return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    if (user.lockoutUntil && user.lockoutUntil > Date.now()) {
+      const remainingTime = Math.ceil((user.lockoutUntil - Date.now()) / 60000);
+      return res.status(429).json({
+        success: false,
+        msg: `Too many failed attempts. Please try again in ${remainingTime} minutes.`,
+      });
     }
 
     if (user.isVerified) {
@@ -161,6 +197,12 @@ export const verifyEmail = async (req, res) => {
     }
 
     if (user.verificationCode !== code) {
+      user.failedAttempts = (user.failedAttempts || 0) + 1;
+      if (user.failedAttempts >= 5) {
+        user.lockoutUntil = Date.now() + 15 * 60 * 1000; // 15 mins
+        user.failedAttempts = 0; // Reset after lockout
+      }
+      await user.save();
       return res.status(400).json({ success: false, msg: "Invalid code" });
     }
 
@@ -171,6 +213,8 @@ export const verifyEmail = async (req, res) => {
     user.isVerified = true;
     user.verificationCode = undefined;
     user.verificationCodeExpiry = undefined;
+    user.failedAttempts = 0;
+    user.lockoutUntil = undefined;
     await user.save();
 
     const token = signToken(user);
@@ -196,7 +240,7 @@ export const resendVerificationCode = async (req, res) => {
     }
 
     const user = await User.findOne({ email }).select(
-      "+isVerified +verificationCodeLastSentAt +verificationResendCount +verificationResendWindowStart",
+      "+isVerified +verificationCodeLastSentAt +verificationResendCount +verificationResendWindowStart +lockoutUntil",
     );
 
     // Anti-Enumeration: Fake delay & Generic Success
@@ -213,6 +257,15 @@ export const resendVerificationCode = async (req, res) => {
       return res.status(200).json({
         success: true,
         msg: "If an account exists, a verification code has been sent.",
+      });
+    }
+
+    // Lockout Check
+    if (user.lockoutUntil && user.lockoutUntil > Date.now()) {
+      const remainingTime = Math.ceil((user.lockoutUntil - Date.now()) / 60000);
+      return res.status(429).json({
+        success: false,
+        msg: `Action restricted. Please try again in ${remainingTime} minutes.`,
       });
     }
 
@@ -288,6 +341,15 @@ export const requestPasswordReset = async (req, res) => {
       });
     }
 
+    // Lockout Check
+    if (user.lockoutUntil && user.lockoutUntil > Date.now()) {
+      const remainingTime = Math.ceil((user.lockoutUntil - Date.now()) / 60000);
+      return res.status(429).json({
+        success: false,
+        msg: `Action restricted. Please try again in ${remainingTime} minutes.`,
+      });
+    }
+
     // Generate Code
     user.passwordResetCode = crypto.randomInt(100000, 999999).toString();
     user.passwordResetCodeExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
@@ -324,10 +386,10 @@ export const resetPassword = async (req, res) => {
     }
 
     const user = await User.findOne({ email }).select(
-      "+passwordResetCode +passwordResetCodeExpiry +passwordResetCodeUsed",
+      "+passwordResetCode +passwordResetCodeExpiry +passwordResetCodeUsed +failedPasswordResetAttempts +lockoutUntil",
     );
 
-    // Generic error for security (avoid leaking if code/email mismatch vs not found)
+    // Generic error for security
     const invalidRequest = () =>
       res.status(400).json({ success: false, msg: "Invalid or expired code" });
 
@@ -335,22 +397,39 @@ export const resetPassword = async (req, res) => {
       return invalidRequest();
     }
 
+    if (user.lockoutUntil && user.lockoutUntil > Date.now()) {
+      const remainingTime = Math.ceil((user.lockoutUntil - Date.now()) / 60000);
+      return res.status(429).json({
+        success: false,
+        msg: `Too many failed attempts. Please try again in ${remainingTime} minutes.`,
+      });
+    }
+
     if (
       user.passwordResetCode !== code ||
       Date.now() > user.passwordResetCodeExpiry ||
       user.passwordResetCodeUsed
     ) {
+      user.failedPasswordResetAttempts =
+        (user.failedPasswordResetAttempts || 0) + 1;
+      if (user.failedPasswordResetAttempts >= 5) {
+        user.lockoutUntil = Date.now() + 15 * 60 * 1000; // 15 mins
+        user.failedPasswordResetAttempts = 0;
+      }
+      await user.save();
       return invalidRequest();
     }
 
     // Hash new password
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     user.password = hashedPassword;
     user.passwordResetCode = undefined;
     user.passwordResetCodeExpiry = undefined;
     user.passwordResetCodeUsed = true;
+    user.failedPasswordResetAttempts = 0;
+    user.lockoutUntil = undefined;
 
     await user.save();
 

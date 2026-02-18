@@ -142,10 +142,10 @@ describe("POST /api/listings", () => {
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
     expect(response.body.listing.title).toEqual(testListingBase.title);
-    expect(response.body.listing.price.$numberDecimal).toEqual(
+    expect(response.body.listing.price).toEqual(
       testListingBase.price.toString(),
     );
-    expect(response.body.listing.ownerId).toEqual(
+    expect(response.body.listing.ownerId.toString()).toEqual(
       global.__mockAuthUser._id.toString(),
     );
   });
@@ -174,6 +174,28 @@ describe("GET /api/listings", () => {
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.result.length).toBe(2);
+  });
+
+  it("Should show both active and sold items by default", async () => {
+    const user = await createTestUser();
+    await Listing.create({
+      ...testListingBase,
+      ownerId: user._id,
+      status: "active",
+    });
+    await Listing.create({
+      ...testListingBase,
+      ownerId: user._id,
+      status: "sold",
+    });
+
+    const response = await request.get("/api/listings");
+
+    expect(response.status).toBe(200);
+    expect(response.body.result.length).toBe(2);
+    const statuses = response.body.result.map((l) => l.status);
+    expect(statuses).toContain("active");
+    expect(statuses).toContain("sold");
   });
 
   it("Should filter listings by status", async () => {
@@ -255,7 +277,7 @@ describe("PUT /api/listings/:id", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.listing.price.$numberDecimal).toBe("450");
+    expect(response.body.listing.price).toBe("450");
   });
 
   it("Should return 404 for non-existent listing", async () => {
