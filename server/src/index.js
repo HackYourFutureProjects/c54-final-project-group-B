@@ -5,6 +5,9 @@ dotenv.config();
 
 import app from "./app.js";
 import { logInfo, logError } from "./util/logging.js";
+
+logInfo(" [DEBUG] Index.js loaded. Starting startup sequence...");
+
 import connectDB from "./db/connectDB.js";
 import testRouter from "./testRouter.js";
 import http from "http";
@@ -101,18 +104,44 @@ io.on("connection", (socket) => {
 
   socket.on("typing", (data) => {
     if (!data.room.includes(data.userId)) return;
+
+    // Broadcast to the chat room
     socket.to(data.room).emit("typing_status", {
       userId: data.userId,
       isTyping: true,
+      room: data.room, // Include room so Inbox knows which chat is typing
     });
+
+    // Also broadcast to the other user's personal room for Inbox indicators
+    const parts = data.room.split("_");
+    const otherUserId = parts[1] === data.userId ? parts[2] : parts[1];
+    if (otherUserId) {
+      socket.to(`user_${otherUserId}`).emit("typing_status", {
+        userId: data.userId,
+        isTyping: true,
+        room: data.room,
+      });
+    }
   });
 
   socket.on("stop_typing", (data) => {
     if (!data.room.includes(data.userId)) return;
+
     socket.to(data.room).emit("typing_status", {
       userId: data.userId,
       isTyping: false,
+      room: data.room,
     });
+
+    const parts = data.room.split("_");
+    const otherUserId = parts[1] === data.userId ? parts[2] : parts[1];
+    if (otherUserId) {
+      socket.to(`user_${otherUserId}`).emit("typing_status", {
+        userId: data.userId,
+        isTyping: false,
+        room: data.room,
+      });
+    }
   });
 
   socket.on("disconnect", () => {
