@@ -44,12 +44,13 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
 
-        <Route path="/favorites" element={<Favorites />} />
+          <Route path="/favorites" element={<Favorites />} />
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<RequireVerified />}>
-            <Route path="/listing/create" element={<CreateListing />} />
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<RequireVerified />}>
+              <Route path="/listing/create" element={<CreateListing />} />
+            </Route>
           </Route>
         </Routes>
       </Suspense>

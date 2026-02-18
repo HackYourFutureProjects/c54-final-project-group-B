@@ -18,6 +18,13 @@ const ListingDetail = () => {
     setActiveImageIndex(0);
   }
 
+  const isOwner = user && listing && user?._id === listing.ownerId?._id;
+
+  const handleStatusUpdate = async (newStatus) => {
+    // TODO: Implement status update logic
+    console.log(`Updating status to ${newStatus}`);
+  };
+
   const {
     isLoading: loading,
     error,
@@ -46,7 +53,7 @@ const ListingDetail = () => {
     } else if (listing.price.value != null) {
       displayPrice = listing.price.value;
     }
-  };
+  }
 
   let currency = "EUR";
   if (

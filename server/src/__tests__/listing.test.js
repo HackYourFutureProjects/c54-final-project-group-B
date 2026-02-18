@@ -58,7 +58,7 @@ jest.mock("../middleware/auth.js", () => ({
 
 beforeAll(async () => {
   await connectToMockDB();
-});
+}, 20000);
 
 afterEach(async () => {
   await clearMockDatabase();
