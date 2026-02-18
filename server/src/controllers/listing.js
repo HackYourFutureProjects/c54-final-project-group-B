@@ -32,7 +32,21 @@ const ALLOWED_UPDATE_FIELDS = [
 // GET all listings
 export const getListings = async (req, res) => {
   try {
-    const { status, location, search, page = 1, limit = 10 } = req.query;
+    const {
+      status,
+      location,
+      search,
+      minPrice,
+      maxPrice,
+      minYear,
+      maxYear,
+      brand,
+      category,
+      condition,
+      sort,
+      page = 1,
+      limit = 10,
+    } = req.query;
     const filter = status
       ? { status }
       : { status: { $in: ["active", "sold"] } };
@@ -50,13 +64,91 @@ export const getListings = async (req, res) => {
       ];
     }
 
+    // --- NEW: Advanced Filters ---
+    // 1. Price Range
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseFloat(minPrice);
+      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+    }
+
+    // 2. Year Range
+    if (minYear || maxYear) {
+      filter.year = {};
+      if (minYear) filter.year.$gte = parseInt(minYear, 10);
+      if (maxYear) filter.year.$lte = parseInt(maxYear, 10);
+    }
+
+    // 3. Multi-Select Filters (Brand, Category, Condition)
+    if (brand) {
+      const brands = Array.isArray(brand) ? brand : brand.split(",");
+      if (brands.length > 0) {
+        // Sanitize regex input to prevent ReDoS
+        filter.brand = {
+          $in: brands.map((b) => new RegExp(escapeRegex(b), "i")),
+        };
+      }
+    }
+
+    if (category) {
+      const categories = Array.isArray(category)
+        ? category
+        : category.split(",");
+      if (categories.length > 0) filter.category = { $in: categories };
+    }
+
+    if (condition) {
+      const conditions = Array.isArray(condition)
+        ? condition
+        : condition.split(",");
+      if (conditions.length > 0) filter.condition = { $in: conditions };
+    }
+
+    // Sort options
+    let sortBy = "createdAt";
+    let sortOrder = -1; // Descending by default
+
+    if (sort === "price_asc") {
+      sortBy = "price";
+      sortOrder = 1;
+    } else if (sort === "price_desc") {
+      sortBy = "price";
+      sortOrder = -1;
+    } else if (sort === "year_desc") {
+      sortBy = "year";
+      sortOrder = -1;
+    } else if (sort === "year_asc") {
+      sortBy = "year";
+      sortOrder = 1;
+    }
+
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
+
+    // Validate pagination
+    if (
+      !Number.isInteger(pageNum) ||
+      !Number.isInteger(limitNum) ||
+      pageNum < 1 ||
+      limitNum < 1 ||
+      limitNum > 100
+    ) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid pagination parameters: page must be >= 1 and limit must be between 1 and 100.",
+      });
+    }
+
     const skip = (pageNum - 1) * limitNum;
+
+    // Handle nulls in sorting
+    if (sortBy === "price" || sortBy === "year") {
+      filter[sortBy] = { ...filter[sortBy], $ne: null };
+    }
 
     const [listings, totalCount] = await Promise.all([
       Listing.find(filter)
-        .sort({ createdAt: -1 })
+        .sort({ [sortBy]: sortOrder })
         .skip(skip)
         .limit(limitNum)
         .populate("ownerId", "name email"),
@@ -240,6 +332,70 @@ export const updateStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       msg: "Unable to update status, try again later",
+    });
+  }
+};
+
+// GET listing facets (min/max price, brands, categories) for UI initialization
+export const getListingFacets = async (req, res) => {
+  try {
+    const stats = await Listing.aggregate([
+      {
+        $match: { status: "active" }, // Only aggregate active listings
+      },
+      {
+        $facet: {
+          priceRange: [
+            {
+              $group: {
+                _id: null,
+                minPrice: { $min: "$price" },
+                maxPrice: { $max: "$price" },
+              },
+            },
+          ],
+          brands: [{ $group: { _id: "$brand", count: { $sum: 1 } } }],
+          categories: [{ $group: { _id: "$category", count: { $sum: 1 } } }],
+        },
+      },
+    ]);
+
+    const result = stats[0];
+    // Handle empty results gracefully
+    const hasPriceRange =
+      stats[0] &&
+      stats[0].priceRange &&
+      Array.isArray(stats[0].priceRange) &&
+      stats[0].priceRange.length > 0;
+
+    const priceRange = hasPriceRange
+      ? stats[0].priceRange[0]
+      : { minPrice: 0, maxPrice: 0 };
+
+    if (priceRange.minPrice && priceRange.minPrice.toString)
+      priceRange.minPrice = parseFloat(priceRange.minPrice.toString());
+    if (priceRange.maxPrice && priceRange.maxPrice.toString)
+      priceRange.maxPrice = parseFloat(priceRange.maxPrice.toString());
+
+    res.status(200).json({
+      success: true,
+      minPrice: priceRange.minPrice || 0,
+      maxPrice: priceRange.maxPrice || 0,
+      brands: result.brands
+        .filter((b) => b._id != null)
+        .map((b) => ({ name: b._id, count: b.count })),
+      categories: result.categories
+        .filter((c) => c._id != null)
+        .map((c) => ({
+          name: c._id,
+          count: c.count,
+        })),
+    });
+  } catch (error) {
+    logError(error);
+    res.status(500).json({
+      success: false,
+      msg: "Unable to get filter facets",
     });
   }
 };
