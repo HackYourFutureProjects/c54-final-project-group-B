@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import "../styles/ListingCard.css";
+import FavoriteButton from "./FavoriteButton";
 
 const ListingCard = ({ listing }) => {
   const { _id, title, price, images, location, condition, brand } = listing;
@@ -28,6 +29,9 @@ const ListingCard = ({ listing }) => {
     <div className="listing-card" data-id={_id}>
       <div className="listing-card__image-container">
         <img src={imageUrl} alt={title} className="listing-card__image" />
+
+        <FavoriteButton listingId={_id} />
+
         {condition && <span className="listing-card__badge">{condition}</span>}
         {listing.status === "sold" && (
           <span className="listing-card__badge listing-card__badge--sold">

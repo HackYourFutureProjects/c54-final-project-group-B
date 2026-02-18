@@ -2,6 +2,8 @@ import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Nav from "./components/Nav";
 import { AuthProvider } from "./contexts/AuthContext";
+
+import Favorites from "./pages/Favorites/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RequireVerified from "./components/RequireVerified";
 
@@ -41,6 +43,8 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
+
+          <Route path="/favorites" element={<Favorites />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>

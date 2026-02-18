@@ -3,9 +3,9 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import useFetch from "../../hooks/useFetch";
 import "../../styles/ListingDetail.css";
+import FavoriteButton from "../../components/FavoriteButton";
 
 const ListingDetail = () => {
-  /* Step 1: Initialize State */
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -17,6 +17,13 @@ const ListingDetail = () => {
     setPrevId(id);
     setActiveImageIndex(0);
   }
+
+  const isOwner = user && listing && user?._id === listing.ownerId?._id;
+
+  const handleStatusUpdate = async (newStatus) => {
+    // TODO: Implement status update logic
+    console.log(`Updating status to ${newStatus}`);
+  };
 
   const {
     isLoading: loading,
@@ -36,29 +43,28 @@ const ListingDetail = () => {
     return <div className="listing-detail-container">Loading...</div>;
   if (error)
     return <div className="listing-detail-container">Error: {error}</div>;
-  if (!listing) return null; // or a "Not Found" component
+  if (!listing) return null;
 
-  // Handle price display logic locally
-  const displayPrice = listing.price;
-  const currencySymbol = "€";
-
-  const handleStatusUpdate = async (newStatus) => {
-    try {
-      const res = await fetch(`/api/listings/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setListing(data.listing);
-      }
-    } catch (err) {
-      console.error("Failed to update status:", err);
+  // Handle price display
+  let displayPrice = listing.price;
+  if (listing.price && typeof listing.price === "object") {
+    if (listing.price.$numberDecimal) {
+      displayPrice = listing.price.$numberDecimal;
+    } else if (listing.price.value != null) {
+      displayPrice = listing.price.value;
     }
-  };
+  }
 
-  const isOwner = user && listing.ownerId._id === user._id;
+  let currency = "EUR";
+  if (
+    listing.price &&
+    typeof listing.price === "object" &&
+    typeof listing.price.currency === "string"
+  ) {
+    currency = listing.price.currency;
+  }
+
+  const currencySymbol = currency === "USD" ? "$" : "€";
 
   const images =
     listing.images && listing.images.length > 0
@@ -75,7 +81,6 @@ const ListingDetail = () => {
 
   return (
     <div className="listing-detail-container">
-      {/* Back Link */}
       <Link to="/" className="back-link">
         ← Back to Marketplace
       </Link>
@@ -131,7 +136,7 @@ const ListingDetail = () => {
           )}
         </div>
 
-        {/* Right Column: Details */}
+        {/* Details */}
         <div className="details-container">
           <div className="listing-header-top">
             {listing.brand && (
@@ -143,6 +148,7 @@ const ListingDetail = () => {
           </div>
 
           <h1 className="listing-title">{listing.title}</h1>
+
           <div className="listing-price">
             {currencySymbol}
             {displayPrice}
@@ -153,13 +159,28 @@ const ListingDetail = () => {
               <span className="badge badge-condition">{listing.condition}</span>
             )}
             {listing.location && (
-              <span className="badge badge-location">
-                <span aria-hidden="true">📍</span> {listing.location}
-              </span>
+              <span className="badge badge-location">{listing.location}</span>
             )}
           </div>
 
           <div className="action-buttons">
+            <button
+              className="btn-contact"
+              onClick={() => {
+                if (!user) {
+                  navigate("/login");
+                } else if (user._id === listing.ownerId) {
+                  alert("You cannot chat with yourself!");
+                } else {
+                  const sellerId = listing.ownerId?._id || listing.ownerId;
+                  navigate(`/chat/${id}?receiverId=${sellerId}`);
+                }
+              }}
+            >
+              Contact Seller
+            </button>
+
+            <FavoriteButton listingId={listing._id} variant="button" />
             {isOwner ? (
               <>
                 <button
@@ -226,12 +247,14 @@ const ListingDetail = () => {
 
           <div className="specs-section">
             <h3>Specifications</h3>
+
             {listing.brand && (
               <div className="spec-row">
                 <span className="spec-label">Brand:</span>
                 <span className="spec-value">{listing.brand}</span>
               </div>
             )}
+
             {listing.condition && (
               <div className="spec-row">
                 <span className="spec-label">Condition:</span>
@@ -241,7 +264,6 @@ const ListingDetail = () => {
           </div>
         </div>
 
-        {/* Description Section */}
         {listing.description && (
           <div className="description-section">
             <h3>Description</h3>

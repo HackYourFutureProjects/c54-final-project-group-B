@@ -62,6 +62,7 @@ const Nav = () => {
             Home
           </NavLink>
         </li>
+
         <li>
           <NavLink
             to="/listing/create"
@@ -73,6 +74,7 @@ const Nav = () => {
             Sell a Bike
           </NavLink>
         </li>
+
         <li>
           <NavLink
             to="/user"
@@ -82,6 +84,17 @@ const Nav = () => {
             data-testid={TEST_ID.linkToUsers}
           >
             Community
+          </NavLink>
+        </li>
+
+        <li>
+          <NavLink
+            to="/favorites"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            Favorites
           </NavLink>
         </li>
         {user && (
@@ -107,6 +120,7 @@ const Nav = () => {
           <>
             <span className="user-greeting">Hi, {user.name || "User"}</span>
             <button
+              type="button"
               onClick={handleLogout}
               className="btn-nav btn-logout"
               data-testid={TEST_ID.linkToLogout}
