@@ -32,12 +32,16 @@ const ListingCard = ({ listing }) => {
 
         <FavoriteButton listingId={_id} />
 
-        {condition && <span className="listing-card__badge">{condition}</span>}
-        {listing.status === "sold" && (
-          <span className="listing-card__badge listing-card__badge--sold">
-            SOLD
-          </span>
-        )}
+        <div className="listing-card__badges">
+          {listing.status === "sold" && (
+            <span className="listing-card__badge listing-card__badge--sold">
+              SOLD
+            </span>
+          )}
+          {condition && (
+            <span className="listing-card__badge">{condition}</span>
+          )}
+        </div>
       </div>
 
       <div className="listing-card__content">
