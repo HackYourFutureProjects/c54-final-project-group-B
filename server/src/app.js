@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
-import favoriteRouter from "./routes/favorite.js";
+import favoriteRouter from "./routes/Favorite.js";
 
 import userRouter from "./routes/user.js";
 import listingRouter from "./routes/listing.js";
@@ -20,7 +20,15 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        "img-src": ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
+        "img-src": [
+          "'self'",
+          "data:",
+          "blob:",
+          "https://res.cloudinary.com",
+          "https://placehold.co",
+          "https://images.unsplash.com",
+          "https://via.placeholder.com",
+        ],
         "connect-src": ["'self'", "https://api.cloudinary.com"],
       },
     },

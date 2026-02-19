@@ -21,8 +21,27 @@ const ListingDetail = () => {
   const isOwner = user && listing && user?._id === listing.ownerId?._id;
 
   const handleStatusUpdate = async (newStatus) => {
-    // TODO: Implement status update logic
-    console.log(`Updating status to ${newStatus}`);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/listings/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setListing((prev) => ({ ...prev, status: data.listing.status }));
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating status");
+    }
   };
 
   const {
@@ -164,23 +183,6 @@ const ListingDetail = () => {
           </div>
 
           <div className="action-buttons">
-            <button
-              className="btn-contact"
-              onClick={() => {
-                if (!user) {
-                  navigate("/login");
-                } else if (user._id === listing.ownerId) {
-                  alert("You cannot chat with yourself!");
-                } else {
-                  const sellerId = listing.ownerId?._id || listing.ownerId;
-                  navigate(`/chat/${id}?receiverId=${sellerId}`);
-                }
-              }}
-            >
-              Contact Seller
-            </button>
-
-            <FavoriteButton listingId={listing._id} variant="button" />
             {isOwner ? (
               <>
                 <button
@@ -218,13 +220,12 @@ const ListingDetail = () => {
                 >
                   {listing.status === "sold" ? "Item Sold" : "Contact Seller"}
                 </button>
-                <button
-                  className="btn-favorite"
-                  disabled={listing.status === "sold"}
-                  onClick={() => alert("Added to favorites!")}
-                >
-                  Add to Favorites
-                </button>
+
+                {/* Only show Favorite button if not sold, or let it handle its own disabled state if preferred. 
+                    User asked for "best UI", usually you can still fav a sold item, but if not, wrap in condition.
+                    For now, I'll allow fav on sold items as a "wishlist" feature unless explicitly forbidden.
+                */}
+                <FavoriteButton listingId={listing._id} variant="button" />
               </>
             )}
           </div>
