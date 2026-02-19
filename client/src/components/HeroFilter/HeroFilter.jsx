@@ -11,7 +11,14 @@ const cleanCityName = (name) => {
     .trim();
 };
 
-const HeroFilter = ({ filters, onApply, onClear, facets, isOpen }) => {
+const HeroFilter = ({
+  filters,
+  onApply,
+  onClear,
+  onClearSearch,
+  facets,
+  isOpen,
+}) => {
   // Local state for immediate UI feedback before applying
   const [localFilters, setLocalFilters] = useState(filters);
 
@@ -19,6 +26,7 @@ const HeroFilter = ({ filters, onApply, onClear, facets, isOpen }) => {
   const [citySearch, setCitySearch] = useState("");
   const [cityOptions, setCityOptions] = useState([]);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const dropdownRef = useRef(null);
 
   // Sync local state when external filters change (e.g. cleared)
@@ -137,7 +145,60 @@ const HeroFilter = ({ filters, onApply, onClear, facets, isOpen }) => {
     ) {
       filtersToApply.radius = 50;
     }
+    // Clear the search bar when location filter is applied to prevent conflicts
+    if (filtersToApply.location && onClearSearch) {
+      onClearSearch();
+    }
     onApply(filtersToApply);
+  };
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsLoadingLocation(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&countrycodes=nl`,
+          );
+          const data = await response.json();
+
+          const city =
+            data?.address?.city ||
+            data?.address?.town ||
+            data?.address?.village ||
+            data?.address?.county;
+
+          if (city) {
+            setCitySearch(city);
+            setLocalFilters((prev) => ({
+              ...prev,
+              location: city,
+              lat: latitude,
+              lng: longitude,
+            }));
+          } else {
+            alert("Could not determine your city");
+          }
+        } catch (err) {
+          console.error("Location error:", err);
+          alert("Error getting location details");
+        } finally {
+          setIsLoadingLocation(false);
+        }
+      },
+      (err) => {
+        console.error("Geolocation error:", err);
+        setIsLoadingLocation(false);
+        alert("Unable to retrieve your location");
+      },
+    );
   };
 
   // Safe default for facets in case fetching fails or is slow
@@ -232,7 +293,7 @@ const HeroFilter = ({ filters, onApply, onClear, facets, isOpen }) => {
                 <input
                   type="number"
                   className="styled-input"
-                  placeholder={minPriceLimit}
+                  placeholder="Min"
                   value={localFilters.minPrice || ""}
                   onChange={(e) =>
                     handleRangeChange("minPrice", Number(e.target.value))
@@ -244,7 +305,7 @@ const HeroFilter = ({ filters, onApply, onClear, facets, isOpen }) => {
                 <input
                   type="number"
                   className="styled-input"
-                  placeholder={maxPriceLimit}
+                  placeholder="Max"
                   value={localFilters.maxPrice || ""}
                   onChange={(e) =>
                     handleRangeChange("maxPrice", Number(e.target.value))
@@ -290,16 +351,27 @@ const HeroFilter = ({ filters, onApply, onClear, facets, isOpen }) => {
             <label className="filter-title">Location</label>
 
             <div className="location-container" ref={dropdownRef}>
-              <input
-                type="text"
-                className="styled-input"
-                placeholder="Enter city..."
-                value={citySearch}
-                onChange={handleCitySearchChange}
-                onFocus={() =>
-                  citySearch.length > 2 && setShowCityDropdown(true)
-                }
-              />
+              <div className="location-input-row">
+                <input
+                  type="text"
+                  className="styled-input"
+                  placeholder="Enter city..."
+                  value={citySearch}
+                  onChange={handleCitySearchChange}
+                  onFocus={() =>
+                    citySearch.length > 2 && setShowCityDropdown(true)
+                  }
+                />
+                <button
+                  type="button"
+                  className="gps-location-btn"
+                  onClick={handleUseMyLocation}
+                  disabled={isLoadingLocation}
+                  title="Use my current location"
+                >
+                  {isLoadingLocation ? "⏳" : "📍"}
+                </button>
+              </div>
 
               {showCityDropdown && cityOptions.length > 0 && (
                 <div className="city-dropdown">

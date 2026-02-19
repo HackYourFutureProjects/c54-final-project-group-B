@@ -91,51 +91,16 @@ const Home = () => {
     setPage(1);
   };
 
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  // Count active filters for badge
+  const activeFilterCount = Object.keys(filters).filter((key) => {
+    const val = filters[key];
+    if (Array.isArray(val)) return val.length > 0;
+    if (val === null || val === undefined || val === "") return false;
+    return true;
+  }).length;
 
-  const handleLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
-      return;
-    }
-
-    setIsLoadingLocation(true);
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          // Use OpenStreetMap Nominatim for free reverse geocoding
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&countrycodes=nl`,
-          );
-          const data = await response.json();
-
-          const city =
-            data?.address?.city ||
-            data?.address?.town ||
-            data?.address?.village ||
-            data?.address?.county;
-
-          if (city) {
-            setSearchTerm(city);
-            setPage(1);
-          } else {
-            alert("Could not determine your city");
-          }
-        } catch (error) {
-          console.error("Location error:", error);
-          alert("Error getting location details");
-        } finally {
-          setIsLoadingLocation(false);
-        }
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        setIsLoadingLocation(false);
-        alert("Unable to retrieve your location");
-      },
-    );
+  const handleClearSearch = () => {
+    setSearchTerm("");
   };
 
   const handleApplyFilters = (newFilters) => {
@@ -167,18 +132,6 @@ const Home = () => {
               />
             </div>
             <button
-              className="btn-location"
-              onClick={handleLocation}
-              title="Use my location"
-              disabled={isLoadingLocation}
-            >
-              {isLoadingLocation ? (
-                <span className="spinner">📍</span>
-              ) : (
-                <span>📍</span>
-              )}
-            </button>
-            <button
               className={`filter-toggle-btn ${isFilterOpen ? "active" : ""}`}
               onClick={() => setIsFilterOpen(!isFilterOpen)}
               title="Advanced Filters"
@@ -204,6 +157,9 @@ const Home = () => {
                 <line x1="9" y1="8" x2="15" y2="8"></line>
                 <line x1="17" y1="16" x2="23" y2="16"></line>
               </svg>
+              {activeFilterCount > 0 && (
+                <span className="filter-badge">{activeFilterCount}</span>
+              )}
             </button>
           </div>
 
@@ -212,6 +168,7 @@ const Home = () => {
             filters={filters}
             onApply={handleApplyFilters}
             onClear={handleClearFilters}
+            onClearSearch={handleClearSearch}
             facets={facetOptions}
           />
         </div>
