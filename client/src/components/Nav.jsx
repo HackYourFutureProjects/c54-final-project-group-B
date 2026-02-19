@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import TEST_ID from "./Nav.testid";
 import "../styles/Nav.css";
+import { FaUserCircle } from "react-icons/fa";
 
 const Nav = () => {
   const { user, logout } = useAuth();
@@ -151,7 +152,9 @@ const Nav = () => {
         <div className="navbar-actions">
           {user ? (
             <>
-              <span className="user-greeting">Hi, {user.name || "User"}</span>
+              <Link to="/profile" className="profile-icon">
+                <FaUserCircle size={28} />
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}
