@@ -121,8 +121,11 @@ export const getListings = async (req, res) => {
       };
       const locationFilters = [geoFilter];
       if (location) {
+        // Only fall back to string match for listings WITHOUT coordinates
+        // so the radius filter stays binding for geo-indexed listings
         locationFilters.push({
           location: { $regex: escapeRegex(location), $options: "i" },
+          coordinates: { $exists: false },
         });
       }
       // Use $and to avoid overwriting $or if search is also used
