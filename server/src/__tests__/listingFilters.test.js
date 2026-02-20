@@ -1,19 +1,15 @@
 import { jest } from "@jest/globals";
 import supertest from "supertest";
 
+let request;
+
 import {
   connectToMockDB,
   closeMockDatabase,
   clearMockDatabase,
 } from "../__testUtils__/dbMock.js";
-import app from "../app.js";
-import Listing from "../models/Listing.js";
-import User from "../models/User.js";
 
-const request = supertest(app);
-
-// Reuse the mock authentication logic from listing.test.js
-jest.mock("../middleware/auth.js", () => ({
+jest.unstable_mockModule("../middleware/auth.js", () => ({
   authenticate: (req, res, next) => {
     if (global.__mockAuthUser) {
       req.user = global.__mockAuthUser;
@@ -28,6 +24,11 @@ jest.mock("../middleware/auth.js", () => ({
   },
   optionalAuth: (req, res, next) => next(),
 }));
+
+const app = (await import("../app.js")).default;
+request = supertest(app);
+const Listing = (await import("../models/Listing.js")).default;
+const User = (await import("../models/User.js")).default;
 
 beforeAll(async () => {
   await connectToMockDB();
