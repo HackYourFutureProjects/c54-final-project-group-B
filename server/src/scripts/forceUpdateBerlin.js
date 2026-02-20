@@ -23,24 +23,28 @@ const forceUpdateBerlin = async () => {
 
     // Target listings where location is Berlin (case-insensitive)
     const listings = await Listing.find({
-      location: { $regex: /^berlin$/i }
+      location: { $regex: /^berlin$/i },
     });
 
     console.log(`Found ${listings.length} Berlin listings to update.`);
 
     for (const listing of listings) {
-      console.log(`Updating coords for ${listing.location} (ID: ${listing._id})...`);
+      console.log(
+        `Updating coords for ${listing.location} (ID: ${listing._id})...`,
+      );
       const coords = await geocodeLocation(listing.location);
 
       if (coords) {
         listing.coordinates = coords;
         await listing.save();
-        console.log(`✅ Fixed coordinates for ${listing._id} to Berlin, Germany`);
+        console.log(
+          `✅ Fixed coordinates for ${listing._id} to Berlin, Germany`,
+        );
       } else {
         console.log(`❌ Failed to geocode ${listing.location}`);
       }
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     }
 
     await mongoose.disconnect();
