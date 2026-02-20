@@ -11,6 +11,7 @@ import ReviewsList from "../../components/ReviewsList/ReviewsList";
 import ListingImageCarousel from "../../components/ListingImageCarousel/ListingImageCarousel";
 import SellerCard from "../../components/SellerCard/SellerCard";
 import MarkAsSoldModal from "./components/MarkAsSoldModal";
+import LocationMap from "../../components/LocationMap";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -271,6 +272,10 @@ const ListingDetail = () => {
               </div>
             )}
           </div>
+
+          {listing.coordinates && listing.coordinates.coordinates && (
+            <LocationMap coordinates={listing.coordinates.coordinates} />
+          )}
         </div>
 
         {listing.description && (
