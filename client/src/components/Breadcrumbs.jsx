@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 import "../styles/Breadcrumbs.css";
 
 /**
@@ -33,6 +34,15 @@ const Breadcrumbs = ({ items = [] }) => {
       </div>
     </nav>
   );
+};
+
+Breadcrumbs.propTypes = {
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      path: PropTypes.string,
+    }),
+  ),
 };
 
 export default Breadcrumbs;

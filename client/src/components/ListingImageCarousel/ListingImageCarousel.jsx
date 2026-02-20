@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import PropTypes from "prop-types";
 import { optimiseCloudinaryUrl } from "../../utils/cloudinary";
 
 const PLACEHOLDER = "https://placehold.co/600x400?text=No+Image";
@@ -15,18 +16,25 @@ const ListingImageCarousel = ({ images = [], title = "Listing", status }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  const displayImages =
-    images && images.length > 0
+  const displayImages = useMemo(() => {
+    return images && images.length > 0
       ? images.map((url) =>
           optimiseCloudinaryUrl(url, { width: 800, height: 600 }),
         )
       : [PLACEHOLDER];
+  }, [images]);
 
-  const prev = () =>
-    setActiveIndex(
-      (i) => (i - 1 + displayImages.length) % displayImages.length,
-    );
-  const next = () => setActiveIndex((i) => (i + 1) % displayImages.length);
+  const prev = useCallback(
+    () =>
+      setActiveIndex(
+        (i) => (i - 1 + displayImages.length) % displayImages.length,
+      ),
+    [displayImages.length],
+  );
+  const next = useCallback(
+    () => setActiveIndex((i) => (i + 1) % displayImages.length),
+    [displayImages.length],
+  );
 
   // Keyboard navigation for Carousel and Lightbox
   useEffect(() => {
@@ -46,7 +54,7 @@ const ListingImageCarousel = ({ images = [], title = "Listing", status }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, displayImages.length]);
+  }, [isLightboxOpen, next, prev]);
 
   return (
     <div className="carousel-container listing-image-carousel">
@@ -82,6 +90,7 @@ const ListingImageCarousel = ({ images = [], title = "Listing", status }) => {
           <button
             className="lightbox-close"
             onClick={() => setIsLightboxOpen(false)}
+            aria-label="Close lightbox"
           >
             ×
           </button>
@@ -89,7 +98,7 @@ const ListingImageCarousel = ({ images = [], title = "Listing", status }) => {
             className="lightbox-content"
             onClick={(e) => e.stopPropagation()}
           >
-            {images.length > 1 && (
+            {displayImages.length > 1 && (
               <>
                 <button
                   type="button"
@@ -114,7 +123,14 @@ const ListingImageCarousel = ({ images = [], title = "Listing", status }) => {
               </>
             )}
             <img
-              src={images[activeIndex]}
+              src={
+                images[activeIndex]
+                  ? optimiseCloudinaryUrl(images[activeIndex], {
+                      width: 1600,
+                      height: 1200,
+                    })
+                  : PLACEHOLDER
+              }
               alt={title}
               className="lightbox-image"
             />
@@ -138,6 +154,12 @@ const ListingImageCarousel = ({ images = [], title = "Listing", status }) => {
       )}
     </div>
   );
+};
+
+ListingImageCarousel.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.string),
+  title: PropTypes.string,
+  status: PropTypes.string,
 };
 
 export default ListingImageCarousel;

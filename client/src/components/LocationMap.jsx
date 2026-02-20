@@ -1,4 +1,5 @@
 import { MapContainer, TileLayer, Circle } from "react-leaflet";
+import PropTypes from "prop-types";
 import "leaflet/dist/leaflet.css";
 import "./LocationMap.css";
 import L from "leaflet";
@@ -52,6 +53,10 @@ const LocationMap = ({ coordinates }) => {
       </div>
     </div>
   );
+};
+
+LocationMap.propTypes = {
+  coordinates: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default LocationMap;
