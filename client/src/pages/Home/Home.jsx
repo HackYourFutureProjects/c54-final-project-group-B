@@ -148,7 +148,12 @@ const Home = () => {
                 <line x1="17" y1="16" x2="23" y2="16"></line>
               </svg>
               {activeFilterCount > 0 && (
-                <span className="filter-badge">{activeFilterCount}</span>
+                <span
+                  className="filter-badge"
+                  aria-label={`${activeFilterCount} active filter${activeFilterCount === 1 ? "" : "s"}`}
+                >
+                  {activeFilterCount}
+                </span>
               )}
             </button>
           </div>

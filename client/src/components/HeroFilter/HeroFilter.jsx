@@ -159,7 +159,19 @@ const HeroFilter = ({ filters, onApply, onClear, onClearSearch, isOpen }) => {
           const { latitude, longitude } = position.coords;
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&countrycodes=nl`,
+            {
+              headers: {
+                "User-Agent": "BikeBazaar-App/1.0",
+              },
+            },
           );
+
+          if (!response.ok) {
+            throw new Error(
+              `Nominatim reverse geocoding failed with status ${response.status}`,
+            );
+          }
+
           const data = await response.json();
 
           const city =
@@ -359,7 +371,9 @@ const HeroFilter = ({ filters, onApply, onClear, onClearSearch, isOpen }) => {
                   disabled={isLoadingLocation}
                   title="Use my current location"
                 >
-                  {isLoadingLocation ? "⏳" : "📍"}
+                  <span aria-hidden="true">
+                    {isLoadingLocation ? "⏳" : "📍"}
+                  </span>
                 </button>
               </div>
 
