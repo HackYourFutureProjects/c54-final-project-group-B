@@ -7,6 +7,7 @@ import { FaUserCircle, FaBell } from "react-icons/fa";
 import { useTheme } from "../contexts/ThemeContext";
 import useUnreadCount from "../hooks/useUnreadCount";
 import useNotifications from "../hooks/useNotifications";
+import useRealNotifications from "../hooks/useRealNotifications";
 
 const Nav = () => {
   const { user, logout } = useAuth();
@@ -22,6 +23,12 @@ const Nav = () => {
     unread: notifUnread,
     markAsRead,
   } = useNotifications(user);
+  //  real notifications hook
+  const {
+    items: realNotifications,
+    unread: realUnread,
+    markAsRead: markRealAsRead,
+  } = useRealNotifications(user);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -165,8 +172,10 @@ const Nav = () => {
                 aria-label="Notifications"
               >
                 <FaBell size={18} />
-                {notifUnread > 0 && (
-                  <span className="notif-badge">{notifUnread}</span>
+                {notifUnread + realUnread > 0 && (
+                  <span className="notif-badge">
+                    {notifUnread + realUnread}
+                  </span>
                 )}
               </button>
 
@@ -188,30 +197,38 @@ const Nav = () => {
                     <div className="notif-empty">No notifications</div>
                   ) : (
                     <ul className="notif-list">
-                      {notifications.slice(0, 6).map((n) => (
-                        <li
-                          key={n.id}
-                          className={`notif-item ${n.read ? "" : "unread"}`}
-                        >
-                          <button
-                            type="button"
-                            className="notif-item-btn"
-                            onClick={() => {
-                              markAsRead(n.id);
-                              setIsNotifOpen(false);
-                              navigate(n.link || "/inbox");
-                            }}
+                      {[...realNotifications, ...notifications]
+                        .slice(0, 6)
+                        .map((n) => (
+                          <li
+                            key={n.id}
+                            className={`notif-item ${n.read ? "" : "unread"}`}
                           >
-                            <div className="notif-title">{n.title}</div>
-                            <div className="notif-body">{n.body}</div>
-                            {n.createdAt && (
-                              <div className="notif-time">
-                                {new Date(n.createdAt).toLocaleString()}
-                              </div>
-                            )}
-                          </button>
-                        </li>
-                      ))}
+                            <button
+                              type="button"
+                              className="notif-item-btn"
+                              //eded to mark real notifications as read
+
+                              onClick={() => {
+                                if (n._id) {
+                                  markRealAsRead(n._id);
+                                } else {
+                                  markAsRead(n.id);
+                                }
+                                setIsNotifOpen(false);
+                                navigate(n.link || "/inbox");
+                              }}
+                            >
+                              <div className="notif-title">{n.title}</div>
+                              <div className="notif-body">{n.body}</div>
+                              {n.createdAt && (
+                                <div className="notif-time">
+                                  {new Date(n.createdAt).toLocaleString()}
+                                </div>
+                              )}
+                            </button>
+                          </li>
+                        ))}
                     </ul>
                   )}
 
