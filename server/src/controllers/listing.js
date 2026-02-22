@@ -9,6 +9,7 @@ import {
   buildListingFilter,
   buildListingSort,
 } from "../utils/listingHelpers.js";
+import Notification from "../models/Notification.js";
 
 // Helper to validate MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -263,6 +264,15 @@ export const updateStatus = async (req, res) => {
     }
 
     await req.resource.save();
+    //noti
+    if (status === "sold" && buyerId) {
+      await Notification.create({
+        recipientId: buyerId, // المشتري
+        senderId: req.resource.ownerId, // البائع
+        type: "review_permission",
+        entityId: req.resource._id,
+      });
+    }
     res.status(200).json({
       success: true,
       msg: `Listing marked as ${status}`,
