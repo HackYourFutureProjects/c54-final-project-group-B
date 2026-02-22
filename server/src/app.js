@@ -12,6 +12,10 @@ import reviewRouter from "./routes/review.js";
 import utilsRouter from "./routes/utils.js";
 import { globalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/error.js";
+import notificationRouter from "./routes/notification.js";
+
+// Attach notification routes
+app.use("/api/notifications", notificationRouter);
 
 // Create an express server
 const app = express();
