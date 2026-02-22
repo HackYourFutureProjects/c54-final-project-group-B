@@ -1,4 +1,11 @@
-import { MapContainer, TileLayer, Circle, Marker, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Circle,
+  Marker,
+  useMap,
+  Polyline,
+} from "react-leaflet";
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
@@ -48,6 +55,7 @@ const LocationMap = ({
   const [userDistance, setUserDistance] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [userPosition, setUserPosition] = useState(null); // [lat, lng]
+  const [viewMode, setViewMode] = useState("bike"); // 'bike', 'user', 'both'
 
   // coordinates are usually [longitude, latitude] from MongoDB GeoJSON
   if (!coordinates || (Array.isArray(coordinates) && coordinates.length !== 2))
@@ -72,6 +80,7 @@ const LocationMap = ({
         const dist = calculateDistance(latitude, longitude, lat, lng);
         setUserDistance(dist.toFixed(1));
         setUserPosition([latitude, longitude]);
+        setViewMode("both");
         setIsLocating(false);
       },
       (err) => {
@@ -108,42 +117,77 @@ const LocationMap = ({
   };
 
   // Component to update map center and fit bounds (Phase 3)
-  const MapController = ({ center, userPos }) => {
+  const MapController = ({ bikePos, userPos, mode }) => {
     const map = useMap();
 
     useEffect(() => {
-      if (userPos) {
-        // Auto-scaling: Fit both pins in view
-        const bounds = L.latLngBounds([center, userPos]);
+      if (mode === "both" && userPos) {
+        const bounds = L.latLngBounds([bikePos, userPos]);
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      } else if (mode === "user" && userPos) {
+        map.setView(userPos, 14);
       } else {
-        map.setView(center, 13);
+        map.setView(bikePos, 13);
       }
-    }, [center, userPos, map]);
+    }, [bikePos, userPos, mode, map]);
 
     return null;
   };
 
-  const focusOnBike = () => setUserPosition(null); // Trigger reset to bike view
-
   return (
     <div className="location-map-wrapper">
-      <h3 className="location-map-title">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-          <circle cx="12" cy="10" r="3"></circle>
-        </svg>
-        {title}
-      </h3>
+      <div
+        className="location-map-header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <h3 className="location-map-title" style={{ margin: 0 }}>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          {title}
+        </h3>
+        {userPosition && (
+          <div className="map-view-toggles">
+            <button
+              className={`view-toggle-btn ${viewMode === "bike" ? "active" : ""}`}
+              onClick={() => setViewMode("bike")}
+              title="Focus on Bike"
+            >
+              🚲
+            </button>
+            <button
+              className={`view-toggle-btn ${viewMode === "both" ? "active" : ""}`}
+              onClick={() => setViewMode("both")}
+              title="See Both"
+            >
+              🗺️
+            </button>
+            <button
+              className={`view-toggle-btn ${viewMode === "user" ? "active" : ""}`}
+              onClick={() => setViewMode("user")}
+              title="Focus on Me"
+            >
+              👤
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="location-map-container">
         <MapContainer
           center={bikePosition}
@@ -152,14 +196,18 @@ const LocationMap = ({
           className="location-map"
           attributionControl={false}
         >
-          <MapController center={bikePosition} userPos={userPosition} />
+          <MapController
+            bikePos={bikePosition}
+            userPos={userPosition}
+            mode={viewMode}
+          />
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
           {draggable ? (
             <DraggableMarker />
           ) : (
             <>
-              {/* Bike Location Marker (Fuzzed Privacy or Neighborhood Center) */}
+              {/* Bike Location Marker */}
               <Marker position={bikePosition}>
                 <Circle
                   center={bikePosition}
@@ -172,16 +220,28 @@ const LocationMap = ({
                 />
               </Marker>
 
-              {/* User Location Marker (Blue dot) */}
+              {/* User Location Marker */}
               {userPosition && (
-                <Marker
-                  position={userPosition}
-                  icon={L.divIcon({
-                    className: "user-location-marker",
-                    html: '<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);"></div>',
-                    iconSize: [18, 18],
-                  })}
-                />
+                <>
+                  <Marker
+                    position={userPosition}
+                    icon={L.divIcon({
+                      className: "user-location-marker",
+                      html: '<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);"></div>',
+                      iconSize: [18, 18],
+                    })}
+                  />
+                  {/* Visual Line between pins */}
+                  <Polyline
+                    positions={[bikePosition, userPosition]}
+                    pathOptions={{
+                      color: "var(--primary-color, #7c3aed)",
+                      dashArray: "10, 10",
+                      weight: 2,
+                      opacity: 0.6,
+                    }}
+                  />
+                </>
               )}
             </>
           )}
@@ -192,13 +252,13 @@ const LocationMap = ({
           <div className="map-overlay-bottom">
             {userDistance !== null && (
               <div className="distance-badge">
-                <span>🚲</span>
-                <span>{userDistance} km from you</span>
+                <span>📍</span>
+                <span>{userDistance} km away</span>
               </div>
             )}
 
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {!userDistance ? (
+              {!userPosition ? (
                 <button
                   className="btn-map-action btn-map-primary"
                   onClick={handleCheckDistance}
@@ -207,13 +267,10 @@ const LocationMap = ({
                   {isLocating ? "Detecting..." : "📍 Check Distance"}
                 </button>
               ) : (
-                <button className="btn-map-action" onClick={focusOnBike}>
-                  🎯 Reset to Bike
+                <button className="btn-map-action" onClick={handleOpenInMaps}>
+                  Open in Google Maps
                 </button>
               )}
-              <button className="btn-map-action" onClick={handleOpenInMaps}>
-                Directions
-              </button>
             </div>
           </div>
         )}
