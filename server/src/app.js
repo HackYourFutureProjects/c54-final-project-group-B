@@ -15,10 +15,8 @@ import { errorHandler } from "./middleware/error.js";
 import notificationRouter from "./routes/notification.js";
 
 // Attach notification routes
-app.use("/api/notifications", notificationRouter);
-
-// Create an express server
 const app = express();
+app.use("/api/notifications", notificationRouter);
 
 // Security & Logging Middleware
 app.use(
