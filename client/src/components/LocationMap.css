@@ -3,6 +3,24 @@
   margin-bottom: 0.5rem;
 }
 
+.location-map-t.distance-badge {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  font-weight: 600;
+  color: var(--primary-color, #7c3aed);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  pointer-events: auto;
+  animation: slideUp 0.3s ease-out;
+  margin-bottom: 8px;
+}
+
 .location-map-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -16,6 +34,10 @@
   overflow: hidden;
   border: 1px solid var(--border-color, #e2e8f0);
   height: 250px;
+}
+
+.user-location-marker {
+  transition: all 0.3s ease;
 }
 
 .location-map {

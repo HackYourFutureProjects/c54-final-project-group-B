@@ -47,6 +47,7 @@ const LocationMap = ({
 }) => {
   const [userDistance, setUserDistance] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [userPosition, setUserPosition] = useState(null); // [lat, lng]
 
   // coordinates are usually [longitude, latitude] from MongoDB GeoJSON
   if (!coordinates || (Array.isArray(coordinates) && coordinates.length !== 2))
@@ -56,7 +57,7 @@ const LocationMap = ({
   const [lng, lat] = Array.isArray(coordinates)
     ? coordinates
     : coordinates.coordinates;
-  const position = [lat, lng]; // Leaflet uses [lat, lng]
+  const bikePosition = [lat, lng]; // Leaflet uses [lat, lng]
 
   const handleCheckDistance = () => {
     if (!navigator.geolocation) {
@@ -70,6 +71,7 @@ const LocationMap = ({
         const { latitude, longitude } = pos.coords;
         const dist = calculateDistance(latitude, longitude, lat, lng);
         setUserDistance(dist.toFixed(1));
+        setUserPosition([latitude, longitude]);
         setIsLocating(false);
       },
       (err) => {
@@ -86,7 +88,7 @@ const LocationMap = ({
     window.open(googleMapsUrl, "_blank");
   };
 
-  // Component to handle marker drag events
+  // Component to handle marker drag events (Phase 2)
   const DraggableMarker = () => {
     return (
       <Marker
@@ -100,19 +102,29 @@ const LocationMap = ({
             }
           },
         }}
-        position={position}
+        position={bikePosition}
       />
     );
   };
 
-  // Component to update map center when coordinates change
-  const ChangeView = ({ center, zoom }) => {
+  // Component to update map center and fit bounds (Phase 3)
+  const MapController = ({ center, userPos }) => {
     const map = useMap();
+
     useEffect(() => {
-      map.setView(center, zoom);
-    }, [center, zoom, map]);
+      if (userPos) {
+        // Auto-scaling: Fit both pins in view
+        const bounds = L.latLngBounds([center, userPos]);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      } else {
+        map.setView(center, 13);
+      }
+    }, [center, userPos, map]);
+
     return null;
   };
+
+  const focusOnBike = () => setUserPosition(null); // Trigger reset to bike view
 
   return (
     <div className="location-map-wrapper">
@@ -134,27 +146,44 @@ const LocationMap = ({
       </h3>
       <div className="location-map-container">
         <MapContainer
-          center={position}
+          center={bikePosition}
           zoom={13}
           scrollWheelZoom={false}
           className="location-map"
           attributionControl={false}
         >
-          <ChangeView center={position} zoom={13} />
+          <MapController center={bikePosition} userPos={userPosition} />
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
           {draggable ? (
             <DraggableMarker />
           ) : (
-            <Circle
-              center={position}
-              pathOptions={{
-                fillColor: "var(--primary-color, #7c3aed)",
-                color: "var(--primary-color, #7c3aed)",
-                fillOpacity: 0.2,
-              }}
-              radius={800}
-            />
+            <>
+              {/* Bike Location Marker (Fuzzed Privacy or Neighborhood Center) */}
+              <Marker position={bikePosition}>
+                <Circle
+                  center={bikePosition}
+                  pathOptions={{
+                    fillColor: "var(--primary-color, #7c3aed)",
+                    color: "var(--primary-color, #7c3aed)",
+                    fillOpacity: 0.1,
+                  }}
+                  radius={800}
+                />
+              </Marker>
+
+              {/* User Location Marker (Blue dot) */}
+              {userPosition && (
+                <Marker
+                  position={userPosition}
+                  icon={L.divIcon({
+                    className: "user-location-marker",
+                    html: '<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);"></div>',
+                    iconSize: [18, 18],
+                  })}
+                />
+              )}
+            </>
           )}
         </MapContainer>
 
@@ -168,14 +197,18 @@ const LocationMap = ({
               </div>
             )}
 
-            <div style={{ display: "flex", gap: "8px" }}>
-              {!userDistance && (
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              {!userDistance ? (
                 <button
                   className="btn-map-action btn-map-primary"
                   onClick={handleCheckDistance}
                   disabled={isLocating}
                 >
                   {isLocating ? "Detecting..." : "📍 Check Distance"}
+                </button>
+              ) : (
+                <button className="btn-map-action" onClick={focusOnBike}>
+                  🎯 Reset to Bike
                 </button>
               )}
               <button className="btn-map-action" onClick={handleOpenInMaps}>
