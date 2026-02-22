@@ -3,7 +3,7 @@ import Review from "../models/Review.js";
 import User from "../models/User.js";
 import Listing from "../models/Listing.js";
 import { logError } from "../util/logging.js";
-
+import Notification from "../models/Notification.js";
 // Helper to validate MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -80,6 +80,13 @@ export const createReview = async (req, res) => {
       $inc: { ratingSum: rating, reviewCount: 1 },
     });
 
+    // Create notification for seller
+    await Notification.create({
+      recipientId: targetId,
+      senderId: reviewerId,
+      type: "review",
+      link: `/users/${targetId}?tab=reviews`,
+    });
     res.status(201).json({ success: true, review: populatedReview });
   } catch (error) {
     logError(error);
