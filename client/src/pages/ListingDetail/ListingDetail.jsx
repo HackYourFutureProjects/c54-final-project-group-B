@@ -1,61 +1,22 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import useFetch from "../../hooks/useFetch";
-import "../../styles/ListingDetail.css";
-import FavoriteButton from "../../components/FavoriteButton";
+import { useListingDetail } from "./hooks/useListingDetail";
+import ListingSpecs from "./components/ListingSpecs";
+import ListingActions from "./components/ListingActions";
 import { formatPrice } from "../../utils/formatPrice";
+import "../../styles/ListingDetail.css";
+
 const ListingDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const [listing, setListing] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [prevId, setPrevId] = useState(id);
 
-  if (id !== prevId) {
-    setPrevId(id);
-    setActiveImageIndex(0);
-  }
-
-  const isOwner = user && listing && user?._id === listing.ownerId?._id;
-
-  const handleStatusUpdate = async (newStatus) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/listings/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setListing((prev) => ({ ...prev, status: data.listing.status }));
-      } else {
-        alert("Failed to update status");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error updating status");
-    }
-  };
-
-  const {
-    isLoading: loading,
-    error,
-    performFetch,
-    cancelFetch,
-  } = useFetch(`/listings/${id}`, (response) => {
-    setListing(response.result);
-  });
+  const { listing, loading, error, handleStatusUpdate } = useListingDetail(id);
 
   useEffect(() => {
-    performFetch();
-    return () => cancelFetch();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setActiveImageIndex(0);
   }, [id]);
 
   if (loading)
@@ -64,7 +25,7 @@ const ListingDetail = () => {
     return <div className="listing-detail-container">Error: {error}</div>;
   if (!listing) return null;
 
-  // ...
+  const isOwner = user && listing && user?._id === listing.ownerId?._id;
   const displayPrice = formatPrice(listing.price);
 
   let currency = "EUR";
@@ -75,7 +36,6 @@ const ListingDetail = () => {
   ) {
     currency = listing.price.currency;
   }
-
   const currencySymbol = currency === "USD" ? "$" : "€";
 
   const images =
@@ -148,7 +108,7 @@ const ListingDetail = () => {
           )}
         </div>
 
-        {/* Details */}
+        {/* Details Section */}
         <div className="details-container">
           <div className="listing-header-top">
             {listing.brand && (
@@ -175,55 +135,13 @@ const ListingDetail = () => {
             )}
           </div>
 
-          <div className="action-buttons">
-            {isOwner ? (
-              <>
-                <button
-                  className={`btn-status ${listing.status === "sold" ? "btn-undo" : "btn-sold"}`}
-                  onClick={() =>
-                    handleStatusUpdate(
-                      listing.status === "sold" ? "active" : "sold",
-                    )
-                  }
-                >
-                  {listing.status === "sold" ? "Re-activate" : "Mark as Sold"}
-                </button>
-                <button
-                  className="btn-edit"
-                  onClick={() => navigate(`/listings/${id}/edit`)}
-                >
-                  Edit Listing
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className="btn-contact"
-                  disabled={listing.status === "sold"}
-                  onClick={() => {
-                    if (!user) {
-                      navigate("/login", {
-                        state: { from: `/listings/${id}` },
-                      });
-                    } else {
-                      const sellerId = listing.ownerId?._id || listing.ownerId;
-                      navigate(`/chat/${id}?receiverId=${sellerId}`);
-                    }
-                  }}
-                >
-                  {listing.status === "sold" ? "Item Sold" : "Contact Seller"}
-                </button>
+          <ListingActions
+            listing={listing}
+            isOwner={isOwner}
+            user={user}
+            handleStatusUpdate={handleStatusUpdate}
+          />
 
-                {/* Only show Favorite button if not sold, or let it handle its own disabled state if preferred. 
-                    User asked for "best UI", usually you can still fav a sold item, but if not, wrap in condition.
-                    For now, I'll allow fav on sold items as a "wishlist" feature unless explicitly forbidden.
-                */}
-                <FavoriteButton listingId={listing._id} variant="button" />
-              </>
-            )}
-          </div>
-
-          {/* Seller Info Section */}
           <div className="seller-info-section">
             <h3 className="seller-info-title">Seller Information</h3>
             <div className="seller-card">
@@ -239,23 +157,7 @@ const ListingDetail = () => {
             </div>
           </div>
 
-          <div className="specs-section">
-            <h3>Specifications</h3>
-
-            {listing.brand && (
-              <div className="spec-row">
-                <span className="spec-label">Brand:</span>
-                <span className="spec-value">{listing.brand}</span>
-              </div>
-            )}
-
-            {listing.condition && (
-              <div className="spec-row">
-                <span className="spec-label">Condition:</span>
-                <span className="spec-value">{listing.condition}</span>
-              </div>
-            )}
-          </div>
+          <ListingSpecs listing={listing} />
         </div>
 
         {listing.description && (

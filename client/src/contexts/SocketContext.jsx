@@ -16,6 +16,7 @@ export const SocketProvider = ({ children }) => {
     // Connect socket
     const s = io(window.location.origin);
     socketRef.current = s;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSocket(s);
 
     return () => {
