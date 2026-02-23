@@ -52,6 +52,7 @@ testRouter.post("/seed", async (req, res) => {
           country: "Netherlands",
           agreedToTerms: true,
           isVerified: true,
+          role: "admin",
         },
       ],
     };

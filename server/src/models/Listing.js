@@ -101,6 +101,7 @@ const listingSchema = new mongoose.Schema({
   mileage: { type: Number },
   views: { type: Number, default: 0 },
   inquiries: { type: Number, default: 0 },
+  isFeatured: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 
