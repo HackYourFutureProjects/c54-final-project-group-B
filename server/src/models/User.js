@@ -11,6 +11,12 @@ const userSchema = new mongoose.Schema(
     city: { type: String },
     country: { type: String },
     bio: { type: String },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     agreedToTerms: {
       type: Boolean,
