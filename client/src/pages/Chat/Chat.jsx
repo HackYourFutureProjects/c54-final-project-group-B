@@ -6,7 +6,9 @@ import useFetch from "../../hooks/useFetch";
 import {
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_UPLOAD_PRESET,
-} from "../../util/config";
+} from "../../utils/config";
+import { formatPrice } from "../../utils/formatPrice";
+import { toTimeString } from "../../utils/formatDate";
 import styles from "./Chat.module.css";
 
 /**
@@ -289,14 +291,8 @@ const Chat = () => {
     );
   }
 
-  let displayPrice = listing?.price;
-  if (listing?.price && typeof listing.price === "object") {
-    if (listing.price.$numberDecimal) {
-      displayPrice = listing.price.$numberDecimal;
-    } else if (listing.price.value != null) {
-      displayPrice = listing.price.value;
-    }
-  }
+  // ...
+  const displayPrice = formatPrice(listing?.price);
 
   return (
     <div className={styles.container} ref={containerRef}>
@@ -420,10 +416,7 @@ const Chat = () => {
                 </div>
 
                 <div className={styles.timeStamp}>
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {toTimeString(msg.createdAt)}
                 </div>
               </div>
             );
