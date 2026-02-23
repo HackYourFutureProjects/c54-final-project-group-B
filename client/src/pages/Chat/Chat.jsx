@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
+import { useSocket } from "../../hooks/useSocket";
 import { useAuth } from "../../hooks/useAuth";
+import useFetch from "../../hooks/useFetch";
 import {
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_UPLOAD_PRESET,
@@ -46,36 +47,29 @@ const Chat = () => {
   const sellerId = receiverId?._id || receiverId;
   const room = `${listingId}_${[user?._id, sellerId].sort().join("_")}`;
 
+  const { performFetch: fetchMessages } = useFetch(
+    `/messages/${room}`,
+    (data) => {
+      setMessages(data.result);
+      setIsLoadingHistory(false);
+    },
+    (err) => {
+      console.error("Failed to load history:", err);
+      setIsLoadingHistory(false);
+    },
+  );
+
+  const { performFetch: fetchListing } = useFetch(
+    `/listings/${listingId}`,
+    (data) => setListing(data.result),
+    (err) => console.error("Failed to load listing:", err),
+  );
+
   // 1. Fetch Chat History and Listing Details from the server
   useEffect(() => {
     if (!room || !user) return;
-
-    // Fetch history
-    fetch(`/api/messages/${room}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (data.success) {
-          setMessages(data.result);
-        }
-      })
-      .catch((err) => console.error("Failed to load history:", err))
-      .finally(() => setIsLoadingHistory(false));
-
-    // Fetch listing info for header context
-    fetch(`/api/listings/${listingId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (data.success) {
-          setListing(data.result);
-        }
-      })
-      .catch((err) => console.error("Failed to load listing:", err));
+    fetchMessages();
+    fetchListing();
   }, [room, user, listingId]);
 
   // 2. Initialize Socket Connection and Listeners
