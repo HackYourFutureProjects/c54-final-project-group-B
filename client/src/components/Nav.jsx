@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import TEST_ID from "./Nav.testid";
+import NavLinks from "./Nav/NavLinks";
+import NavProfile from "./Nav/NavProfile";
 import "../styles/Nav.css";
 
 const Nav = () => {
@@ -73,113 +75,8 @@ const Nav = () => {
 
       {/* MIDDLE & RIGHT: Collapsible Content */}
       <div className={`navbar-collapse ${isOpen ? "show" : ""}`}>
-        <ul className="navbar-links">
-          <li>
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                isActive ? "nav-item active" : "nav-item"
-              }
-            >
-              Home
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/listing/create"
-              className={({ isActive }) =>
-                isActive ? "nav-item active" : "nav-item"
-              }
-              data-testid={TEST_ID.linkToCreateListing}
-            >
-              Sell a Bike
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/user"
-              className={({ isActive }) =>
-                isActive ? "nav-item active" : "nav-item"
-              }
-              data-testid={TEST_ID.linkToUsers}
-            >
-              Community
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/favorites"
-              className={({ isActive }) =>
-                isActive ? "nav-item active" : "nav-item"
-              }
-            >
-              Favorites
-            </NavLink>
-          </li>
-          {user && (
-            <li>
-              <NavLink
-                to="/my-listings"
-                className={({ isActive }) =>
-                  isActive ? "nav-item active" : "nav-item"
-                }
-              >
-                My Listings
-              </NavLink>
-            </li>
-          )}
-          {user && (
-            <li>
-              <NavLink
-                to="/inbox"
-                className={({ isActive }) =>
-                  isActive ? "nav-item active" : "nav-item"
-                }
-              >
-                Inbox
-                {unreadCount > 0 && (
-                  <span className="unread-badge">{unreadCount}</span>
-                )}
-              </NavLink>
-            </li>
-          )}
-        </ul>
-
-        <div className="navbar-actions">
-          {user ? (
-            <>
-              <span className="user-greeting">Hi, {user.name || "User"}</span>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="btn-nav btn-logout"
-                data-testid={TEST_ID.linkToLogout}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="btn-nav btn-secondary"
-                data-testid={TEST_ID.linkToLogin}
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="btn-nav btn-primary"
-                data-testid={TEST_ID.linkToSignUp}
-              >
-                Sign Up
-              </Link>
-            </>
-          )}
-        </div>
+        <NavLinks user={user} unreadCount={unreadCount} />
+        <NavProfile user={user} onLogout={handleLogout} />
       </div>
     </nav>
   );
