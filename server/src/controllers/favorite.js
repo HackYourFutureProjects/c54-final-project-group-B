@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Favorite from "../models/Favorite.js";
 import Listing from "../models/Listing.js";
 import { logError } from "../util/logging.js";
+import User from "../models/User.js";
+import Notification from "../models/Notification.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -49,13 +51,13 @@ export const toggleFavorite = async (req, res) => {
         .json({ success: false, msg: "Invalid listing ID" });
     }
 
-    const listing = await Listing.findById(listingId);
+    const listing = await Listing.findById(listingId).select("ownerId title");
     if (!listing) {
       return res.status(404).json({ success: false, msg: "Listing not found" });
     }
 
     const existing = await Favorite.findOne({ userId, listingId });
-
+    // If already favorited -> remove favorite (NO notification)
     if (existing) {
       await Favorite.deleteOne({ _id: existing._id });
       return res
@@ -63,7 +65,25 @@ export const toggleFavorite = async (req, res) => {
         .json({ success: true, result: { favorited: false } });
     }
 
+    // Add favorite
     await Favorite.create({ userId, listingId });
+
+    // Create notification for listing owner (only when someone else favorites)
+    const ownerId = listing.ownerId;
+
+    if (ownerId && ownerId.toString() !== userId.toString()) {
+      const sender = await User.findById(userId).select("name");
+
+      await Notification.create({
+        userId: ownerId,
+        type: "favorite",
+        title: "Added to favorites",
+        body: `${sender?.name || "Someone"} added your listing to favorites`,
+        link: `/listings/${listingId}`,
+        read: false,
+      });
+    }
+
     return res.status(201).json({ success: true, result: { favorited: true } });
   } catch (error) {
     if (error?.code === 11000) {
@@ -72,7 +92,9 @@ export const toggleFavorite = async (req, res) => {
         .json({ success: true, result: { favorited: true } });
     }
     logError(error);
-    res.status(500).json({ success: false, msg: "Unable to toggle favorite" });
+    return res
+      .status(500)
+      .json({ success: false, msg: "Unable to toggle favorite" });
   }
 };
 
