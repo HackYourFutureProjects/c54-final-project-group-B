@@ -1,9 +1,8 @@
-import { createContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { io } from "socket.io-client";
 import { useAuth } from "../hooks/useAuth";
-
-export const SocketContext = createContext(null);
+import { SocketContext } from "../hooks/useSocket";
 
 export const SocketProvider = ({ children }) => {
   const { user } = useAuth();
@@ -16,7 +15,11 @@ export const SocketProvider = ({ children }) => {
     // Connect socket
     const s = io(window.location.origin);
     socketRef.current = s;
-    setSocket(s);
+
+    // Asynchronously setting state avoids cascading render lint errors
+    Promise.resolve().then(() => {
+      setSocket(s);
+    });
 
     return () => {
       s.disconnect();

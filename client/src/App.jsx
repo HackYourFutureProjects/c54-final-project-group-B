@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Nav from "./components/Nav";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SocketProvider } from "./contexts/SocketProvider";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -36,58 +37,66 @@ const App = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Nav />
+        <SocketProvider>
+          <Nav />
 
-        <div className="app-container">
-          <Breadcrumbs />
+          <div className="app-container">
+            <Breadcrumbs />
 
-          <main className="main-content">
-            <Suspense
-              fallback={<div className="loading-fallback">Loading...</div>}
-            >
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/user" element={<UserList />} />
-                <Route path="/listings/:id" element={<ListingDetail />} />
-                <Route path="/chat/:id" element={<Chat />} />
-                <Route path="/inbox" element={<Inbox />} />
-                <Route path="/verify-code" element={<VerifyCode />} />
-                <Route path="/favorites" element={<Favorites />} />
+            <main className="main-content">
+              <Suspense
+                fallback={<div className="loading-fallback">Loading...</div>}
+              >
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/user" element={<UserList />} />
+                  <Route path="/listings/:id" element={<ListingDetail />} />
+                  <Route path="/chat/:id" element={<Chat />} />
+                  <Route path="/inbox" element={<Inbox />} />
+                  <Route path="/verify-code" element={<VerifyCode />} />
+                  <Route path="/favorites" element={<Favorites />} />
 
-                {/* Public Only Routes */}
-                <Route element={<PublicOnlyRoute />}>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<CreateUser />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                </Route>
-
-                {/* Protected Routes */}
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<RequireVerified />}>
-                    <Route path="/listing/create" element={<CreateListing />} />
+                  {/* Public Only Routes */}
+                  <Route element={<PublicOnlyRoute />}>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<CreateUser />} />
                     <Route
-                      path="/listings/:id/edit"
-                      element={<EditListing />}
+                      path="/forgot-password"
+                      element={<ForgotPassword />}
                     />
-                    <Route path="/my-listings" element={<MyListings />} />
-                    <Route path="/profile" element={<ProfileView />} />
-                    <Route path="/profile/:id" element={<ProfileView />} />
-                    <Route path="/profile/edit" element={<Profile />} />
-                    <Route path="/profile/setup" element={<ProfileSetup />} />
-                    <Route
-                      path="/account-settings"
-                      element={<AccountSettings />}
-                    />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                   </Route>
-                </Route>
-              </Routes>
-            </Suspense>
-          </main>
 
-          <Footer />
-        </div>
+                  {/* Protected Routes */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<RequireVerified />}>
+                      <Route
+                        path="/listing/create"
+                        element={<CreateListing />}
+                      />
+                      <Route
+                        path="/listings/:id/edit"
+                        element={<EditListing />}
+                      />
+                      <Route path="/my-listings" element={<MyListings />} />
+                      <Route path="/profile" element={<ProfileView />} />
+                      <Route path="/profile/:id" element={<ProfileView />} />
+                      <Route path="/profile/edit" element={<Profile />} />
+                      <Route path="/profile/setup" element={<ProfileSetup />} />
+                      <Route
+                        path="/account-settings"
+                        element={<AccountSettings />}
+                      />
+                    </Route>
+                  </Route>
+                </Routes>
+              </Suspense>
+            </main>
+
+            <Footer />
+          </div>
+        </SocketProvider>
       </AuthProvider>
     </ThemeProvider>
   );
