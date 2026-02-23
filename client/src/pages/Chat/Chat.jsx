@@ -41,7 +41,6 @@ const Chat = () => {
     messages,
     setMessages,
     isLoadingHistory,
-    hasMore,
     isFetchingMore,
     containerRef,
     messagesEndRef,
@@ -74,6 +73,7 @@ const Chat = () => {
         });
       }
     } catch (err) {
+      console.error(err);
       alert("Failed to upload image. Please check your connection.");
     }
   };
