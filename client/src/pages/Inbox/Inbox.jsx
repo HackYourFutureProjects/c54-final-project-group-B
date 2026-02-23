@@ -148,7 +148,7 @@ const Inbox = () => {
         </button>
       </div>
 
-      <div className={styles.list}>
+      <div className={styles.list} data-testid="inbox-list">
         {conversations.length === 0 ? (
           <div className={styles.empty}>
             {view === "active"
@@ -161,6 +161,7 @@ const Inbox = () => {
             return (
               <div
                 key={conv.room}
+                data-testid="inbox-card"
                 className={`${styles.card} ${conv.unreadCount > 0 ? styles.unreadCard : ""}`}
                 onClick={() =>
                   navigate(

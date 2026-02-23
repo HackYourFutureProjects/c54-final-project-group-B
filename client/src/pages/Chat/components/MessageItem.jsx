@@ -93,7 +93,9 @@ const MessageItem = ({
         {msg.content &&
           msg.content !== "[Image]" &&
           !msg.content.startsWith("[Location:") && (
-            <div className={styles.messageText}>{msg.content}</div>
+            <div className={styles.messageText} data-testid="message-text">
+              {msg.content}
+            </div>
           )}
       </div>
 

@@ -64,6 +64,7 @@ const ChatInput = ({
         type="text"
         className={styles.input}
         value={newMessage}
+        data-testid="chat-input"
         onChange={(e) => {
           setNewMessage(e.target.value);
           onTyping();
@@ -81,6 +82,7 @@ const ChatInput = ({
       <button
         type="submit"
         className={styles.sendButton}
+        data-testid="chat-send-button"
         disabled={!newMessage.trim() || isUploading || isLocationLoading}
       >
         Send

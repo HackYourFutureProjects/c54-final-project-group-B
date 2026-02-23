@@ -26,6 +26,7 @@ const ListingActions = ({ listing, isOwner, user, id, handleStatusClick }) => {
         <>
           <button
             className="btn-contact"
+            data-testid="contact-seller-btn"
             disabled={listing.status === "sold"}
             onClick={() => {
               if (!user) {
