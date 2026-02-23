@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
+import { useSocket } from "../../hooks/useSocket";
 import { useAuth } from "../../hooks/useAuth";
 import useFetch from "../../hooks/useFetch";
 import Skeleton from "../../components/Skeleton/Skeleton.jsx";
@@ -17,7 +17,7 @@ const Inbox = () => {
   const [typingRooms, setTypingRooms] = useState({}); // room -> bool
   const navigate = useNavigate();
   const { user } = useAuth();
-  const socketRef = useRef(null);
+  const socket = useSocket();
 
   // Fetch inbox data from the API
   const { isLoading, error, performFetch, cancelFetch } = useFetch(
@@ -27,10 +27,10 @@ const Inbox = () => {
       setConversations(convs);
 
       // Request initial online status for all contacts
-      if (socketRef.current) {
+      if (socket) {
         convs.forEach((c) => {
           if (c.otherUser?._id) {
-            socketRef.current.emit("check_online_status", c.otherUser._id);
+            socket.emit("check_online_status", c.otherUser._id);
           }
         });
       }
@@ -44,44 +44,47 @@ const Inbox = () => {
 
   // Socket Connection for Real-time Presence and Typing
   useEffect(() => {
-    if (!user) return;
-
-    socketRef.current = io(window.location.origin);
+    if (!socket || !user) return;
 
     // Join personal room to receive status updates and typing events from any contact
-    socketRef.current.emit("join_room", {
+    socket.emit("join_room", {
       userId: user._id,
       room: `user_${user._id}`,
     });
 
-    socketRef.current.on("user_status_change", (data) => {
+    const handleUserStatusChange = (data) => {
       setOnlineStatuses((prev) => ({
         ...prev,
         [data.userId]: data.status === "online",
       }));
-    });
+    };
 
-    socketRef.current.on("online_status_result", (data) => {
+    const handleOnlineStatusResult = (data) => {
       setOnlineStatuses((prev) => ({
         ...prev,
         [data.userId]: data.isOnline,
       }));
-    });
+    };
 
-    // Listen for typing events across all conversations
-    socketRef.current.on("typing_status", (data) => {
+    const handleTypingStatus = (data) => {
       if (data.userId !== user._id) {
         setTypingRooms((prev) => ({
           ...prev,
           [data.room]: data.isTyping,
         }));
       }
-    });
+    };
+
+    socket.on("user_status_change", handleUserStatusChange);
+    socket.on("online_status_result", handleOnlineStatusResult);
+    socket.on("typing_status", handleTypingStatus);
 
     return () => {
-      if (socketRef.current) socketRef.current.disconnect();
+      socket.off("user_status_change", handleUserStatusChange);
+      socket.off("online_status_result", handleOnlineStatusResult);
+      socket.off("typing_status", handleTypingStatus);
     };
-  }, [user]);
+  }, [socket, user]);
 
   const handleArchive = async (e, room, currentStatus) => {
     e.stopPropagation();
