@@ -259,16 +259,26 @@ export const updateStatus = async (req, res) => {
           .json({ success: false, msg: "Invalid buyer ID" });
       }
       req.resource.buyerId = buyerId;
+      try {
+        await Notification.create({
+          recipientId: buyerId,
+          senderId: req.resource.ownerId,
+          type: "review_permission",
+          entityId: req.resource._id,
+        });
+      } catch (notifErr) {
+        logError(notifErr);
+      }
     } else if (status !== "sold") {
       req.resource.buyerId = null;
     }
 
     await req.resource.save();
-    //noti
+    // If marked as sold, create a notification for the buyer about review permission
     if (status === "sold" && buyerId) {
       await Notification.create({
-        recipientId: buyerId, // المشتري
-        senderId: req.resource.ownerId, // البائع
+        recipientId: buyerId,
+        senderId: req.resource.ownerId,
         type: "review_permission",
         entityId: req.resource._id,
       });
