@@ -20,8 +20,6 @@ const AccountSettings = lazy(
 // Lazy loaded components
 const Home = lazy(() => import("./pages/Home/Home"));
 const CreateUser = lazy(() => import("./pages/User/CreateUser"));
-const UserList = lazy(() => import("./pages/User/UserList"));
-const CreateListing = lazy(() => import("./pages/CreateListing/CreateListing"));
 const Login = lazy(() => import("./pages/User/Login"));
 const VerifyCode = lazy(() => import("./pages/User/VerifyCode"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
@@ -31,6 +29,8 @@ const Chat = lazy(() => import("./pages/Chat/Chat"));
 const Inbox = lazy(() => import("./pages/Inbox/Inbox"));
 const EditListing = lazy(() => import("./pages/EditListing/EditListing"));
 const MyListings = lazy(() => import("./pages/MyListings/MyListings"));
+const UserList = lazy(() => import("./pages/User/UserList"));
+const CreateListing = lazy(() => import("./pages/CreateListing/CreateListing"));
 
 const App = () => {
   return (
@@ -59,7 +59,6 @@ const App = () => {
                 <Route element={<PublicOnlyRoute />}>
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<CreateUser />} />
-                  <Route path="/user/create" element={<CreateUser />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                 </Route>
