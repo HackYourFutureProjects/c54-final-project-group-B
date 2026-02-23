@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import "../styles/ListingCard.css";
 import FavoriteButton from "./FavoriteButton";
-
+import { formatPrice } from "../utils/formatPrice";
 const ListingCard = ({ listing, isOwnerView = false }) => {
   const { _id, title, images, location, condition, brand } = listing;
   // Simple delete handling - in a real app, pass this down or use context
@@ -24,8 +24,8 @@ const ListingCard = ({ listing, isOwnerView = false }) => {
     );
   }
 
-  // Handle price display: backend now sends price as a plain string/number
-  const displayPrice = listing.price?.$numberDecimal || listing.price;
+  // ... Inside component:
+  const displayPrice = formatPrice(listing.price);
   const currencySymbol = "€"; // Standardizing to Euro for this marketplace
 
   const handleDelete = async (e) => {

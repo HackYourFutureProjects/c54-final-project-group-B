@@ -4,7 +4,7 @@ import { useAuth } from "../../hooks/useAuth";
 import useFetch from "../../hooks/useFetch";
 import "../../styles/ListingDetail.css";
 import FavoriteButton from "../../components/FavoriteButton";
-
+import { formatPrice } from "../../utils/formatPrice";
 const ListingDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -64,15 +64,8 @@ const ListingDetail = () => {
     return <div className="listing-detail-container">Error: {error}</div>;
   if (!listing) return null;
 
-  // Handle price display
-  let displayPrice = listing.price;
-  if (listing.price && typeof listing.price === "object") {
-    if (listing.price.$numberDecimal) {
-      displayPrice = listing.price.$numberDecimal;
-    } else if (listing.price.value != null) {
-      displayPrice = listing.price.value;
-    }
-  }
+  // ...
+  const displayPrice = formatPrice(listing.price);
 
   let currency = "EUR";
   if (

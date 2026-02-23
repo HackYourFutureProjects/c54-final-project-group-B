@@ -4,6 +4,7 @@ import { useSocket } from "../../hooks/useSocket";
 import { useAuth } from "../../hooks/useAuth";
 import useFetch from "../../hooks/useFetch";
 import Skeleton from "../../components/Skeleton/Skeleton.jsx";
+import { toDateString } from "../../utils/formatDate";
 import styles from "./Inbox.module.css";
 
 /**
@@ -247,9 +248,7 @@ const Inbox = () => {
                       </p>
                       <span className={styles.timeStamp}>
                         {conv.lastMessage?.createdAt
-                          ? new Date(
-                              conv.lastMessage.createdAt,
-                            ).toLocaleDateString()
+                          ? toDateString(conv.lastMessage.createdAt)
                           : ""}
                       </span>
                     </>
