@@ -1,0 +1,124 @@
+# BiCycleL - Master Technical Knowledge Base
+
+This document provides an exhaustive technical breakdown of the BiCycleL project. It is specifically designed for an AI agent to plan code splitting, architectural improvements, and best practice implementations without direct access to the codebase.
+
+---
+
+## 1. Core Mission & User Flows
+BiCycleL is a peer-to-peer bicycle marketplace.
+- **Buyers:** Can browse listings (Home), filter by city/price/brand (HeroFilter), view details (ListingDetail), favorite bikes, and chat in real-time with sellers (Chat).
+- **Sellers:** Can create listings (ListingForm), upload images (Cloudinary), track inquiries, and manage conversations (Inbox).
+- **Security:** Requires email verification before listing (RequireVerified) and uses JWT session-based auth.
+
+---
+
+## 2. Comprehensive Tech Stack
+
+### Frontend (Client)
+- **Framework:** React 19 (Strict Mode enabled).
+- **Bundler:** Vite 7.x (ESM oriented).
+- **Routing:** React Router 7. Supports Protected and PublicOnly routes.
+- **Styling:** CSS Modules for component isolation, falling back to global CSS for core design tokens (`index.css`, `Nav.css`).
+- **Critical Libraries:**
+  - `socket.io-client`: Real-time duplex communication.
+  - `leaflet` & `react-leaflet`: Interactive map displays for bike locations.
+  - `framer-motion`: Smooth transitions and micro-animations.
+  - `react-easy-crop`: Profile picture and listing image cropping.
+  - `lucide-react` & `react-icons`: UI iconography.
+  - `date-fns`: Standardized date formatting.
+
+### Backend (Server)
+- **Framework:** Express 5 (latest major version).
+- **Database:** MongoDB 8.x + Mongoose 9.x (ODM).
+- **Security:** 
+  - `helmet`: CSP configured for Cloudinary, OpenStreetMap, and static map providers.
+  - `express-rate-limit`: Brute force protection on API endpoints.
+  - `cookie-parser`: Secure session management.
+- **Communication:**
+  - `socket.io`: Event-driven state sync (typing, online status).
+  - `resend`: Transactional emails (forgot password, verification).
+- **Storage:** `multer` (multipart handling) + `cloudinary` (remote asset storage).
+
+---
+
+## 3. Directory & File Inventory
+
+### Root Configuration
+- `package.json`: Manages monorepo scripts (`npm run dev` for both).
+- `cypress/`: Automated integration tests for all primary flows.
+
+### Client (client/src)
+#### Contexts (Global State)
+- `AuthContext.jsx`: Manages `user` state and `login`/`logout` logic. Fetches `/api/users/me` on mount.
+- `ThemeContext.jsx`: Handles Dark/Light mode preferences.
+
+#### Shared Components (client/src/components)
+- **Layout:** `Nav.jsx` (large, handles responsive menu, notifications, profile dropdown), `Footer.jsx`, `Breadcrumbs.jsx`.
+- **Form UI:** `InputField.jsx`, `TextAreaField.jsx`, `SelectField.jsx`, `PasswordStrengthMeter.jsx`.
+- **Maps:** `LocationMap.jsx` (Leaflet wrapper), `DraggableMarker.jsx`, `BikeMarker.jsx`.
+- **Specialized:** `ImageCropper.jsx`, `ListingCard.jsx` (heavy usage), `StarRating.jsx`, `FavoriteButton.jsx`.
+
+#### Hooks (Logic Extraction)
+- `useFetch.js`: Standardized API wrapper with AbortController for cancellation.
+- `useApi.js`: Abstracted API interaction.
+- `useNotifications.js`: Periodically polls/syncs user alerts.
+- `useUnreadCount.js`: Real-time message count indicator.
+
+#### Pages (client/src/pages)
+- `Home.jsx`: Listing feed + search filters.
+- `Chat.jsx`: Direct messaging interface (Socket.io heavy).
+- `Inbox.jsx`: Conversation list (Socket.io presence indicators).
+- `ListingDetail.jsx`: Extended bike info + location map.
+- `Profile/`: `ProfileView.jsx`, `ProfileSetup.jsx`, `Profile.jsx`.
+
+---
+
+## 4. Architectural Patterns & Logic
+
+### Data Models (Mongoose)
+1. **User:** Stores profile, verification status, and hashed credentials.
+2. **Listing:** Contains metadata (brand, price, usage) and GeoJSON coordinates. Includes an `inquiries` counter.
+3. **Message:** Persistent chat records with support for `mediaUrl` (images) and `location` (GeoJSON).
+4. **ConversationStatus:** Tracks `room` specific metadata (archived status, unread counts).
+
+### Real-time Strategy (Socket.io)
+- **Room Logic:** Rooms are `listingId_user1_user2` (sorted IDs).
+- **Presence:** `onlineUsers` Map on the server tracks `userId` to a `Set` of `socketId`.
+- **Events:**
+  - `join_room`: Joins both a chat room and a personal `user_userId` room for notifications.
+  - `send_message`: Persists to DB and emits to room. Increment listing `inquiries` on first buyer message.
+  - `typing` / `stop_typing`: Broadcasts to specific room and personal room.
+  - `check_online_status`: Returns boolean for a specific user within a shared conversation context.
+
+### Authentication Flow
+- Session persists via `token` cookie.
+- `requireAuth` middleware on server verifies JWT.
+- `ProtectedRoute` component on client redirects to `/login` if `user` is null.
+- `RequireVerified` component requires `user.isVerified === true` for listing actions.
+
+---
+
+## 5. Potential Improvement Areas (Code Splitting & Best Practices)
+
+1. **Duplicate Socket Connections:** Currently, `Chat.jsx` and `Inbox.jsx` initialize their own `io()` instances.
+   - *Best Practice:* Wrap `App.jsx` in a `SocketProvider` that manages a single connection.
+2. **Heavy Dependencies:** Leaflet and Framer Motion are imported globally in some components.
+   - *Best Practice:* Use `React.lazy` for `LocationMap` specifically within `ListingDetail` to shed ~100kb from initial paint.
+3. **Internal Component Sprawl:** `Nav.jsx` and `Chat.jsx` are growing complex.
+   - *Best Practice:* Break `Nav` into `NavDropdown`, `NotificationBell`, and `NavLinks`. Break `Chat` into `MessageList`, `ChatHeader`, and `ChatInput`.
+4. **Logic Leakage:** `index.js` on the server contains significant Socket logic.
+   - *Best Practice:* Move socket event handlers to `server/src/socket/socketHandler.js`.
+5. **Image Handling:** Image uploads are currently client-triggered to Cloudinary directly.
+   - *Consideration:* Moving to server-side uploads or signed URLs for better security.
+
+---
+
+## 6. Deployment & Environment
+- **Platform:** Heroku (Procfile: `web: npm start`).
+- **Production Mode:** Server serves `client/dist/index.html` as a catch-all.
+- **Required Env Variables:** 
+  - `MONGODB_URL`, `JWT_SECRET`, `RESEND_API_KEY`.
+  - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_UPLOAD_PRESET`.
+  - `CLIENT_URL` (for Socket.io CORS).
+
+---
