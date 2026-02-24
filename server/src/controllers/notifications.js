@@ -3,7 +3,7 @@ import Notification from "../models/Notification.js";
 import Review from "../models/Review.js";
 import Listing from "../models/Listing.js";
 
-// 3 - شخص قام بمراجعتك
+// person reviewed you
 export const createReviewAndNotify = async (req, res) => {
   try {
     const { listingId, reviewedUserId, rating, comment } = req.body;
@@ -21,23 +21,25 @@ export const createReviewAndNotify = async (req, res) => {
       type: "review",
       fromUser: req.user._id,
       listing: listingId,
-      message: `${req.user.name} قام بمراجعتك!`,
+      message: `${req.user.name} reviewed you with a rating of ${rating} stars.`,
     });
 
     res.status(201).json(review);
   } catch (err) {
-    res.status(500).json({ message: "حدث خطأ أثناء إنشاء الريفيو" });
+    res.status(500).json({
+      message: "Failed to create review and notification",
+      error: err.message,
+    });
   }
 };
 
-// 4 - شخص أعطاك حق الوصول
+// get access to review and notify the user
 export const giveAccessAndNotify = async (req, res) => {
   try {
     const { listingId, targetUserId } = req.body;
 
     const listing = await Listing.findById(listingId);
-    if (!listing)
-      return res.status(404).json({ message: "القائمة غير موجودة" });
+    if (!listing) return res.status(404).json({ message: "Listing not found" });
 
     listing.reviewAccess = listing.reviewAccess || [];
     if (!listing.reviewAccess.includes(targetUserId)) {
@@ -50,11 +52,16 @@ export const giveAccessAndNotify = async (req, res) => {
       type: "access",
       fromUser: req.user._id,
       listing: listingId,
-      message: `${req.user.name} منحك حق الوصول لمراجعة هذه القائمة.`,
+      message: `${req.user.name} gave you access to review this listing.`,
     });
 
-    res.status(200).json({ message: "تم منح حق الوصول والإشعار تم إنشاؤه" });
+    res
+      .status(200)
+      .json({ message: "Access granted and notification created" });
   } catch (err) {
-    res.status(500).json({ message: "حدث خطأ أثناء منح حق الوصول" });
+    res.status(500).json({
+      message: "Failed to grant access and create notification",
+      error: err.message,
+    });
   }
 };
