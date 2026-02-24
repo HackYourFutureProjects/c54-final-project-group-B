@@ -19,6 +19,9 @@ import { errorHandler } from "./middleware/error.js";
 // Create an express server
 const app = express();
 
+// Trust proxy for Heroku/Cloud environments
+app.set("trust proxy", 1);
+
 // Security & Logging Middleware
 app.use(
   helmet({
