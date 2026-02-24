@@ -186,6 +186,105 @@ export const loginUser = async (req, res) => {
   }
 };
 
+export const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "No Google token provided" });
+    }
+
+    let payload;
+    try {
+      // Typically, access tokens can't be strictly verified with just verifyIdToken,
+      // but react-oauth/google returns an access token if you use useGoogleLogin.
+      // We must fetch from Google userinfo endpoint if it's an access token.
+      const response = await fetch(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch Google profile");
+      }
+      payload = await response.json();
+    } catch (err) {
+      logError(err);
+      return res
+        .status(401)
+        .json({ success: false, msg: "Invalid Google token" });
+    }
+
+    const { email, name, picture, sub: googleId } = payload;
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+
+    if (user && user.isBlocked) {
+      return res.status(403).json({
+        success: false,
+        msg: "Your account has been blocked by an administrator.",
+      });
+    }
+
+    if (!user) {
+      // Create new user if they don't exist
+      // Give them a random password since they use Google
+      const salt = await bcrypt.genSalt(12);
+      const randomPassword = await bcrypt.hash(
+        crypto.randomBytes(16).toString("hex"),
+        salt,
+      );
+
+      user = await User.create({
+        name: name || `User${crypto.randomInt(1000, 9999)}`,
+        email,
+        password: randomPassword,
+        avatarUrl: picture,
+        authProvider: "google",
+        googleId,
+        isVerified: true, // Google emails are already verified
+        agreedToTerms: true,
+      });
+    } else {
+      // Update existing user with googleId if it doesn't have one
+      if (!user.googleId) {
+        // user.googleId = googleId;
+        // We aren't strictly enforcing googleId in schema, but we mark them verified.
+        if (!user.isVerified) {
+          user.isVerified = true;
+          user.verificationCode = undefined;
+          user.verificationCodeExpiry = undefined;
+        }
+        await user.save();
+      }
+    }
+
+    // Reset counters just in case
+    user.failedLoginAttempts = 0;
+    user.lockoutUntil = undefined;
+    await user.save();
+
+    // Set cookie
+    const jwtToken = signToken(user);
+    res.cookie("token", jwtToken, cookieConfig);
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    delete userResponse.verificationCode;
+
+    res.status(200).json({ success: true, user: userResponse });
+  } catch (error) {
+    logError(error);
+    res.status(500).json({
+      success: false,
+      msg: "Internal server error during Google login",
+    });
+  }
+};
+
 export const verifyEmail = async (req, res) => {
   try {
     const { email, code } = req.body;
