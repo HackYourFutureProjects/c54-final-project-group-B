@@ -56,28 +56,29 @@ const startServer = async () => {
   }
 };
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /****** Host our client code for Heroku *****/
-/**
- * We only want to host our client code when in production mode as we then want to use the production build that is built in the dist folder.
- * When not in production, don't host the files, but the development version of the app can connect to the backend itself.
- */
 if (process.env.NODE_ENV === "production") {
-  const clientDistPath = new URL("../../client/dist", import.meta.url).pathname;
+  const clientDistPath = path.resolve(__dirname, "../../client/dist");
 
   // Serve static files from the React app
   app.use(express.static(clientDistPath));
 
-  // Explicitly handle favicon.ico to prevent 503s or index.html fallbacks for it
+  // Explicitly handle favicon.ico
   app.get("/favicon.ico", (req, res) => {
-    res.sendFile(`${clientDistPath}/favicon.png`, (err) => {
-      if (err) res.status(204).end(); // No content if missing, but no error
+    res.sendFile(path.join(clientDistPath, "favicon.png"), (err) => {
+      if (err) res.status(204).end();
     });
   });
 
-  // The "catchall" handler: for any request that doesn't
-  // match one above, send back React's index.html file.
-  app.get(/.*/, (req, res) => {
-    res.sendFile(`${clientDistPath}/index.html`);
+  // Catch-all handler
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientDistPath, "index.html"));
   });
 }
 
