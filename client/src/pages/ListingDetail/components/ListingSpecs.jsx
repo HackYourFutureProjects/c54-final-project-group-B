@@ -18,16 +18,13 @@ const ListingSpecs = ({ listing }) => {
   if (activeSpecs.length === 0) return null;
 
   return (
-    <div className="mb-10">
-      <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-        Specifications
-      </h3>
+    <div className="flex flex-col gap-1 text-sm md:text-base">
       {activeSpecs.map((spec) => (
-        <div key={spec.label} className="flex mb-2">
-          <span className="w-[100px] font-semibold text-gray-500 dark:text-gray-400">
+        <div key={spec.label} className="flex flex-row">
+          <span className="text-gray-400 w-24 flex-shrink-0">
             {spec.label}:
           </span>
-          <span className="text-gray-900 dark:text-gray-200">{spec.value}</span>
+          <span className="text-gray-200">{spec.value}</span>
         </div>
       ))}
     </div>

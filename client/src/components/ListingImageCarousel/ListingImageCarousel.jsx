@@ -140,12 +140,12 @@ const ListingImageCarousel = ({ images = [], title = "Listing", status }) => {
       )}
 
       {displayImages.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide shrink-0">
+        <div className="grid grid-cols-4 gap-3 md:gap-4 mt-2">
           {displayImages.map((img, index) => (
             <button
               type="button"
               key={index}
-              className={`w-20 h-16 rounded-lg overflow-hidden cursor-pointer border-2 p-0 bg-transparent flex-shrink-0 transition-opacity duration-200 ${index === activeIndex ? "opacity-100 border-emerald" : "opacity-50 hover:opacity-80 border-transparent"}`}
+              className={`relative rounded-xl overflow-hidden cursor-pointer border-2 p-0 bg-transparent aspect-[4/3] transition-all duration-200 ${index === activeIndex ? "border-[#10B981] opacity-100" : "border-transparent opacity-60 hover:opacity-100"}`}
               onClick={() => setActiveIndex(index)}
             >
               <img

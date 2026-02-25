@@ -94,9 +94,20 @@ const ListingDetail = () => {
           status={listing.status}
         />
 
-        <div className="flex flex-col">
+        <div className="flex flex-col h-full">
           <ListingHeader listing={listing} isOwner={isOwner} />
-          <ListingInfo listing={listing} displayPrice={displayPrice} />
+          <ListingInfo displayPrice={displayPrice} />
+
+          {/* Combined Description & Specs */}
+          <div className="my-6">
+            <h3 className="font-bold text-gray-900 dark:text-white mb-1">
+              Description:
+            </h3>
+            <div className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-4">
+              {listing.description}
+            </div>
+            <ListingSpecs listing={listing} />
+          </div>
 
           <ListingActions
             listing={listing}
@@ -107,34 +118,29 @@ const ListingDetail = () => {
             onReportClick={() => setReportModalOpen(true)}
           />
 
-          <SellerCard
-            seller={sellerData}
-            canRate={canRate}
-            canViewReviews={canViewReviews}
-            isSold={listing.status === "sold"}
-            onRate={() => setReviewModalOpen(true)}
-            onViewReviews={() => setReviewsListOpen(true)}
-          />
-
-          <ListingSpecs listing={listing} />
-
           {listing.coordinates && listing.coordinates.coordinates && (
-            <div className="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-dark-border shadow-sm">
-              <LocationMap coordinates={listing.coordinates.coordinates} />
+            <div className="mt-auto pt-6 mb-6">
+              <div className="rounded-xl overflow-hidden shadow-lg border border-[#10B981]/30">
+                <LocationMap coordinates={listing.coordinates.coordinates} />
+              </div>
+              <div className="mt-2 text-sm text-gray-400">
+                Pickup Location: {listing.location || "Location not specified"}
+              </div>
             </div>
           )}
-        </div>
 
-        {listing.description && (
-          <div className="md:col-span-2 bg-gray-50 dark:bg-dark-surface p-8 rounded-xl mt-4 border border-gray-100 dark:border-dark-border shadow-sm">
-            <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-              Description
-            </h3>
-            <p className="leading-relaxed text-gray-600 dark:text-gray-300 whitespace-pre-line">
-              {listing.description}
-            </p>
+          {/* Seller Card Restored */}
+          <div className="mt-4">
+            <SellerCard
+              seller={sellerData}
+              canRate={canRate}
+              canViewReviews={canViewReviews}
+              isSold={listing.status === "sold"}
+              onRate={() => setReviewModalOpen(true)}
+              onViewReviews={() => setReviewsListOpen(true)}
+            />
           </div>
-        )}
+        </div>
       </div>
 
       <MarkAsSoldModal

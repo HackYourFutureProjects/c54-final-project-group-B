@@ -14,17 +14,17 @@ const ListingActions = ({
 
   return (
     <div className="flex flex-col gap-4 mb-8">
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-row gap-4 w-full">
         {isOwner ? (
           <>
             <button
-              className={`w-full py-3.5 rounded-xl text-base font-semibold transition-colors text-white ${listing.status === "sold" ? "bg-sky-600 hover:bg-sky-700" : "bg-green-700 hover:bg-green-800"}`}
+              className={`flex-1 py-3.5 rounded-full text-sm sm:text-base font-semibold transition-colors text-white ${listing.status === "sold" ? "bg-sky-600 hover:bg-sky-700" : "bg-emerald hover:bg-emerald-hover"}`}
               onClick={handleStatusClick}
             >
               {listing.status === "sold" ? "Re-activate" : "Mark as Sold"}
             </button>
             <button
-              className="bg-white dark:bg-dark-surface border border-emerald text-emerald w-full py-3.5 rounded-xl text-base font-semibold transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/40 text-center"
+              className="flex-1 bg-transparent border-2 border-emerald text-emerald py-3.5 rounded-full text-sm sm:text-base font-semibold transition-colors hover:bg-emerald/10 text-center"
               onClick={() => navigate(`/listings/${id}/edit`)}
             >
               Edit Listing
@@ -33,7 +33,7 @@ const ListingActions = ({
         ) : (
           <>
             <button
-              className="bg-emerald text-white w-full py-3.5 rounded-xl text-base font-semibold transition-colors hover:bg-emerald-hover disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-emerald text-white py-3.5 rounded-full text-sm sm:text-base font-semibold transition-colors hover:bg-emerald-hover disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={listing.status === "sold"}
               onClick={() => {
                 if (!user) {
@@ -46,9 +46,11 @@ const ListingActions = ({
                 }
               }}
             >
-              {listing.status === "sold" ? "Item Sold" : "Contact Seller"}
+              {listing.status === "sold" ? "Item Sold" : "Message Seller"}
             </button>
-            <FavoriteButton listingId={listing._id} variant="button" />
+            <div className="flex-1 w-full flex">
+              <FavoriteButton listingId={listing._id} variant="button" />
+            </div>
           </>
         )}
       </div>
