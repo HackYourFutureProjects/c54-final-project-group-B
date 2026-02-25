@@ -3,6 +3,8 @@ import Review from "../models/Review.js";
 import User from "../models/User.js";
 import Listing from "../models/Listing.js";
 import { logError } from "../util/logging.js";
+import Notification from "../models/Notification.js";
+import { emitNotification } from "../socket/socketHandler.js";
 
 // Helper to validate MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -79,6 +81,22 @@ export const createReview = async (req, res) => {
     await User.findByIdAndUpdate(targetId, {
       $inc: { ratingSum: rating, reviewCount: 1 },
     });
+
+    // Create notification for seller
+    try {
+      const notification = await Notification.create({
+        recipientId: targetId,
+        senderId: reviewerId,
+        type: "review",
+        listingId: listingId,
+        title: "New Review Received",
+        body: `You received a new ${rating}-star review from ${populatedReview.reviewerId.name}`,
+        link: `/users/${targetId}`, // Seller's profile where reviews are shown
+      });
+      emitNotification(targetId, notification);
+    } catch (notifErr) {
+      logError(notifErr);
+    }
 
     res.status(201).json({ success: true, review: populatedReview });
   } catch (error) {
