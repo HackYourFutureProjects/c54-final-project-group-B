@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import TEST_ID from "./Nav.testid";
-import { useTheme } from "../contexts/ThemeContext";
+
 import useUnreadCount from "../hooks/useUnreadCount";
 import useNotifications from "../hooks/useNotifications";
 import NavLinks from "./Nav/NavLinks";
@@ -11,7 +11,6 @@ import NavNotifications from "./Nav/NavNotifications";
 
 const Nav = () => {
   const { user, logout } = useAuth();
-  const { isDark, toggleTheme } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -57,7 +56,7 @@ const Nav = () => {
 
   return (
     <nav
-      className="sticky top-0 z-50 w-full glass-panel shadow-sm transition-colors duration-300"
+      className="sticky top-0 z-50 w-full bg-[#1a1a1a] border-b border-[#333333] transition-colors duration-300"
       data-testid={TEST_ID.container}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,7 +65,7 @@ const Nav = () => {
           <div className="flex-shrink-0 flex items-center">
             <Link
               to="/"
-              className="text-2xl font-bold text-primary hover:text-primary-dark transition-colors flex items-center gap-2"
+              className="text-2xl font-bold text-[#10B981] hover:text-[#34D399] transition-colors flex items-center gap-2"
               data-testid={TEST_ID.linkToHome}
             >
               🚲 BiCycleL
@@ -78,7 +77,7 @@ const Nav = () => {
             <button
               onClick={toggleMenu}
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-emerald hover:bg-gray-100 dark:hover:bg-dark-border focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald transition-colors"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-[#10B981] hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#10B981] transition-colors"
               aria-label="Toggle navigation"
             >
               <svg
@@ -113,17 +112,8 @@ const Nav = () => {
               <NavLinks user={user} unreadCount={unreadMessagesCount} />
             </div>
 
-            {/* Actions (Theme, Notif, Profile) */}
-            <div className="flex items-center space-x-4 pl-6 border-l border-gray-200 dark:border-dark-border">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border hover:text-emerald transition-colors"
-                aria-label="Toggle theme"
-              >
-                {isDark ? "☀️" : "🌙"}
-              </button>
-
+            {/* Actions (Notif, Profile) */}
+            <div className="flex items-center space-x-4 pl-6 border-l border-[#333333]">
               <NavNotifications
                 user={user}
                 isOpen={isNotifOpen}
@@ -145,23 +135,16 @@ const Nav = () => {
 
       {/* Mobile Menu Collapse */}
       <div
-        className={`md:hidden ${isOpen ? "block" : "hidden"} border-t border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface`}
+        className={`md:hidden ${isOpen ? "block" : "hidden"} border-t border-[#333333] bg-[#1a1a1a]`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <NavLinks user={user} unreadCount={unreadMessagesCount} isMobile />
         </div>
 
-        <div className="pt-4 pb-3 border-t border-gray-200 dark:border-dark-border">
+        <div className="pt-4 pb-3 border-t border-[#333333]">
           <div className="flex items-center px-5 justify-between">
             <div className="flex items-center space-x-3">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border hover:text-emerald transition-colors"
-                aria-label="Toggle theme"
-              >
-                {isDark ? "☀️ Switch to Light" : "🌙 Switch to Dark"}
-              </button>
+              {/* Theme toggle removed for exact dark mode consistency */}
             </div>
             {user && (
               <NavNotifications

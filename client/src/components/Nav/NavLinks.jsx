@@ -10,11 +10,11 @@ const NavLinks = ({ user, unreadCount, isMobile }) => {
 
     const stateColor = isActive
       ? isMobile
-        ? "text-emerald bg-emerald-light/10"
-        : "text-emerald border-emerald"
+        ? "text-[#10B981] bg-[#10B981]/10"
+        : "text-[#10B981] border-[#10B981]"
       : isMobile
-        ? "text-gray-700 dark:text-gray-300 hover:text-emerald hover:bg-gray-50 dark:hover:bg-dark-bg"
-        : "text-gray-600 dark:text-gray-300 border-transparent hover:text-emerald hover:border-emerald/30";
+        ? "text-gray-400 hover:text-[#10B981] hover:bg-white/5"
+        : "text-gray-400 border-transparent hover:text-[#10B981] hover:border-[#10B981]/30";
 
     return base + stateColor;
   };
