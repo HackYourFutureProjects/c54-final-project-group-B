@@ -15,7 +15,7 @@ const ListingInfo = ({ listing, displayPrice }) => {
 
       <div className="flex flex-wrap gap-3 mb-8">
         {listing.condition && (
-          <span className="px-4 py-1.5 rounded-full text-sm font-medium bg-emerald text-white">
+          <span className="px-4 py-1.5 rounded-full text-sm font-medium bg-emerald-500 text-white">
             {listing.condition}
           </span>
         )}

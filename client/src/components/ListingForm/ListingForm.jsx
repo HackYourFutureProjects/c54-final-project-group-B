@@ -301,7 +301,7 @@ const ListingForm = ({
       <div className="flex items-center justify-between mb-4 relative z-0">
         <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-dark-border -z-10 translate-y-[-50%] rounded-full overflow-hidden">
           <div
-            className="h-full bg-emerald transition-all duration-300 ease-in-out progress-bar"
+            className="h-full bg-emerald-500 transition-all duration-300 ease-in-out progress-bar"
             style={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }}
           />
         </div>
@@ -309,16 +309,16 @@ const ListingForm = ({
           <div
             key={num}
             className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 border-4 border-white dark:border-dark-surface
-              ${step >= num ? "bg-emerald text-white" : "bg-gray-200 dark:bg-dark-input text-gray-500"}`}
+              ${step >= num ? "bg-emerald-500 text-white" : "bg-gray-200 dark:bg-dark-input text-gray-500"}`}
           >
             {num}
           </div>
         ))}
       </div>
       <div className="flex justify-between text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
-        <span className={step >= 1 ? "text-emerald" : ""}>Basics</span>
-        <span className={step >= 2 ? "text-emerald" : ""}>Details</span>
-        <span className={step >= 3 ? "text-emerald" : ""}>Photos</span>
+        <span className={step >= 1 ? "text-emerald-500" : ""}>Basics</span>
+        <span className={step >= 2 ? "text-emerald-500" : ""}>Details</span>
+        <span className={step >= 3 ? "text-emerald-500" : ""}>Photos</span>
       </div>
 
       {formError && (
@@ -399,7 +399,7 @@ const ListingForm = ({
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Describe your bike (condition, upgrades, history)..."
               rows={6}
-              className="w-full p-4 border border-gray-200 dark:border-dark-border rounded-xl text-base bg-gray-50 dark:bg-dark-input text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald focus:ring-4 focus:ring-emerald/10 transition-all resize-y"
+              className="w-full p-4 border border-gray-200 dark:border-dark-border rounded-xl text-base bg-gray-50 dark:bg-dark-input text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-y"
               required
             />
           </div>
@@ -419,7 +419,7 @@ const ListingForm = ({
                 onChange={(e) => handleChange("price", e.target.value)}
                 min="0"
                 required
-                className="w-full p-4 pl-10 border border-gray-200 dark:border-dark-border rounded-xl text-base bg-gray-50 dark:bg-dark-input text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald focus:ring-4 focus:ring-emerald/10 transition-all font-semibold"
+                className="w-full p-4 pl-10 border border-gray-200 dark:border-dark-border rounded-xl text-base bg-gray-50 dark:bg-dark-input text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-semibold"
               />
             </div>
           </div>
@@ -505,7 +505,7 @@ const ListingForm = ({
               {newFiles.map((item, index) => (
                 <div
                   key={`new-${index}`}
-                  className="relative aspect-square rounded-xl overflow-hidden shadow-sm border-2 border-emerald focus-within:ring-2 group"
+                  className="relative aspect-square rounded-xl overflow-hidden shadow-sm border-2 border-emerald-500 focus-within:ring-2 group"
                 >
                   <img
                     src={item.previewUrl}
@@ -526,7 +526,7 @@ const ListingForm = ({
               {totalImages < MAX_IMAGES && (
                 <button
                   type="button"
-                  className="aspect-square bg-gray-50 hover:bg-emerald-50 dark:bg-dark-input dark:hover:bg-dark-border border-2 border-dashed border-gray-300 hover:border-emerald dark:border-gray-600 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:text-emerald transition-all gap-2 group cursor-pointer"
+                  className="aspect-square bg-gray-50 hover:bg-emerald-50 dark:bg-dark-input dark:hover:bg-dark-border border-2 border-dashed border-gray-300 hover:border-emerald-500 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:text-emerald-500 transition-all gap-2 group cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <span className="text-4xl leading-none group-hover:scale-110 transition-transform">
@@ -554,7 +554,7 @@ const ListingForm = ({
           <button
             type="button"
             onClick={handlePrev}
-            className="px-6 py-3 font-bold text-emerald border-2 border-emerald rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald/10 transition-colors"
+            className="px-6 py-3 font-bold text-emerald border-2 border-emerald-500 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald/10 transition-colors"
           >
             ← Back
           </button>
@@ -566,7 +566,7 @@ const ListingForm = ({
           <button
             type="button"
             onClick={handleNext}
-            className="px-8 py-3 bg-emerald hover:bg-emerald-hover text-white rounded-xl font-bold transition-all hover:-translate-y-1 shadow-md hover:shadow-lg"
+            className="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold transition-all hover:-translate-y-1 shadow-md hover:shadow-lg"
           >
             Next Step →
           </button>

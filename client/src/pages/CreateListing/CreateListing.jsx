@@ -40,7 +40,7 @@ const CreateListing = () => {
     >
       <Link
         to="/"
-        className="inline-block mb-6 text-emerald font-semibold transition-transform hover:-translate-x-1 hover:text-emerald-hover"
+        className="inline-block mb-6 text-emerald-500 font-semibold transition-transform hover:-translate-x-1 hover:text-emerald-400"
       >
         ← Back to Marketplace
       </Link>

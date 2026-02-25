@@ -81,7 +81,7 @@ const EditListing = () => {
     <div className="max-w-4xl mx-auto py-10 px-5 animate-in slide-in-from-bottom-2 duration-300">
       <Link
         to={`/listings/${id}`}
-        className="inline-block mb-6 text-emerald font-semibold transition-transform hover:-translate-x-1 hover:text-emerald-hover"
+        className="inline-block mb-6 text-emerald-500 font-semibold transition-transform hover:-translate-x-1 hover:text-emerald-400"
       >
         ← Back to Listing
       </Link>

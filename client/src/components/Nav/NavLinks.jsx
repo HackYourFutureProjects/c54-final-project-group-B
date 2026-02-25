@@ -71,7 +71,7 @@ const NavLinks = ({ user, unreadCount, isMobile }) => {
             <span className="flex items-center">
               Inbox
               {unreadCount > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-emerald rounded-full">
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-emerald-500 rounded-full">
                   {unreadCount}
                 </span>
               )}

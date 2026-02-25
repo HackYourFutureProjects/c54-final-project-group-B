@@ -25,7 +25,7 @@ const RangeInputGroup = ({
         </span>
         <input
           type="number"
-          className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald focus:ring-4 focus:ring-emerald/10 placeholder-gray-400"
+          className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 placeholder-gray-400"
           placeholder={minPlaceholder}
           value={filters[minKey] || ""}
           onChange={(e) => onChange(minKey, Number(e.target.value))}
@@ -37,7 +37,7 @@ const RangeInputGroup = ({
         </span>
         <input
           type="number"
-          className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald focus:ring-4 focus:ring-emerald/10 placeholder-gray-400"
+          className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 placeholder-gray-400"
           placeholder={maxPlaceholder}
           value={filters[maxKey] || ""}
           onChange={(e) => onChange(maxKey, Number(e.target.value))}

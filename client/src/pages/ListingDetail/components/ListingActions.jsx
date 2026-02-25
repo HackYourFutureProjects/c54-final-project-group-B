@@ -24,7 +24,7 @@ const ListingActions = ({
               {listing.status === "sold" ? "Re-activate" : "Mark as Sold"}
             </button>
             <button
-              className="bg-white dark:bg-dark-surface border border-emerald text-emerald w-full py-3.5 rounded-xl text-base font-semibold transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/40 text-center"
+              className="bg-white dark:bg-dark-surface border border-emerald-500 text-emerald w-full py-3.5 rounded-xl text-base font-semibold transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/40 text-center"
               onClick={() => navigate(`/listings/${id}/edit`)}
             >
               Edit Listing
@@ -33,7 +33,7 @@ const ListingActions = ({
         ) : (
           <>
             <button
-              className="bg-emerald text-white w-full py-3.5 rounded-xl text-base font-semibold transition-colors hover:bg-emerald-hover disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-emerald-500 text-white w-full py-3.5 rounded-xl text-base font-semibold transition-colors hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={listing.status === "sold"}
               onClick={() => {
                 if (!user) {

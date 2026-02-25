@@ -18,13 +18,13 @@ const NavProfile = ({
         <div className="flex flex-col space-y-2 mt-4 px-3">
           <Link
             to="/login"
-            className="block text-center px-4 py-2 border border-emerald text-emerald rounded-md font-medium hover:bg-emerald/10 transition-colors"
+            className="block text-center px-4 py-2 border border-emerald-500 text-emerald rounded-md font-medium hover:bg-emerald/10 transition-colors"
           >
             Login
           </Link>
           <Link
             to="/signup"
-            className="block text-center px-4 py-2 bg-emerald hover:bg-emerald-hover text-white rounded-md font-medium transition-colors"
+            className="block text-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-medium transition-colors"
           >
             Sign Up
           </Link>
@@ -35,14 +35,14 @@ const NavProfile = ({
       <div className="flex items-center space-x-3">
         <Link
           to="/login"
-          className="px-4 py-2 text-sm font-medium text-emerald border border-emerald rounded-md hover:bg-emerald/10 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-emerald border border-emerald-500 rounded-md hover:bg-emerald/10 transition-colors"
           data-testid={TEST_ID.linkToLogin}
         >
           Login
         </Link>
         <Link
           to="/signup"
-          className="px-4 py-2 text-sm font-medium text-white bg-emerald hover:bg-emerald-hover rounded-md shadow-sm transition-colors"
+          className="px-4 py-2 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 rounded-md shadow-sm transition-colors"
           data-testid={TEST_ID.linkToSignUp}
         >
           Sign Up
@@ -56,38 +56,38 @@ const NavProfile = ({
       {user.role === "admin" && (
         <Link
           to="/admin"
-          className="block px-4 py-2 text-sm font-semibold text-emerald hover:bg-gray-100 dark:hover:bg-dark-bg"
+          className="block px-4 py-2 text-sm font-semibold text-emerald-500 hover:bg-gray-100 dark:hover:bg-dark-bg"
         >
           Admin Dashboard
         </Link>
       )}
       <Link
         to={`/profile/${user._id || user.id}`}
-        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald"
+        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald-500"
       >
         My Profile
       </Link>
       <Link
         to="/profile/edit"
-        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald"
+        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald-500"
       >
         Edit Profile
       </Link>
       <Link
         to="/my-listings"
-        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald"
+        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald-500"
       >
         My Listings
       </Link>
       <Link
         to="/favorites"
-        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald"
+        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald-500"
       >
         Favorites
       </Link>
       <Link
         to="/account-settings"
-        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald"
+        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-bg hover:text-emerald-500"
       >
         Account Settings
       </Link>
@@ -147,10 +147,10 @@ const NavProfile = ({
           <img
             src={user.avatarUrl}
             alt="profile"
-            className="h-8 w-8 rounded-full object-cover border-2 border-transparent hover:border-emerald transition-colors"
+            className="h-8 w-8 rounded-full object-cover border-2 border-transparent hover:border-emerald-500 transition-colors"
           />
         ) : (
-          <FaUserCircle className="h-8 w-8 text-gray-500 hover:text-emerald transition-colors" />
+          <FaUserCircle className="h-8 w-8 text-gray-500 hover:text-emerald-500 transition-colors" />
         )}
       </button>
 

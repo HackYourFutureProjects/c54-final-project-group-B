@@ -26,7 +26,7 @@ const NavNotifications = ({ user, isOpen, setIsOpen, setIsProfileOpen }) => {
     <div className="relative inline-block" ref={dropdownRef}>
       <button
         type="button"
-        className="relative flex items-center justify-center p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-emerald hover:bg-gray-100 dark:hover:bg-dark-border focus:outline-none transition-colors"
+        className="relative flex items-center justify-center p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-emerald-500 hover:bg-gray-100 dark:hover:bg-dark-border focus:outline-none transition-colors"
         onClick={toggleOpen}
         aria-label="Notifications"
       >
@@ -51,7 +51,7 @@ const NavNotifications = ({ user, isOpen, setIsOpen, setIsProfileOpen }) => {
               {unread > 0 && (
                 <button
                   type="button"
-                  className="text-sm text-emerald hover:text-emerald-hover transition-colors font-medium"
+                  className="text-sm text-emerald-500 hover:text-emerald-400 transition-colors font-medium"
                   onClick={markAllAsRead}
                 >
                   Mark all as read
@@ -107,7 +107,7 @@ const NavNotifications = ({ user, isOpen, setIsOpen, setIsProfileOpen }) => {
           <div className="p-3 border-t border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 sticky bottom-0">
             <button
               type="button"
-              className="w-full py-2 text-sm font-medium text-center text-emerald hover:text-emerald-hover transition-colors rounded-lg hover:bg-emerald/10"
+              className="w-full py-2 text-sm font-medium text-center text-emerald-500 hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald/10"
               onClick={() => {
                 setIsOpen(false);
                 navigate("/inbox");

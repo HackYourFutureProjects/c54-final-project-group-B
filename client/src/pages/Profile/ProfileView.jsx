@@ -65,12 +65,12 @@ const ProfileView = () => {
           <div className="flex flex-wrap gap-4 sm:gap-6 text-gray-500 dark:text-gray-400 text-sm font-medium mb-4">
             {user.city && user.country && (
               <span className="flex items-center gap-1.5">
-                <FaMapMarkerAlt className="text-emerald" /> {user.city},{" "}
+                <FaMapMarkerAlt className="text-emerald-500" /> {user.city},{" "}
                 {user.country}
               </span>
             )}
             <span className="flex items-center gap-1.5">
-              <FaCalendarAlt className="text-emerald" /> Joined{" "}
+              <FaCalendarAlt className="text-emerald-500" /> Joined{" "}
               {user.createdAt
                 ? new Date(user.createdAt).toLocaleDateString()
                 : "Invalid Date"}
@@ -105,7 +105,7 @@ const ProfileView = () => {
             <div className="w-full flex justify-end mt-2">
               <Link
                 to="/profile/edit"
-                className="bg-emerald hover:bg-emerald-hover text-white px-5 py-2.5 rounded-lg font-semibold transition-colors text-sm shadow-sm inline-flex items-center gap-2"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors text-sm shadow-sm inline-flex items-center gap-2"
               >
                 Edit Profile
               </Link>
@@ -144,7 +144,7 @@ const ProfileView = () => {
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1 truncate">
                       {listing.title}
                     </h3>
-                    <p className="font-bold text-emerald mb-4">
+                    <p className="font-bold text-emerald-500 mb-4">
                       €{listing.price}
                     </p>
                     <div className="mt-auto">

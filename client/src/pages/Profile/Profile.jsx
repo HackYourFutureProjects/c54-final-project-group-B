@@ -208,7 +208,7 @@ const Profile = () => {
           </label>
           <input
             type="text"
-            className="px-3 py-2.5 border border-gray-300 dark:border-dark-border rounded-lg text-base text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-input transition-all focus:outline-none focus:border-emerald focus:ring-2 focus:ring-emerald/20"
+            className="px-3 py-2.5 border border-gray-300 dark:border-dark-border rounded-lg text-base text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-input transition-all focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Choose a unique username"
