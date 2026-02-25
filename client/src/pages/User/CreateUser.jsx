@@ -202,10 +202,10 @@ const CreateUser = () => {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <div
         data-testid={TEST_ID.container}
-        className="flex flex-col items-center justify-center w-full min-h-[calc(100vh-64px)] py-10 px-4 bg-[#1a1a1a]"
+        className="flex flex-col items-center justify-center w-full min-h-[calc(100vh-64px)] bg-[#1a1a1a]"
       >
-        {/* Main Card Container */}
-        <div className="w-full max-w-[1000px] h-auto min-h-[640px] flex flex-row rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(16,185,129,0.15)] bg-[#222222]">
+        {/* Main Edge-to-Edge Container */}
+        <div className="w-full h-full min-h-[calc(100vh-64px)] flex flex-row overflow-hidden shadow-[0_0_80px_rgba(16,185,129,0.15)] bg-[#222222]">
           {/* Left Side: Landscape Image */}
           <div className="hidden md:block md:w-1/2 relative">
             <img
@@ -218,7 +218,7 @@ const CreateUser = () => {
           </div>
 
           {/* Right Side: Signup Form */}
-          <div className="w-full md:w-1/2 p-8 sm:p-14 flex flex-col justify-center relative bg-[#222222]">
+          <div className="w-full md:w-1/2 p-10 sm:p-16 lg:px-24 flex flex-col justify-center relative bg-[#222222]">
             <h1 className="text-3xl font-bold text-white mb-6 text-center tracking-tight">
               Create an Account
             </h1>

@@ -12,7 +12,7 @@
   }
 
   body.theme-dark {
-    @apply bg-dark-bg text-white border-dark-border;
+    @apply bg-[#1a1a1a] text-white border-dark-border;
   }
 
   h1,

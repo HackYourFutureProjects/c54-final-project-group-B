@@ -56,7 +56,7 @@ const Nav = () => {
 
   return (
     <nav
-      className="sticky top-0 z-50 w-full bg-[#1a1a1a] border-b border-[#333333] transition-colors duration-300"
+      className="sticky top-0 z-50 w-full bg-[#1a1a1a] transition-colors duration-300"
       data-testid={TEST_ID.container}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
