@@ -326,7 +326,7 @@ const CreateUser = () => {
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                   data-testid={TEST_ID.agreedToTermsInput}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald focus:ring-emerald dark:border-gray-600 dark:bg-light-input dark:bg-dark-input dark:focus:ring-offset-dark-surface cursor-pointer"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald focus:ring-emerald-500 dark:border-gray-600 dark:bg-light-input dark:bg-dark-input dark:focus:ring-offset-dark-surface cursor-pointer"
                 />
                 <span className="text-sm text-gray-400 leading-snug">
                   I agree to the{" "}

@@ -82,7 +82,7 @@ const ListingDetail = () => {
 
       <Link
         to="/"
-        className="inline-block mb-6 text-emerald font-medium transition-transform hover:underline hover:-translate-x-1"
+        className="inline-block mb-6 text-emerald-500 font-medium transition-transform hover:underline hover:-translate-x-1"
       >
         ← Back to Marketplace
       </Link>

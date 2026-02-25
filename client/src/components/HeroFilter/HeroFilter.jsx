@@ -225,7 +225,7 @@ const HeroFilter = ({ filters, onApply, onClear, onClearSearch, isOpen }) => {
             </label>
             <input
               type="text"
-              className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald focus:ring-4 focus:ring-emerald/10 placeholder-gray-400"
+              className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 placeholder-gray-400"
               placeholder="e.g. Trek, Specialized"
               value={localFilters.brand?.[0] || ""}
               onChange={handleBrandChange}
@@ -295,7 +295,7 @@ const HeroFilter = ({ filters, onApply, onClear, onClearSearch, isOpen }) => {
 
       <div className="flex justify-between items-center mt-4 pt-6 border-t border-gray-100 dark:border-dark-border">
         <button
-          className="px-6 py-2.5 bg-transparent border border-gray-300 dark:border-dark-border text-gray-500 dark:text-gray-400 font-semibold rounded-full text-sm transition-colors hover:border-emerald hover:text-emerald dark:hover:text-emerald-light hover:bg-emerald-50 dark:hover:bg-emerald-900/40"
+          className="px-6 py-2.5 bg-transparent border border-gray-300 dark:border-dark-border text-gray-500 dark:text-gray-400 font-semibold rounded-full text-sm transition-colors hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/40"
           onClick={onClear}
         >
           Clear all filters

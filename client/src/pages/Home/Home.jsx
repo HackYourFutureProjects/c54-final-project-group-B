@@ -112,8 +112,8 @@ const Home = () => {
             <button
               className={`flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-emerald-light/40 relative ${
                 isFilterOpen
-                  ? "bg-dark-surface text-emerald shadow-inner"
-                  : "bg-white text-emerald hover:bg-gray-50 hover:-translate-y-0.5"
+                  ? "bg-dark-surface text-emerald-500 shadow-inner"
+                  : "bg-white text-emerald-500 hover:bg-gray-50 hover:-translate-y-0.5"
               }`}
               onClick={() => setIsFilterOpen(!isFilterOpen)}
               title="Advanced Filters"
@@ -223,7 +223,7 @@ const Home = () => {
         {hasMore && (
           <div className="text-center mt-12 pb-8">
             <button
-              className="px-8 py-3 bg-emerald text-white font-semibold rounded-full shadow-md hover:bg-emerald-hover hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-emerald/30 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="px-8 py-3 bg-emerald-500 text-white font-semibold rounded-full shadow-md hover:bg-emerald-600 hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-emerald-500/30 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               onClick={handleLoadMore}
               disabled={isLoading}
             >

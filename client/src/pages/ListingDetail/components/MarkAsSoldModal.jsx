@@ -30,7 +30,7 @@ const MarkAsSoldModal = ({
             <select
               value={selectedBuyerId}
               onChange={(e) => onBuyerChange(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-dark-border rounded-lg text-base bg-white dark:bg-dark-input text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald outline-none transition-shadow"
+              className="w-full p-3 border border-gray-300 dark:border-dark-border rounded-lg text-base bg-white dark:bg-dark-input text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 outline-none transition-shadow"
             >
               <option value="">-- Select Buyer --</option>
               {candidates.map((c) => (

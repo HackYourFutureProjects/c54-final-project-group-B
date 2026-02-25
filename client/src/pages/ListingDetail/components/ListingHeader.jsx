@@ -5,7 +5,7 @@ const ListingHeader = ({ listing, isOwner }) => {
     <div className="flex flex-col">
       <div className="flex justify-between items-center mb-2">
         {listing.brand && (
-          <span className="uppercase text-sm font-semibold text-emerald tracking-wide">
+          <span className="uppercase text-sm font-semibold text-emerald-500 tracking-wide">
             {listing.brand}
           </span>
         )}
@@ -33,7 +33,7 @@ const ListingHeader = ({ listing, isOwner }) => {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className="text-emerald"
+              className="text-emerald-500"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -53,7 +53,7 @@ const ListingHeader = ({ listing, isOwner }) => {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className="text-emerald"
+              className="text-emerald-500"
               strokeLinecap="round"
               strokeLinejoin="round"
             >

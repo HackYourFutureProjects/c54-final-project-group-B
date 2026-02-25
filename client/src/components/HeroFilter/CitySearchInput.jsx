@@ -24,7 +24,7 @@ const CitySearchInput = ({
         <div className="flex gap-2 items-center">
           <input
             type="text"
-            className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald focus:ring-4 focus:ring-emerald/10 placeholder-gray-400"
+            className="w-full px-3 py-2.5 bg-white dark:bg-dark-input border border-gray-300 dark:border-dark-border rounded-lg text-sm text-gray-700 dark:text-gray-200 transition-colors focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 placeholder-gray-400"
             placeholder="Enter city..."
             value={citySearch}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -46,7 +46,7 @@ const CitySearchInput = ({
             {cityOptions.map((city, index) => (
               <div
                 key={`${city.name}-${index}`}
-                className="flex justify-between items-center w-full px-3 py-2.5 cursor-pointer border-b border-gray-50 dark:border-dark-border last:border-b-0 hover:bg-gray-50 dark:hover:bg-dark-input hover:text-emerald dark:hover:text-emerald-light"
+                className="flex justify-between items-center w-full px-3 py-2.5 cursor-pointer border-b border-gray-50 dark:border-dark-border last:border-b-0 hover:bg-gray-50 dark:hover:bg-dark-input hover:text-emerald-500 dark:hover:text-emerald-400"
                 onClick={() => onSelect(city)}
                 role="button"
                 tabIndex={0}
