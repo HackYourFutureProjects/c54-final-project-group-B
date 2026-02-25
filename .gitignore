@@ -48,3 +48,4 @@ cypress/screenshots
 *.njsproj
 *.sln
 *.sw?
+CHECK_LATER.md
