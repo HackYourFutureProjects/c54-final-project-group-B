@@ -5,8 +5,10 @@ import Notification from "../models/Notification.js";
 import { logError } from "../util/logging.js";
 
 const onlineUsers = new Map();
+let ioInstance = null;
 
 export const initSocket = (io) => {
+  ioInstance = io;
   const broadcastUserStatus = async (userId, status) => {
     try {
       const statuses = await ConversationStatus.find({ userId });
@@ -194,4 +196,12 @@ export const initSocket = (io) => {
       }
     });
   });
+};
+
+export const getIO = () => ioInstance;
+
+export const emitNotification = (recipientId, notification) => {
+  if (ioInstance) {
+    ioInstance.to(`user_${recipientId}`).emit("new_notification", notification);
+  }
 };
