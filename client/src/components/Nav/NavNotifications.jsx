@@ -94,27 +94,24 @@ const NavNotifications = ({ user, isOpen, setIsOpen }) => {
                     onClick={async () => {
                       if (!n.read) await markAsRead(n._id);
                       setIsOpen(false);
-                      navigate(n.link || "/inbox");
-                    }}
-                  >
-                    onClick=
-                    {async () => {
-                      if (!n.read) await markAsRead(n._id);
-                      setIsOpen(false);
-
-                      switch (n.type) {
-                        case "review_permission":
-                          navigate(`/listings/${n.listingId}/review`);
-                          break;
-                        case "new_review":
-                          navigate(`/listings/${n.listingId}`); //
-                          break;
-                        default:
-                          navigate(n.link || "/inbox");
+                      // Backend sends: "review_permission" and "review"
+                      if (
+                        (n.type === "review_permission" ||
+                          n.type === "review") &&
+                        n.listingId
+                      ) {
+                        navigate(`/listings/${n.listingId}`);
+                      } else {
+                        navigate(n.link || "/inbox");
                       }
                     }}
+                  >
                     <div
-                      className={`text-sm ${n.read ? "font-medium text-gray-700 dark:text-gray-300" : "font-semibold text-gray-900 dark:text-white"}`}
+                      className={`text-sm ${
+                        n.read
+                          ? "font-medium text-gray-700 dark:text-gray-300"
+                          : "font-semibold text-gray-900 dark:text-white"
+                      }`}
                     >
                       {n.title}
                     </div>
