@@ -15,7 +15,6 @@ import AdminRoute from "./components/AdminRoute";
 import RequireVerified from "./components/RequireVerified";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import Footer from "./components/Footer";
-import Breadcrumbs from "./components/Breadcrumbs";
 const Profile = lazy(() => import("./pages/Profile/Profile"));
 const ProfileView = lazy(() => import("./pages/Profile/ProfileView"));
 const ProfileSetup = lazy(() => import("./pages/Profile/ProfileSetup"));
@@ -29,13 +28,12 @@ const CreateUser = lazy(() => import("./pages/User/CreateUser"));
 const Login = lazy(() => import("./pages/User/Login"));
 const VerifyCode = lazy(() => import("./pages/User/VerifyCode"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/User/ResetPassword"));
 const ListingDetail = lazy(() => import("./pages/ListingDetail/ListingDetail"));
 const Chat = lazy(() => import("./pages/Chat/Chat"));
 const Inbox = lazy(() => import("./pages/Inbox/Inbox"));
 const EditListing = lazy(() => import("./pages/EditListing/EditListing"));
 const MyListings = lazy(() => import("./pages/MyListings/MyListings"));
-const UserList = lazy(() => import("./pages/User/UserList"));
+
 const CreateListing = lazy(() => import("./pages/CreateListing/CreateListing"));
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const UserManagement = lazy(() => import("./pages/Admin/UserManagement"));
@@ -52,15 +50,13 @@ const App = () => {
               <Nav />
 
               <div className="app-container">
-                <Breadcrumbs />
-
                 <main className="main-content">
                   <ErrorBoundary>
                     <Suspense fallback={<LoadingState />}>
                       <Routes>
                         {/* Public routes */}
                         <Route path="/" element={<Home />} />
-                        <Route path="/user" element={<UserList />} />
+
                         <Route
                           path="/listings/:id"
                           element={<ListingDetail />}
@@ -68,7 +64,6 @@ const App = () => {
                         <Route path="/chat/:id" element={<Chat />} />
                         <Route path="/inbox" element={<Inbox />} />
                         <Route path="/verify-code" element={<VerifyCode />} />
-                        <Route path="/favorites" element={<Favorites />} />
 
                         {/* Public Only Routes */}
                         <Route element={<PublicOnlyRoute />}>
@@ -78,14 +73,11 @@ const App = () => {
                             path="/forgot-password"
                             element={<ForgotPassword />}
                           />
-                          <Route
-                            path="/reset-password"
-                            element={<ResetPassword />}
-                          />
                         </Route>
 
                         {/* Protected Routes */}
                         <Route element={<ProtectedRoute />}>
+                          <Route path="/favorites" element={<Favorites />} />
                           <Route element={<RequireVerified />}>
                             <Route
                               path="/listing/create"
@@ -101,7 +93,7 @@ const App = () => {
                             />
                             <Route path="/profile" element={<ProfileView />} />
                             <Route
-                              path="/profile/:id"
+                              path="/profile/:username"
                               element={<ProfileView />}
                             />
                             <Route path="/profile/edit" element={<Profile />} />

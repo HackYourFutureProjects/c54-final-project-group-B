@@ -4,7 +4,7 @@ import { FaBell } from "react-icons/fa";
 import useNotifications from "../../hooks/useNotifications";
 import PropTypes from "prop-types";
 
-const NavNotifications = ({ user, isOpen, setIsOpen, setIsProfileOpen }) => {
+const NavNotifications = ({ user, isOpen, setIsOpen }) => {
   const {
     items: notifications,
     unread,
@@ -14,9 +14,7 @@ const NavNotifications = ({ user, isOpen, setIsOpen, setIsProfileOpen }) => {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-  // Auto-close profile when opening notifications
   const toggleOpen = () => {
-    if (!isOpen) setIsProfileOpen(false);
     setIsOpen(!isOpen);
   };
 
@@ -62,7 +60,19 @@ const NavNotifications = ({ user, isOpen, setIsOpen, setIsProfileOpen }) => {
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                ✕
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
           </div>
@@ -126,7 +136,6 @@ NavNotifications.propTypes = {
   user: PropTypes.object,
   isOpen: PropTypes.bool.isRequired,
   setIsOpen: PropTypes.func.isRequired,
-  setIsProfileOpen: PropTypes.func.isRequired,
 };
 
 export default NavNotifications;
