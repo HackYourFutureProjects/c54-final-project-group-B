@@ -17,9 +17,9 @@ const FilterChips = ({ title, options, selected, onToggle }) => (
         return (
           <div
             key={value}
-            className={`px-4 py-2 rounded-lg bg-gray-50 dark:bg-dark-input border border-gray-200 dark:border-dark-border cursor-pointer text-sm text-gray-700 dark:text-gray-300 transition-colors font-medium select-none hover:bg-emerald-50 dark:hover:bg-emerald-900/40 hover:text-emerald-500 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-800/50 ${
+            className={`px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2a2a2a] cursor-pointer text-xs uppercase tracking-wider text-gray-600 dark:text-gray-400 transition-all font-bold select-none hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-500/30 ${
               isActive
-                ? "!bg-emerald-50 dark:!bg-emerald-900/40 !text-emerald-500 dark:!text-emerald-400 !border-emerald-200 dark:!border-emerald-800/50"
+                ? "!bg-emerald-600 dark:!bg-emerald-500 !text-white !border-emerald-600 dark:!border-emerald-500 shadow-md shadow-emerald-600/20"
                 : ""
             }`}
             onClick={() => onToggle(value)}

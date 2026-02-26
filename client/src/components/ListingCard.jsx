@@ -6,8 +6,133 @@ import { optimiseCloudinaryUrl } from "../utils/cloudinary";
 import useApi from "../hooks/useApi";
 import useToast from "../hooks/useToast";
 
-const ListingCard = ({ listing, isOwnerView = false, onUpdated }) => {
-  const { _id, title, images, location, condition, brand } = listing;
+/* ─── Mini Image Carousel (inside card) ──────────────────────── */
+const CardCarousel = ({ images, title }) => {
+  const [idx, setIdx] = useState(0);
+  const touchStartX = useRef(null);
+
+  const imageUrls = images.map((img) =>
+    optimiseCloudinaryUrl(img, { width: 600, height: 450, crop: "fill" }),
+  );
+
+  const prev = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIdx((i) => (i === 0 ? imageUrls.length - 1 : i - 1));
+  };
+
+  const next = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIdx((i) => (i === imageUrls.length - 1 ? 0 : i + 1));
+  };
+
+  const onTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) setIdx((i) => (i === imageUrls.length - 1 ? 0 : i + 1));
+      else setIdx((i) => (i === 0 ? imageUrls.length - 1 : i - 1));
+    }
+    touchStartX.current = null;
+  };
+
+  return (
+    <div
+      className="relative w-full h-full"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {imageUrls.map((url, i) => (
+        <img
+          key={i}
+          src={url}
+          alt={`${title} — photo ${i + 1}`}
+          loading="lazy"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${i === idx ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        />
+      ))}
+
+      {imageUrls.length > 1 && (
+        <>
+          <button
+            onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/70"
+            aria-label="Previous photo"
+            title="Previous photo"
+          >
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/70"
+            aria-label="Next photo"
+            title="Next photo"
+          >
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {imageUrls.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIdx(i);
+                }}
+                className={`transition-all duration-200 rounded-full ${i === idx ? "w-4 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/50"}`}
+                aria-label={`Photo ${i + 1}`}
+              />
+            ))}
+          </div>
+          <div className="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {idx + 1}/{imageUrls.length}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+CardCarousel.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.string).isRequired,
+  title: PropTypes.string.isRequired,
+};
+
+/* ─── Listing Card ────────────────────────────────────────────── */
+const ListingCard = ({
+  listing,
+  isOwnerView = false,
+  onUpdated,
+  onQuickView,
+}) => {
+  const { _id, title, images, location, condition } = listing;
   const [isUpdating, setIsUpdating] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
   const deleteTimerRef = useRef(null);
@@ -21,17 +146,7 @@ const ListingCard = ({ listing, isOwnerView = false, onUpdated }) => {
     return () => clearTimeout(deleteTimerRef.current);
   }, [pendingDelete]);
 
-  const rawImageUrl =
-    images && images.length > 0
-      ? images[0]
-      : "https://placehold.co/600x400?text=No+Image";
-
-  const imageUrl = optimiseCloudinaryUrl(rawImageUrl, {
-    width: 500,
-    height: 400,
-    crop: "fill",
-  });
-
+  const hasImages = images && images.length > 0;
   const displayPrice = listing.price?.$numberDecimal || listing.price;
 
   const handleDelete = useCallback(
@@ -45,12 +160,8 @@ const ListingCard = ({ listing, isOwnerView = false, onUpdated }) => {
       const data = await executeApi(`/api/listings/${_id}`, {
         method: "DELETE",
       });
-
-      if (data?.success !== false) {
-        onUpdated?.();
-      } else {
-        showToast("Failed to delete listing", "error");
-      }
+      if (data?.success !== false) onUpdated?.();
+      else showToast("Failed to delete listing", "error");
     },
     [pendingDelete, _id, executeApi, onUpdated, showToast],
   );
@@ -60,167 +171,252 @@ const ListingCard = ({ listing, isOwnerView = false, onUpdated }) => {
       e.preventDefault();
       setIsUpdating(true);
       const newStatus = listing.status === "active" ? "sold" : "active";
-
       const data = await executeApi(`/api/listings/${_id}/status`, {
         method: "PATCH",
         body: { status: newStatus },
       });
-
       setIsUpdating(false);
-
-      if (data?.success) {
-        onUpdated?.();
-      } else {
-        showToast("Failed to update status", "error");
-      }
+      if (data?.success) onUpdated?.();
+      else showToast("Failed to update status", "error");
     },
     [listing.status, _id, executeApi, onUpdated, showToast],
   );
 
   return (
     <div
-      className="listing-card flex flex-col h-full bg-white dark:bg-dark-surface rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-gray-100 dark:border-dark-border group"
+      className="listing-card group relative flex flex-col h-full bg-white dark:bg-[#1a1a1a] rounded-[2rem] overflow-hidden border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 hover:-translate-y-1"
       data-id={_id}
     >
-      <div className="relative w-full pt-[66.67%] bg-gray-100 dark:bg-dark-bg overflow-hidden">
-        <img
-          src={imageUrl}
-          alt={title}
-          className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+      {/* ── Image Section ── */}
+      <div className="relative w-full aspect-[3/2] overflow-hidden bg-gray-50 dark:bg-[#0f0f0f]">
+        {hasImages ? (
+          <CardCarousel images={images} title={title} />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[#161616] border border-dashed border-[#2a2a2a]">
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-gray-600"
+            >
+              <path d="M5.5 17a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+              <path d="M18.5 17a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+              <path d="M15 6H9c-1.5 0-3 1-3 3l.5 3.5" />
+              <path d="M15 6c1.5 0 3 1 3 3l-.5 3.5" />
+              <path d="M12 6V3" />
+            </svg>
+            <span className="text-xs text-gray-600 font-medium">No photos</span>
+          </div>
+        )}
 
-        <div className="absolute top-2 right-2 z-10">
+        {/* Hover gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none" />
+
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
+          {listing.status === "sold" && (
+            <div className="px-2.5 py-1 rounded-full text-[10px] font-black text-white bg-red-500/90 backdrop-blur-md uppercase tracking-widest flex items-center gap-1 border border-white/20 shadow-lg">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              Sold Out
+            </div>
+          )}
+          {listing.isFeatured && (
+            <div className="px-2.5 py-1 rounded-full text-[10px] font-black text-white bg-amber-500/90 backdrop-blur-md uppercase tracking-widest flex items-center gap-1 border border-white/20 shadow-lg">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              Featured
+            </div>
+          )}
+          {condition && (
+            <div className="px-2.5 py-1 rounded-full text-[10px] font-black text-white bg-emerald-500/80 backdrop-blur-md uppercase tracking-widest border border-white/20 shadow-lg">
+              {condition}
+            </div>
+          )}
+        </div>
+
+        {/* Fav Button */}
+        <div className="absolute top-3 right-3 z-20">
           <FavoriteButton listingId={_id} />
         </div>
 
-        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10 pointer-events-none">
-          {listing.status === "sold" && (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold text-white shadow-md w-fit bg-red-600">
-              SOLD
-            </span>
-          )}
-          {listing.isFeatured && (
-            <span className="px-3 py-1 rounded-full text-xs font-bold text-white shadow-md w-fit bg-gradient-to-br from-amber-500 to-amber-600 border border-white/20 uppercase tracking-wider">
-              ★ FEATURED
-            </span>
-          )}
-          {condition && (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold text-white shadow-md w-fit bg-emerald-500 dark:bg-emerald-600 capitalize">
-              {condition}
-            </span>
-          )}
-        </div>
+        {/* Quick View button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onQuickView?.(listing);
+          }}
+          className="absolute bottom-0 left-0 right-0 z-20 py-2.5 flex items-center justify-center gap-2 bg-black/65 backdrop-blur-sm text-white text-xs font-black uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"
+          aria-label="Quick view listing"
+          title="Quick view"
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Quick View
+        </button>
       </div>
 
-      <div className="p-5 flex flex-col flex-grow text-left">
-        <div className="mb-2">
-          <div className="flex justify-between items-center mb-1.5">
-            {brand && (
-              <span className="text-xs font-bold text-emerald-500 uppercase tracking-wider truncate mr-2">
-                {brand}
-              </span>
-            )}
-            {listing.ownerId?.name && (
-              <span className="text-[11px] italic text-gray-500 dark:text-gray-400 truncate">
-                by {listing.ownerId.name}
-              </span>
-            )}
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight line-clamp-2">
-            {title}
-          </h3>
-        </div>
+      {/* ── Content Section ── */}
+      <div className="p-4 sm:p-5 flex flex-col flex-grow">
+        {/* Row 1: Title */}
+        <h3 className="text-[17px] font-black text-gray-900 dark:text-white leading-snug tracking-tight line-clamp-2 group-hover:text-emerald-500 transition-colors duration-300 mb-2">
+          {title}
+        </h3>
 
-        <div className="text-xl font-extrabold text-emerald-500 mb-3">
-          €{displayPrice}
-        </div>
-
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-          <span className="flex items-center gap-1.5 truncate">
-            <span aria-hidden="true">📍</span> {location}
+        {/* Row 2: Price + Location on same line */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">
+            €{displayPrice}
           </span>
-          {listing.ownerId?.averageRating > 0 && (
-            <span
-              className="flex items-center gap-1 text-[13px] font-semibold text-gray-700 dark:text-gray-300 ml-auto flex-shrink-0"
-              title={`${listing.ownerId.reviewCount} reviews`}
-            >
-              <span className="text-amber-400">★</span>
-              {listing.ownerId.averageRating}
+          {location && (
+            <div className="flex items-center gap-1 text-xs text-gray-400 font-medium min-w-0 overflow-hidden">
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-emerald-500 flex-shrink-0"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span className="truncate">{location}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Row 3: Stats + seller muted row */}
+        <div className="flex items-center justify-between text-[10px] text-gray-400 border-t border-gray-100 dark:border-white/5 pt-3 mt-auto">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <svg
+                width="9"
+                height="9"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-emerald-500"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {listing.views || 0}
+            </span>
+            <span className="flex items-center gap-1">
+              <svg
+                width="9"
+                height="9"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-emerald-500"
+              >
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+              {listing.inquiries || 0}
+            </span>
+          </div>
+          {listing.ownerId?.name && (
+            <span className="truncate font-medium text-gray-500 dark:text-gray-500">
+              by {listing.ownerId.name}
             </span>
           )}
         </div>
 
-        <div className="flex gap-3 py-3 mt-3 mb-3 border-t border-dotted border-gray-200 dark:border-dark-border">
-          <span
-            className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark-bg px-2.5 py-1 rounded-full border border-gray-100 dark:border-dark-border"
-            title="Total views"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-emerald-500"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            {listing.views || 0}
-          </span>
-          <span
-            className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark-bg px-2.5 py-1 rounded-full border border-gray-100 dark:border-dark-border"
-            title="Inquiries from potential buyers"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-emerald-500"
-            >
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-            </svg>
-            {listing.inquiries || 0}
-          </span>
-        </div>
-
-        {isOwnerView ? (
-          <div className="flex gap-2.5 mt-auto text-sm">
+        {/* Owner Actions */}
+        {isOwnerView && (
+          <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-white/5">
             <Link
               to={`/listings/${_id}/edit`}
-              className="flex-1 py-2 px-2 text-center font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-dark-input dark:text-gray-300 dark:hover:bg-dark-border transition-colors"
+              className="flex-1 h-9 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all border border-transparent hover:border-emerald-500/30"
+              title="Edit Listing"
+              aria-label="Edit Listing"
             >
-              ✏️ Edit
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
             </Link>
             <button
               onClick={handleStatusToggle}
-              className={`flex-1 py-2 px-2 text-center font-semibold rounded-lg text-white transition-colors disabled:opacity-70 disabled:cursor-not-allowed ${listing.status === "sold" ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}`}
               disabled={isUpdating}
+              className="flex-1 h-9 flex items-center justify-center rounded-xl font-black text-[10px] uppercase tracking-widest transition-all bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600"
+              title={listing.status === "sold" ? "Relist Item" : "Mark as Sold"}
+              aria-label={
+                listing.status === "sold" ? "Relist Item" : "Mark as Sold"
+              }
             >
-              {listing.status === "sold" ? "🔄 Reactivate" : "🤝 Sold"}
+              {listing.status === "sold" ? "Relist" : "Sold"}
             </button>
             <button
               onClick={handleDelete}
-              className={`flex-1 py-2 px-2 text-center font-semibold rounded-lg transition-colors ${pendingDelete ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400 animate-pulse" : "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"}`}
+              className={`flex-1 h-9 flex items-center justify-center rounded-xl transition-all ${pendingDelete ? "bg-amber-500 text-white animate-pulse" : "bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"}`}
+              title={pendingDelete ? "Confirm Deletion" : "Delete Listing"}
+              aria-label={pendingDelete ? "Confirm Deletion" : "Delete Listing"}
             >
-              {pendingDelete ? "⚠️ Confirm?" : "🗑️ Delete"}
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {pendingDelete ? (
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                ) : (
+                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                )}
+              </svg>
             </button>
           </div>
-        ) : (
+        )}
+
+        {/* Full-card click (non-owner) */}
+        {!isOwnerView && (
           <Link
             to={`/listings/${_id}`}
-            className="mt-auto block w-full py-2.5 text-center font-bold text-emerald-500 border-2 border-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all"
-          >
-            View Details
-          </Link>
+            className="absolute inset-0 z-0"
+            aria-label={`View details for ${title}`}
+          />
         )}
       </div>
     </div>
@@ -248,6 +444,7 @@ ListingCard.propTypes = {
   }).isRequired,
   isOwnerView: PropTypes.bool,
   onUpdated: PropTypes.func,
+  onQuickView: PropTypes.func,
 };
 
 export default memo(ListingCard);
