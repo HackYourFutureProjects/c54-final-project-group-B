@@ -83,6 +83,7 @@ export const createReview = async (req, res) => {
     });
 
     // Create notification for seller
+
     try {
       const notification = await Notification.create({
         recipientId: targetId,
@@ -97,6 +98,13 @@ export const createReview = async (req, res) => {
     } catch (notifErr) {
       logError(notifErr);
     }
+
+    await Notification.create({
+      recipientId: targetId,
+      senderId: reviewerId,
+      type: "review",
+      link: `/users/${targetId}?tab=reviews`,
+    });
 
     res.status(201).json({ success: true, review: populatedReview });
   } catch (error) {

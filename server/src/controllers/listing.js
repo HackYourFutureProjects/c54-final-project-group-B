@@ -4,7 +4,6 @@ import Listing from "../models/Listing.js";
 import Message from "../models/Message.js";
 import Notification from "../models/Notification.js";
 import { logError } from "../util/logging.js";
-import { emitNotification } from "../socket/socketHandler.js";
 import validationErrorMessage from "../util/validationErrorMessage.js";
 import { geocodeLocation } from "../utils/geocoder.js";
 import {
@@ -260,28 +259,30 @@ export const updateStatus = async (req, res) => {
           .json({ success: false, msg: "Invalid buyer ID" });
       }
       req.resource.buyerId = buyerId;
+      try {
+        await Notification.create({
+          recipientId: buyerId,
+          senderId: req.resource.ownerId,
+          type: "review_permission",
+          entityId: req.resource._id,
+        });
+      } catch (notifErr) {
+        logError(notifErr);
+      }
     } else if (status !== "sold") {
       req.resource.buyerId = null;
     }
 
     await req.resource.save();
 
-    // Create a notification for the buyer about review permission
+    // If marked as sold, create a notification for the buyer about review permission
     if (status === "sold" && buyerId) {
-      try {
-        const notification = await Notification.create({
-          recipientId: buyerId,
-          senderId: req.resource.ownerId,
-          type: "review_permission",
-          listingId: req.resource._id,
-          title: "New Review Permission",
-          body: `You can now review your purchase: ${req.resource.title}`,
-          link: `/listings/${req.resource._id}`,
-        });
-        emitNotification(buyerId, notification);
-      } catch (notifErr) {
-        logError(notifErr);
-      }
+      await Notification.create({
+        recipientId: buyerId,
+        senderId: req.resource.ownerId,
+        type: "review_permission",
+        entityId: req.resource._id,
+      });
     }
     res.status(200).json({
       success: true,

@@ -1,6 +1,8 @@
-import useNotifications from "@/hooks/useNotifications";
+import useRealNotifications from "../hooks/useRealNotifications";
+
 function NotificationsDropdown({ user }) {
-  const { items, unread, markAsRead } = useNotifications(user);
+  const { items, unread, markAsRead } = useRealNotifications(user);
+
   return (
     <div>
       <h3>Unread: {unread}</h3>

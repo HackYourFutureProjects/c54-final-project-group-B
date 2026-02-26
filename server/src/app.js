@@ -16,8 +16,9 @@ import reportRouter from "./routes/report.js";
 import { globalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/error.js";
 
-// Create an express server
+// Attach notification routes
 const app = express();
+app.use("/api/notifications", notificationRouter);
 
 // Trust proxy for Heroku/Cloud environments
 app.set("trust proxy", 1);

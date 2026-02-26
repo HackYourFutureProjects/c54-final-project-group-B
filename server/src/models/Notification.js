@@ -28,6 +28,7 @@ const notificationSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+// Use existing model if already registered (prevents overwrite in hot reload)
 const Notification =
   mongoose.models.notifications ||
   mongoose.model("notifications", notificationSchema);
