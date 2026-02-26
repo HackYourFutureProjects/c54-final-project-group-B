@@ -4,6 +4,10 @@ import Listing from "../models/Listing.js";
 import { logError } from "../util/logging.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
+import {
+  buildListingFilter,
+  buildListingSort,
+} from "../utils/listingHelpers.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -18,14 +22,27 @@ export const getMyFavorites = async (req, res) => {
       return res.status(200).json({ success: true, result: [] });
     }
 
-    const listings = await Listing.find({ _id: { $in: ids } });
+    // Build the base filter from query params
+    const filter = buildListingFilter(req.query);
 
+    // Constrain to only the user's favorite IDs
+    filter._id = { $in: ids };
+
+    // Handle sorting
+    const { sortObject } = buildListingSort(req.query.sort);
+
+    const listings = await Listing.find(filter).sort(sortObject);
+
+    // Cleanup logic: detect favorite entries for listings that no longer exist
     const foundIds = listings.map((listing) => String(listing._id));
     const missingIds = ids
       .map((id) => String(id))
       .filter((id) => !foundIds.includes(id));
 
-    if (missingIds.length > 0) {
+    // Only cleanup if no other filters were active (to avoid deleting valid gems just because they didn't match the current search)
+    const activeFilterCount = Object.keys(req.query).length;
+
+    if (missingIds.length > 0 && activeFilterCount === 0) {
       try {
         await Favorite.deleteMany({ userId, listingId: { $in: missingIds } });
       } catch (cleanupError) {

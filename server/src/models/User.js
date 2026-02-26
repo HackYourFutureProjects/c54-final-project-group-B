@@ -4,7 +4,15 @@ import validateAllowedFields from "../util/validateAllowedFields.js";
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true },
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      match: [
+        /^[a-zA-Z0-9 _-]+$/,
+        "Username can only contain letters, numbers, spaces, underscores, and dashes",
+      ],
+    },
     email: { type: String, required: true, unique: true },
     pendingEmail: { type: String, unique: true, sparse: true },
     password: { type: String, required: true },

@@ -1,8 +1,9 @@
 import express from "express";
-import { authLimiter, sensitiveOpsLimiter } from "../middleware/rateLimiter.js";
+import {
+  /* authLimiter, */ sensitiveOpsLimiter,
+} from "../middleware/rateLimiter.js";
 import {
   createUser,
-  getUsers,
   loginUser,
   googleLogin,
   verifyEmail,
@@ -23,10 +24,10 @@ import { authenticate } from "../middleware/auth.js";
 
 const userRouter = express.Router();
 
-userRouter.get("/", getUsers);
 userRouter.post("/", createUser);
-userRouter.post("/login", authLimiter, loginUser);
-userRouter.post("/google", authLimiter, googleLogin);
+// TODO: Restore `authLimiter` after testing (see CHECK_LATER.md)
+userRouter.post("/login", /* authLimiter, */ loginUser);
+userRouter.post("/google", /* authLimiter, */ googleLogin);
 userRouter.post("/verify", sensitiveOpsLimiter, verifyEmail);
 userRouter.post("/resend-code", sensitiveOpsLimiter, resendVerificationCode);
 userRouter.post("/request-reset", requestPasswordReset);

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User, { validateUser } from "../models/User.js";
 import Listing from "../models/Listing.js";
 import Review from "../models/Review.js";
@@ -846,22 +847,34 @@ export const getPublicProfile = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findById(id).select(
-      "-password -verificationCode -verificationCodeExpiry -securityCode -securityCodeExpiry -pendingEmail",
-    );
+    let user = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      user = await User.findById(id).select(
+        "-password -verificationCode -verificationCodeExpiry -securityCode -securityCodeExpiry -pendingEmail",
+      );
+    }
+
+    if (!user) {
+      user = await User.findOne({ name: id }).select(
+        "-password -verificationCode -verificationCodeExpiry -securityCode -securityCodeExpiry -pendingEmail",
+      );
+    }
+
     if (!user)
       return res.status(404).json({ success: false, msg: "User not found" });
 
+    const userId = user._id;
+
     // Fetch listings
-    const listings = await Listing.find({ ownerId: id }).sort("-createdAt");
+    const listings = await Listing.find({ ownerId: userId }).sort("-createdAt");
 
     // Fetch reviews received
-    const reviewsReceived = await Review.find({ targetId: id })
+    const reviewsReceived = await Review.find({ targetId: userId })
       .populate("reviewerId", "name avatarUrl")
       .sort("-createdAt");
 
     // Fetch reviews given
-    const reviewsGiven = await Review.find({ reviewerId: id })
+    const reviewsGiven = await Review.find({ reviewerId: userId })
       .populate("targetId", "name avatarUrl")
       .sort("-createdAt");
 
