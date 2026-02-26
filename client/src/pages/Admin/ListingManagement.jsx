@@ -10,6 +10,7 @@ const ListingManagement = () => {
 
   const fetchListings = async () => {
     try {
+      setLoading(true);
       const response = await fetch("/api/admin/listings");
       const data = await response.json();
 
@@ -76,196 +77,253 @@ const ListingManagement = () => {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-500 dark:text-gray-400 font-medium">
-          Loading listings...
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+        <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+        <p className="text-gray-400 dark:text-gray-500 font-black uppercase tracking-[0.2em] text-xs">
+          Indexing Global Catalogue...
         </p>
       </div>
     );
+
   if (error)
     return (
-      <div className="max-w-3xl mx-auto p-8 mt-8 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl text-center">
-        <h2 className="text-xl font-bold text-red-700 dark:text-red-400 mb-2">
-          Error
+      <div className="max-w-2xl mx-auto p-12 mt-12 bg-white dark:bg-[#1a1a1a] border border-red-100 dark:border-red-900/20 rounded-[2.5rem] text-center shadow-xl">
+        <div className="flex justify-center mb-6 text-emerald-500">
+          <svg
+            width="60"
+            height="60"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">
+          Catalogue Offline
         </h2>
-        <p className="text-red-600 dark:text-red-300">{error}</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
+          {error}
+        </p>
+        <button
+          onClick={fetchListings}
+          className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
+        >
+          Reset Transceiver
+        </button>
       </div>
     );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-64px)] space-y-6 bg-light-bg dark:bg-dark-bg">
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-light-border dark:border-dark-border">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[calc(100vh-64px)] space-y-10">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-10 border-b border-gray-100 dark:border-white/5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Listing Moderation
+          <div className="flex items-center gap-3 mb-3">
+            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-500/20">
+              Inventory Console
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-none mb-2">
+            Catalogue Manager
           </h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            Review and manage bike listings
+          <p className="text-gray-500 dark:text-gray-400 font-medium">
+            Monitor, moderate, and promote units across the marketplace.
           </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="relative group w-full lg:w-80">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search by title or owner..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-6 py-4 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2a2a2a] rounded-[1.5rem] text-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all outline-none shadow-sm"
+            />
+          </div>
+          <Link
+            to="/admin"
+            className="hidden sm:flex px-6 py-4 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 font-bold rounded-2xl text-sm transition-all hover:border-emerald-500 hover:text-emerald-500 shadow-sm whitespace-nowrap"
+          >
+            ← Command Center
+          </Link>
         </div>
       </header>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-md">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search by title or owner..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-gray-900 dark:text-white placeholder-gray-400"
-          />
-        </div>
-      </div>
-
-      <div className="bg-light-surface dark:bg-dark-surface rounded-2xl border border-light-border dark:border-dark-border overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1a1a1a] rounded-[2.5rem] border border-gray-100 dark:border-[#2a2a2a] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="bg-gray-50 dark:bg-dark-input/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-light-border dark:border-dark-border">
-                <th className="px-6 py-4 font-semibold">Listing</th>
-                <th className="px-6 py-4 font-semibold">Owner</th>
-                <th className="px-6 py-4 font-semibold">Price</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Type</th>
-                <th className="px-6 py-4 font-semibold">Created</th>
-                <th className="px-6 py-4 font-semibold text-right">Actions</th>
+              <tr className="bg-gray-50/50 dark:bg-black/20 text-gray-400 dark:text-gray-500 text-[10px] uppercase font-black tracking-[0.2em] border-b border-gray-100 dark:border-white/5">
+                <th className="px-8 py-5">Unit Detail</th>
+                <th className="px-8 py-5 w-48">Source</th>
+                <th className="px-8 py-5 w-32 text-center">Value</th>
+                <th className="px-8 py-5 w-40 text-center">Status</th>
+                <th className="px-8 py-5 w-40 text-center">Protocol</th>
+                <th className="px-8 py-5 text-right pr-12">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-light-border dark:divide-dark-border">
+            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
               {filteredListings.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan="7"
-                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
-                  >
-                    No listings found matching your search.
+                  <td colSpan="6" className="px-8 py-32 text-center">
+                    <div className="flex flex-col items-center justify-center gap-4">
+                      <div className="w-20 h-20 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-4 text-gray-300">
+                        <svg
+                          width="40"
+                          height="40"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="11" cy="11" r="8" />
+                          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                      </div>
+                      <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                        No matching units found
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredListings.map((listing) => (
                   <tr
                     key={listing._id}
-                    className="hover:bg-gray-50 dark:hover:bg-dark-surface-hover transition-colors group"
+                    className="transition-all hover:bg-gray-50 dark:hover:bg-white/[0.02] group"
                   >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
-                        {listing.images?.[0] ? (
-                          <img
-                            src={listing.images[0]}
-                            alt=""
-                            className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-200 dark:border-gray-700"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-dark-input flex items-center justify-center text-gray-400 flex-shrink-0">
-                            <svg
-                              className="w-6 h-6"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <rect
-                                x="3"
-                                y="3"
-                                width="18"
-                                height="18"
-                                rx="2"
-                                ry="2"
-                              />
-                              <circle cx="8.5" cy="8.5" r="1.5" />
-                              <polyline points="21 15 16 10 5 21" />
-                            </svg>
-                          </div>
-                        )}
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-5">
+                        <div className="relative flex-shrink-0">
+                          {listing.images?.[0] ? (
+                            <img
+                              src={listing.images[0]}
+                              alt=""
+                              className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-[#2a2a2a] shadow-md group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-300">
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <rect
+                                  x="3"
+                                  y="3"
+                                  width="18"
+                                  height="18"
+                                  rx="2"
+                                  ry="2"
+                                />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                              </svg>
+                            </div>
+                          )}
+                          {listing.isFeatured && (
+                            <div className="absolute -top-2 -right-2 bg-amber-500 text-white p-1 rounded-lg border-2 border-white dark:border-[#1a1a1a] shadow-lg animate-pulse">
+                              <svg
+                                width="10"
+                                height="10"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                stroke="none"
+                              >
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
                         <div className="min-w-0">
                           <Link
                             to={`/listings/${listing._id}`}
-                            className="text-sm font-bold text-gray-900 dark:text-white hover:text-blue-500 transition-colors truncate block max-w-[200px]"
+                            className="font-black text-gray-900 dark:text-white hover:text-emerald-500 transition-colors truncate block text-base"
                           >
                             {listing.title}
                           </Link>
-                          <span className="text-xs text-gray-500 dark:text-gray-400 truncate block">
-                            {listing.category}
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mt-1 group-hover:text-emerald-500/70 transition-colors">
+                            {listing.category} —{" "}
+                            {new Date(listing.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6">
                       <Link
                         to={`/profile/${listing.ownerId?._id}`}
-                        className="flex items-center gap-2 group/owner hover:opacity-80 transition-opacity"
+                        className="flex items-center gap-3 group/owner"
                       >
-                        <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black text-[10px] border border-emerald-500/20 shadow-sm group-hover/owner:bg-emerald-500 group-hover/owner:text-white transition-all">
                           {listing.ownerId?.name?.[0]?.toUpperCase() || "U"}
                         </div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate max-w-[120px]">
-                          {listing.ownerId?.name || "Unknown"}
+                        <span className="text-sm font-bold text-gray-700 dark:text-gray-300 truncate max-w-[120px]">
+                          {listing.ownerId?.name || "Anonymous"}
                         </span>
                       </Link>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    <td className="px-8 py-6 text-center">
+                      <span className="text-lg font-black text-gray-900 dark:text-white tracking-tighter">
                         €{listing.price}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6 text-center">
                       <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
                           listing.status === "active"
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10"
                             : listing.status === "sold"
-                              ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                              : "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400"
+                              ? "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400"
+                              : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/10"
                         }`}
                       >
                         {listing.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-6 text-center">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                        className={`inline-flex px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest ${
                           listing.isFeatured
-                            ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
-                            : "bg-gray-50 text-gray-600 border-gray-200 dark:bg-dark-input dark:text-gray-400 dark:border-dark-border"
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.1)]"
+                            : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500"
                         }`}
                       >
-                        {listing.isFeatured ? "★ Featured" : "Regular"}
+                        {listing.isFeatured ? "Priority Item" : "Standard"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                        {new Date(listing.createdAt).toLocaleDateString(
-                          undefined,
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          },
-                        )}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <td className="px-8 py-6 text-right pr-12">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100">
                         <button
                           onClick={() =>
                             navigate(`/listings/${listing._id}/edit`)
                           }
-                          className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
-                          title="Edit Listing"
+                          className="w-10 h-10 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2a2a2a] text-gray-500 hover:border-emerald-500 hover:text-emerald-500 rounded-xl flex items-center justify-center transition-all shadow-sm"
+                          title="Modify Record"
                         >
                           <svg
                             width="18"
@@ -273,7 +331,7 @@ const ListingManagement = () => {
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="2.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
@@ -281,17 +339,18 @@ const ListingManagement = () => {
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                           </svg>
                         </button>
+
                         <button
                           onClick={() => handleToggleFeatured(listing._id)}
-                          className={`p-2 rounded-lg transition-colors ${
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm ${
                             listing.isFeatured
-                              ? "text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10"
-                              : "text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+                              ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
+                              : "bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2a2a2a] text-gray-400 hover:border-amber-500 hover:text-amber-500"
                           }`}
                           title={
                             listing.isFeatured
-                              ? "Remove from Featured"
-                              : "Promote to Featured"
+                              ? "Recall Priority"
+                              : "Grant Priority"
                           }
                         >
                           <svg
@@ -300,17 +359,20 @@ const ListingManagement = () => {
                             viewBox="0 0 24 24"
                             fill={listing.isFeatured ? "currentColor" : "none"}
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="2.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                           </svg>
                         </button>
+
+                        <div className="w-px h-6 bg-gray-100 dark:bg-white/5 mx-1" />
+
                         <button
                           onClick={() => handleDeleteListing(listing._id)}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
-                          title="Delete Listing"
+                          className="w-10 h-10 bg-white dark:bg-[#1a1a1a] border border-red-100 dark:border-red-900/20 text-red-500 hover:bg-red-500 hover:text-white rounded-xl flex items-center justify-center transition-all shadow-sm"
+                          title="Purge Record"
                         >
                           <svg
                             width="18"
@@ -318,7 +380,7 @@ const ListingManagement = () => {
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="2.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
