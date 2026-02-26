@@ -83,7 +83,7 @@ const UserManagement = () => {
   const handleToggleRole = async (userId) => {
     if (
       window.confirm(
-        "Are you sure you want to change this user&apos;s admin privileges?",
+        "Are you sure you want to change this user's admin privileges?",
       )
     ) {
       try {
@@ -117,7 +117,7 @@ const UserManagement = () => {
 
       if (res.success === false) throw new Error(res.message);
 
-      showToast("success", "Warning message sent to user&apos;s inbox.");
+      showToast("success", "Warning completed successfully.");
       setSelectedUserForWarning(null);
       setWarningMessage("");
     } catch (err) {
@@ -150,10 +150,10 @@ const UserManagement = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-500 dark:text-gray-400 font-medium">
-          Loading users...
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+        <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+        <p className="text-gray-400 dark:text-gray-500 font-black uppercase tracking-[0.2em] text-xs">
+          Scanning User Registry...
         </p>
       </div>
     );
@@ -161,159 +161,305 @@ const UserManagement = () => {
 
   if (error) {
     return (
-      <div className="max-w-3xl mx-auto p-8 mt-8 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl text-center">
-        <h2 className="text-xl font-bold text-red-700 dark:text-red-400 mb-2">
-          User Management
+      <div className="max-w-2xl mx-auto p-12 mt-12 bg-white dark:bg-[#1a1a1a] border border-red-100 dark:border-red-900/20 rounded-[2.5rem] text-center shadow-xl">
+        <div className="flex justify-center mb-6 text-red-500">
+          <svg
+            width="60"
+            height="60"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">
+          Registry Error
         </h2>
-        <div className="text-red-600 dark:text-red-300">{error}</div>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
+          {error}
+        </p>
+        <button
+          onClick={fetchUsers}
+          className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
+        >
+          Re-scan Registry
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-64px)] space-y-6 bg-light-bg dark:bg-dark-bg">
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-light-border dark:border-dark-border">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[calc(100vh-64px)] space-y-10">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-10 border-b border-gray-100 dark:border-white/5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            User Management
+          <div className="flex items-center gap-3 mb-3">
+            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-500/20">
+              Command Console
+            </span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-none mb-2">
+            User Registry
           </h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            Manage community members, block accounts, and assign privileges.
+          <p className="text-gray-500 dark:text-gray-400 font-medium">
+            Manage permissions, status, and integrity of platform citizens.
           </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            to="/admin"
+            className="px-6 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 font-bold rounded-2xl text-sm transition-all hover:border-emerald-500 hover:text-emerald-500 shadow-sm"
+          >
+            ← Back to Terminal
+          </Link>
         </div>
       </header>
 
-      <div className="bg-light-surface dark:bg-dark-surface rounded-2xl border border-light-border dark:border-dark-border overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1a1a1a] rounded-[2.5rem] border border-gray-100 dark:border-[#2a2a2a] overflow-hidden shadow-2xl relative">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[1000px]">
+          <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead>
-              <tr className="bg-gray-50 dark:bg-dark-input/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-light-border dark:border-dark-border">
-                <th className="px-6 py-4 font-semibold w-64">Name</th>
-                <th className="px-6 py-4 font-semibold w-56">Email</th>
-                <th className="px-6 py-4 font-semibold w-24">Role</th>
-                <th className="px-6 py-4 font-semibold w-28">Status</th>
-                <th className="px-6 py-4 font-semibold w-28">Verified</th>
-                <th className="px-6 py-4 font-semibold w-72 text-right">
-                  Actions
-                </th>
+              <tr className="bg-gray-50/50 dark:bg-black/20 text-gray-400 dark:text-gray-500 text-[10px] uppercase font-black tracking-[0.2em] border-b border-gray-100 dark:border-white/5">
+                <th className="px-8 py-5 w-72">Identity</th>
+                <th className="px-8 py-5 w-64">Credentials</th>
+                <th className="px-8 py-5 w-32 text-center">Protocol</th>
+                <th className="px-8 py-5 w-32 text-center">Lifecycle</th>
+                <th className="px-8 py-5 w-32 text-center">Auth Status</th>
+                <th className="px-8 py-5 text-right pr-12">Operations</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-light-border dark:divide-dark-border">
+            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
               {users.map((user) => (
                 <tr
                   key={user._id}
-                  className={`transition-colors group hover:bg-gray-50 dark:hover:bg-dark-surface-hover ${
-                    user.isBlocked ? "opacity-70 grayscale" : ""
+                  className={`transition-all hover:bg-gray-50 dark:hover:bg-white/[0.02] group ${
+                    user.isBlocked ? "opacity-60 saturate-50" : ""
                   }`}
                 >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={
-                          user.profilePicture ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f3e8ff&color=6a1b9a`
-                        }
-                        alt=""
-                        className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700 shadow-sm flex-shrink-0"
-                      />
-                      <Link
-                        to={`/profile/${user._id}`}
-                        className="font-bold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors truncate"
-                        title={user.name}
-                      >
-                        {user.name}
-                      </Link>
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <img
+                          src={
+                            user.profilePicture ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=10b981&color=fff`
+                          }
+                          alt=""
+                          className="w-12 h-12 rounded-2xl object-cover border-2 border-white dark:border-[#2a2a2a] shadow-md group-hover:scale-110 transition-transform"
+                        />
+                        {user.isVerified && (
+                          <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-0.5 rounded-lg border-2 border-white dark:border-[#1a1a1a] shadow-lg">
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <Link
+                          to={`/profile/${user._id}`}
+                          className="font-black text-gray-900 dark:text-white hover:text-emerald-500 transition-colors truncate block text-base"
+                        >
+                          {user.name}
+                        </Link>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mt-1 block">
+                          ID: {user._id.slice(-6)}
+                        </span>
+                      </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className="text-sm text-gray-600 dark:text-gray-400 truncate block font-medium"
-                      title={user.email}
-                    >
-                      {user.email}
-                    </span>
+                  <td className="px-8 py-6">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
+                        {user.email}
+                      </span>
+                    </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-6 text-center">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      className={`inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
                         user.role === "admin"
-                          ? "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30"
-                          : "bg-gray-100 text-gray-600 dark:bg-dark-input dark:text-gray-400 border border-gray-200 dark:border-dark-border"
+                          ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm"
+                          : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/5"
                       }`}
                     >
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-6 text-center">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
                         user.isBlocked
-                          ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
-                          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
+                          ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/10"
+                          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10"
                       }`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${user.isBlocked ? "bg-red-500" : "bg-emerald-500"}`}
+                        className={`w-1.5 h-1.5 rounded-full ${user.isBlocked ? "bg-red-500" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"}`}
                       ></span>
                       {user.isBlocked ? "Blocked" : "Active"}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-6 text-center">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                      className={`inline-flex px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest ${
                         user.isVerified
-                          ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
-                          : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                          ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/10"
+                          : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500"
                       }`}
                     >
-                      {user.isVerified ? "Yes" : "No"}
+                      {user.isVerified ? "Verified" : "Level 1"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                  <td className="px-8 py-6 text-right pr-12">
+                    <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleToggleBlock(user._id)}
                         disabled={user._id === currentUser._id}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                        className={`group/btn w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                           user.isBlocked
-                            ? "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                            : "bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white"
-                        }`}
+                            ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"
+                            : "bg-red-500/10 text-red-600 hover:bg-red-600 hover:text-white"
+                        } disabled:opacity-20`}
+                        title={
+                          user.isBlocked ? "Unblock Agent" : "Deactivate Agent"
+                        }
                       >
-                        {user.isBlocked ? "Unblock" : "Block"}
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          {user.isBlocked ? (
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                          ) : (
+                            <>
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                            </>
+                          )}
+                        </svg>
                       </button>
+
                       <button
                         onClick={() => setSelectedUserForWarning(user)}
                         disabled={user._id === currentUser._id}
-                        className="px-3 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500 dark:hover:text-white rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Send Warning"
+                        className="w-10 h-10 bg-amber-500/10 text-amber-600 hover:bg-amber-600 hover:text-white rounded-xl flex items-center justify-center transition-all disabled:opacity-20"
+                        title="Transmit Warning"
                       >
-                        Warn
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                          <line x1="12" y1="9" x2="12" y2="13" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
                       </button>
+
                       <button
                         onClick={() => handleViewWarnings(user)}
                         disabled={user._id === currentUser._id}
-                        className="px-3 py-1.5 bg-gray-50 text-gray-600 hover:bg-gray-200 dark:bg-dark-input dark:text-gray-400 dark:hover:bg-gray-800 border border-gray-200 dark:border-dark-border rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="View Warnings History"
+                        className="w-10 h-10 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl flex items-center justify-center transition-all disabled:opacity-20"
+                        title="Dossier History"
                       >
-                        History
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
                       </button>
+
+                      <div className="w-px h-8 bg-gray-100 dark:bg-white/10 mx-1" />
+
                       <button
                         onClick={() => handleToggleVerify(user._id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                           user.isVerified
-                            ? "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                            : "bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white"
+                            ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+                            : "bg-blue-500/10 text-blue-600 hover:bg-blue-600 hover:text-white"
                         }`}
+                        title={
+                          user.isVerified
+                            ? "Revoke Verification"
+                            : "Authorize Verification"
+                        }
                       >
-                        {user.isVerified ? "Unverify" : "Verify"}
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                          <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
                       </button>
+
                       <button
                         onClick={() => handleToggleRole(user._id)}
                         disabled={user._id === currentUser._id}
-                        className="px-3 py-1.5 bg-gray-50 text-gray-600 hover:bg-gray-200 dark:bg-dark-input dark:text-gray-400 dark:hover:bg-gray-800 border border-gray-200 dark:border-dark-border rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                          user.role === "admin"
+                            ? "bg-purple-600 text-white shadow-lg shadow-purple-500/20"
+                            : "bg-purple-600/10 text-purple-600 hover:bg-purple-600 hover:text-white"
+                        } disabled:opacity-20`}
+                        title={
+                          user.role === "admin"
+                            ? "Demote Specialist"
+                            : "Promote to Admin"
+                        }
                       >
-                        {user.role === "admin" ? "Remove Admin" : "Make Admin"}
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
                       </button>
                     </div>
                   </td>
@@ -322,81 +468,109 @@ const UserManagement = () => {
             </tbody>
           </table>
           {users.length === 0 && (
-            <div className="py-24 text-center text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="mb-4"
-              >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <line x1="19" y1="8" x2="19" y2="14" />
-                <line x1="22" y1="11" x2="16" y2="11" />
-              </svg>
-              No users found.
+            <div className="py-32 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-6">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" y1="8" x2="19" y2="14" />
+                  <line x1="22" y1="11" x2="16" y2="11" />
+                </svg>
+              </div>
+              <p className="font-black uppercase tracking-[0.2em] text-xs">
+                Zero Agents Detected
+              </p>
             </div>
           )}
         </div>
       </div>
 
+      {/* Warning Modal */}
       {selectedUserForWarning && (
-        <div
-          className="overlay-backdrop flex items-center justify-center p-4 z-50"
-          onClick={() => setSelectedUserForWarning(null)}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="overlay-panel w-full max-w-lg p-6 animate-slideUp"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4 pb-4 border-b border-light-border dark:border-dark-border">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Send Warning to{" "}
-                <span className="text-amber-500">
-                  {selectedUserForWarning.name}
-                </span>
-              </h3>
-              <button
-                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-input flex items-center justify-center text-gray-500 hover:bg-gray-200 dark:hover:bg-dark-border transition-colors"
-                onClick={() => setSelectedUserForWarning(null)}
-              >
-                ✕
-              </button>
-            </div>
+            className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-fadeIn"
+            onClick={() => setSelectedUserForWarning(null)}
+          />
+          <div className="relative w-full max-w-xl bg-white dark:bg-[#1a1a1a] rounded-[3rem] p-10 shadow-2xl animate-scaleIn border border-white/10 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-2 bg-amber-500" />
 
-            <form onSubmit={handleSendWarning}>
-              <div className="mb-6">
-                <p className="text-sm font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 p-3 rounded-lg mb-4">
-                  This message will be sent directly to the user&apos;s Inbox as
-                  an official Administrator Notification.
+            <header className="flex items-center justify-between mb-8">
+              <div>
+                <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-2">
+                  Protocol: Formal Warning
+                </span>
+                <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
+                  Cautionary Transmission
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedUserForWarning(null)}
+                className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </header>
+
+            <form onSubmit={handleSendWarning} className="space-y-8">
+              <div className="p-6 bg-amber-500/10 rounded-3xl border border-amber-500/20">
+                <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-relaxed uppercase tracking-wide">
+                  Target Identity:{" "}
+                  <span className="font-black text-amber-600 dark:text-amber-200">
+                    {selectedUserForWarning.name}
+                  </span>
+                  <br />
+                  This transmission will be logged as an official platform
+                  infraction notification.
                 </p>
-                <textarea
-                  className="w-full bg-light-input dark:bg-dark-input border border-light-border dark:border-dark-border rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y min-h-[120px]"
-                  placeholder="Enter the warning message here..."
-                  value={warningMessage}
-                  onChange={(e) => setWarningMessage(e.target.value)}
-                  rows={5}
-                  required
-                ></textarea>
               </div>
 
-              <div className="flex justify-end gap-3">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
+                  Message Content
+                </label>
+                <textarea
+                  className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-3xl px-6 py-5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-amber-500/20 min-h-[160px] resize-none transition-all"
+                  placeholder="Specify findings and required actions..."
+                  value={warningMessage}
+                  onChange={(e) => setWarningMessage(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex gap-4">
                 <button
                   type="button"
-                  className="px-5 py-2.5 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-dark-input dark:hover:bg-dark-border transition-colors text-sm"
                   onClick={() => setSelectedUserForWarning(null)}
+                  className="flex-1 px-8 py-4 bg-gray-50 dark:bg-white/5 text-gray-400 font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
                 >
-                  Cancel
+                  Terminate
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-lg font-semibold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSendingWarning || !warningMessage.trim()}
+                  className="flex-1 px-8 py-4 bg-amber-500 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl shadow-xl shadow-amber-500/30 hover:bg-amber-600 active:scale-95 transition-all disabled:opacity-20"
                 >
-                  {isSendingWarning ? "Sending..." : "Send Warning"}
+                  {isSendingWarning ? "Transmitting..." : "Send Transmission"}
                 </button>
               </div>
             </form>
@@ -404,82 +578,101 @@ const UserManagement = () => {
         </div>
       )}
 
+      {/* History Modal */}
       {viewingWarningsUser && (
-        <div
-          className="overlay-backdrop flex items-center justify-center p-4 z-50"
-          onClick={() => setViewingWarningsUser(null)}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="overlay-panel w-full max-w-2xl p-6 flex flex-col max-h-[90vh] animate-slideUp"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4 pb-4 border-b border-light-border dark:border-dark-border flex-shrink-0">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Warning History:{" "}
-                <span className="text-indigo-500">
-                  {viewingWarningsUser.name}
+            className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-fadeIn"
+            onClick={() => setViewingWarningsUser(null)}
+          />
+          <div className="relative w-full max-w-2xl bg-white dark:bg-[#1a1a1a] rounded-[3rem] p-10 shadow-2xl animate-scaleIn border border-white/10 max-h-[85vh] flex flex-col">
+            <header className="flex items-center justify-between mb-8 flex-shrink-0">
+              <div>
+                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-2">
+                  Subject: behavioral dossier
                 </span>
-              </h3>
+                <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
+                  Historical Archives
+                </h3>
+              </div>
               <button
-                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-input flex items-center justify-center text-gray-500 hover:bg-gray-200 dark:hover:bg-dark-border transition-colors"
                 onClick={() => setViewingWarningsUser(null)}
+                className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
               >
-                ✕
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
-            </div>
+            </header>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-4">
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
               {isLoadingWarnings ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-3">
-                  <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
-                    Loading history...
+                <div className="flex flex-col items-center justify-center py-20 gap-6">
+                  <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+                  <p className="text-gray-400 dark:text-gray-500 font-black uppercase tracking-[0.2em] text-[10px]">
+                    Retrieving Records...
                   </p>
                 </div>
               ) : sentWarnings.length === 0 ? (
-                <div className="bg-gray-50 dark:bg-dark-input/50 border border-dashed border-gray-300 dark:border-dark-border rounded-xl p-8 text-center text-gray-500 dark:text-gray-400 font-medium">
-                  No warnings sent to this user. Good behavioral record.
+                <div className="bg-gray-50 dark:bg-black/20 border-2 border-dashed border-gray-100 dark:border-white/5 rounded-[2rem] p-12 text-center text-gray-400 flex flex-col items-center">
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-6 text-emerald-500">
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                  </div>
+                  <p className="font-black uppercase tracking-[0.2em] text-[10px]">
+                    Pristine Conduct Log
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {sentWarnings.map((warning) => (
                     <div
                       key={warning._id}
-                      className="bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-xl p-4"
+                      className="group p-6 bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-3xl transition-all hover:bg-white dark:hover:bg-white/5"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wide flex items-center gap-1.5">
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="12" y1="8" x2="12" y2="12" />
-                            <line x1="12" y1="16" x2="12.01" y2="16" />
-                          </svg>
-                          {new Date(warning.createdAt).toLocaleString(
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-amber-500" />
+                          {new Date(warning.createdAt).toLocaleDateString(
                             undefined,
                             {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
-                              hour: "numeric",
+                              hour: "2-digit",
                               minute: "2-digit",
                             },
                           )}
                         </span>
                         {warning.read && (
-                          <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                            Read
+                          <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-tighter border border-emerald-500/10">
+                            Intercepted
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed bg-white dark:bg-dark-surface p-3 rounded-lg border border-light-border dark:border-dark-border shadow-sm">
-                        {warning.content}
+                      <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed italic">
+                        &quot;{warning.content}&quot;
                       </p>
                     </div>
                   ))}
@@ -487,15 +680,14 @@ const UserManagement = () => {
               )}
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-light-border dark:border-dark-border flex-shrink-0">
+            <footer className="mt-8 pt-8 border-t border-gray-100 dark:border-white/5 flex-shrink-0">
               <button
-                type="button"
-                className="px-5 py-2.5 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-dark-input dark:hover:bg-dark-border transition-colors text-sm"
                 onClick={() => setViewingWarningsUser(null)}
+                className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-widest rounded-2xl shadow-xl hover:scale-[1.02] transition-all active:scale-95"
               >
-                Close
+                Seal Records
               </button>
-            </div>
+            </footer>
           </div>
         </div>
       )}
