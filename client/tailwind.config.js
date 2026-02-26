@@ -29,11 +29,11 @@ export default {
         // Dark Mode Surfaces
         dark: {
           bg: "#121212",
-          surface: "#1E1E1E",
-          "surface-hover": "#2A2A2A",
-          border: "#333333",
-          input: "#2A2A2A",
-          card: "#1A1A1A",
+          surface: "#1a1a1a",
+          "surface-hover": "#242424",
+          border: "#2a2a2a",
+          input: "#1e1e1e",
+          card: "#1a1a1a",
         },
         // Light Mode Surfaces
         light: {
