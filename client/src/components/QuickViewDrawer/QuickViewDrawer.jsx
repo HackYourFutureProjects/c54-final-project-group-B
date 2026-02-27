@@ -2,28 +2,6 @@ import { useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-/* ─── Star Row ──────────────────────────────────────────────── */
-const StarRow = ({ rating = 0 }) => {
-  const filled = Math.round(rating);
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <svg
-          key={i}
-          width="11"
-          height="11"
-          viewBox="0 0 24 24"
-          fill={i <= filled ? "#f59e0b" : "none"}
-          stroke={i <= filled ? "#f59e0b" : "#4b5563"}
-          strokeWidth="2"
-        >
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      ))}
-    </div>
-  );
-};
-
 /* ─── Quick View Drawer ─────────────────────────────────────── */
 const QuickViewDrawer = ({ listing, onClose }) => {
   const isOpen = !!listing;
@@ -62,7 +40,6 @@ const QuickViewDrawer = ({ listing, onClose }) => {
   const displayPrice = price?.$numberDecimal ?? price;
   const imageUrl = images?.[0] ?? null;
   const sellerName = listing.ownerId?.name;
-  const sellerRating = listing.ownerId?.averageRating ?? 0;
 
   return (
     <>
@@ -157,7 +134,7 @@ const QuickViewDrawer = ({ listing, onClose }) => {
               </div>
             )}
             {condition && (
-              <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-black text-white bg-emerald-500/80 backdrop-blur-md uppercase tracking-widest border border-white/20">
+              <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-black text-white bg-emerald-800/80 dark:bg-emerald-600/80 backdrop-blur-md uppercase tracking-widest border border-white/20 shadow-glow">
                 {condition}
               </div>
             )}
@@ -230,16 +207,7 @@ const QuickViewDrawer = ({ listing, onClose }) => {
                   <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
                     {sellerName}
                   </p>
-                  <div className="flex items-center gap-1">
-                    <StarRow rating={sellerRating} />
-                    <span className="text-[10px] text-gray-400 ml-0.5">
-                      {sellerRating.toFixed(1)}
-                    </span>
-                  </div>
                 </div>
-                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest px-2 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                  Verified
-                </span>
               </div>
             )}
 
@@ -262,7 +230,7 @@ const QuickViewDrawer = ({ listing, onClose }) => {
           <Link
             to={`/listings/${_id}`}
             onClick={onClose}
-            className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-black rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
+            className="flex-1 py-3 bg-emerald-800 dark:bg-emerald-600 hover:bg-emerald-900 dark:hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 transition-all shadow-glow"
           >
             <svg
               width="14"

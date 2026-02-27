@@ -39,12 +39,14 @@
   position: sticky;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
   .location-map-container {
     height: 60vh;
     border-radius: 0;
-    margin: 0 -1rem;
+    margin: 0;
     border-left: none;
     border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
 }
