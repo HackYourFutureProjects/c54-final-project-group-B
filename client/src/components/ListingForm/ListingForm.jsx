@@ -8,26 +8,7 @@ import {
   CLOUDINARY_UPLOAD_PRESET,
 } from "../../utils/config";
 
-const CATEGORY_OPTIONS = [
-  { value: "Road", label: "Road" },
-  { value: "Mountain", label: "Mountain" },
-  { value: "City", label: "City" },
-  { value: "E-bike", label: "E-bike" },
-  { value: "Gravel", label: "Gravel" },
-  { value: "Hybrid", label: "Hybrid" },
-  { value: "Kids", label: "Kids" },
-  { value: "Fixed Gear", label: "Fixed Gear" },
-  { value: "Cruiser", label: "Cruiser" },
-  { value: "Other", label: "Other" },
-];
-
-const CONDITION_OPTIONS = [
-  { value: "new", label: "New" },
-  { value: "like-new", label: "Like New" },
-  { value: "good", label: "Good" },
-  { value: "fair", label: "Fair" },
-  { value: "poor", label: "Poor" },
-];
+import { CATEGORY_OPTIONS, CONDITION_OPTIONS } from "../../utils/constants";
 
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE_MB = 5;
@@ -450,7 +431,10 @@ const ListingForm = ({
 
             <div className="flex flex-col gap-4 col-span-full">
               <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                <label
+                  htmlFor="model-year-slider"
+                  className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest"
+                >
                   Model Year {formData.year ? `(${formData.year})` : ""}
                 </label>
               </div>
@@ -458,7 +442,12 @@ const ListingForm = ({
                 <span className="text-[10px] font-bold text-gray-400 w-8">
                   1990
                 </span>
+                <label htmlFor="model-year-slider" className="sr-only">
+                  Model Year Slider
+                </label>
                 <input
+                  id="model-year-slider"
+                  name="model-year-slider"
                   type="range"
                   min="1990"
                   max={new Date().getFullYear()}
@@ -524,7 +513,10 @@ const ListingForm = ({
 
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center px-1">
-              <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+              <label
+                htmlFor="listing-price"
+                className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest"
+              >
                 Price (€) *
               </label>
               {formData.price && (
@@ -538,6 +530,8 @@ const ListingForm = ({
                 €
               </span>
               <input
+                id="listing-price"
+                name="listing-price"
                 type="number"
                 placeholder="0.00"
                 value={formData.price}
@@ -550,7 +544,12 @@ const ListingForm = ({
             {/* Price Slider */}
             <div className="flex items-center gap-4 px-1">
               <span className="text-[10px] font-bold text-gray-400 w-8">0</span>
+              <label htmlFor="price-slider" className="sr-only">
+                Price Adjustment Slider
+              </label>
               <input
+                id="price-slider"
+                name="price-slider"
                 type="range"
                 min="0"
                 max="5000"
@@ -566,12 +565,16 @@ const ListingForm = ({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="font-bold text-gray-900 dark:text-white">
+            <label
+              htmlFor="listing-location"
+              className="font-bold text-gray-900 dark:text-white"
+            >
               Location *
             </label>
             <div className="flex gap-3 flex-col sm:flex-row">
               <div className="flex-1">
                 <InputField
+                  id="listing-location"
                   name="location"
                   placeholder="City, Neighborhood, or Zip Code"
                   value={formData.location}
@@ -661,7 +664,10 @@ const ListingForm = ({
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="font-bold text-gray-900 dark:text-white">
+            <label
+              htmlFor="bike-photos"
+              className="font-bold text-gray-900 dark:text-white"
+            >
               Bike Photos * (Max {MAX_IMAGES})
             </label>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
@@ -726,6 +732,8 @@ const ListingForm = ({
               )}
             </div>
             <input
+              id="bike-photos"
+              name="bike-photos"
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}

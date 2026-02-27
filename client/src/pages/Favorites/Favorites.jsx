@@ -2,8 +2,8 @@ import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import useFetch from "../../hooks/useFetch";
 import ListingCard from "../../components/ListingCard";
 import EmptyState from "../../components/ui/EmptyState/EmptyState";
-import FavoriteButton from "../../components/FavoriteButton";
 import BicycleLoading from "../../components/ui/BicycleLoading";
+import { motion } from "framer-motion";
 
 const HeroFilter = lazy(
   () => import("../../components/HeroFilter/HeroFilter.jsx"),
@@ -317,20 +317,21 @@ export default function Favorites() {
               <div
                 className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 transition-opacity duration-300 ${isLoading ? "opacity-50 pointer-events-none" : "opacity-100"}`}
               >
-                {favorites.map((listing) => (
-                  <div
+                {favorites.map((listing, i) => (
+                  <motion.div
                     key={listing._id}
-                    className="relative group animate-in fade-in zoom-in-95 duration-500"
+                    initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+                    transition={{
+                      duration: 0.8,
+                      delay: (i % 8) * 0.1,
+                      ease: [0.2, 0.8, 0.2, 1],
+                    }}
+                    className="relative group h-full"
                   >
                     <ListingCard listing={listing} />
-                    <div className="absolute top-4 right-4 z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all transform sm:scale-90 sm:group-hover:scale-100">
-                      <FavoriteButton
-                        listingId={listing._id}
-                        variant="button"
-                        onToggled={loadFavorites}
-                      />
-                    </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}

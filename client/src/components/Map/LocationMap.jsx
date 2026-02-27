@@ -85,7 +85,7 @@ const LocationMap = ({
 
   return (
     <div className="location-map-wrapper group/map">
-      <div className="location-map-header sticky top-0 sm:static z-[1001] bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur-xl px-4 py-3 sm:px-0 sm:py-0 sm:mb-4 border-b border-gray-100 dark:border-white/5 sm:border-none">
+      <div className="location-map-header sticky top-16 md:static z-[45] bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur-xl px-4 py-3 md:px-0 md:py-0 md:mb-4 border-b border-gray-100 dark:border-white/5 md:border-none">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20">
