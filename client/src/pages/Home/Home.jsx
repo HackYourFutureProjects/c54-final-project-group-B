@@ -193,8 +193,8 @@ const Home = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar - Desktop Only */}
-          <aside className="hidden md:block w-64 lg:w-72 flex-shrink-0">
-            <div className="sticky top-24">
+          <aside className="hidden md:block w-64 lg:w-72 flex-shrink-0 self-start sticky top-[64px] z-40">
+            <div>
               <div className="flex items-center justify-between mb-6 px-1">
                 <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">
                   Filters

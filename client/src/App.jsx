@@ -47,7 +47,7 @@ const App = () => {
             <NotificationProvider>
               <Nav />
 
-              <div className="app-container">
+              <div className="app-container pt-16">
                 <main className="main-content">
                   <ErrorBoundary>
                     <Suspense fallback={<LoadingState />}>

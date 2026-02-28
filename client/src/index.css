@@ -47,17 +47,10 @@
     filter: drop-shadow(0 0 15px rgba(var(--color-glow-emerald), 0.65));
   }
 
+  html,
   body {
-    @apply antialiased font-sans transition-colors duration-300;
-    overflow-x: hidden;
-    max-width: 100%;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-  }
-
-  html {
-    overflow-x: hidden;
     max-width: 100%;
   }
 
