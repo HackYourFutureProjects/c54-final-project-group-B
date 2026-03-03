@@ -56,8 +56,10 @@ const Home = () => {
       limit: "12",
       search: debouncedSearchTerm || "",
     });
-    if (filters.minPrice != null) params.set("minPrice", String(filters.minPrice));
-    if (filters.maxPrice != null) params.set("maxPrice", String(filters.maxPrice));
+    if (filters.minPrice != null)
+      params.set("minPrice", String(filters.minPrice));
+    if (filters.maxPrice != null)
+      params.set("maxPrice", String(filters.maxPrice));
     if (filters.minYear != null) params.set("minYear", String(filters.minYear));
     if (filters.maxYear != null) params.set("maxYear", String(filters.maxYear));
 

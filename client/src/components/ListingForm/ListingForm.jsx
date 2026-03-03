@@ -442,12 +442,12 @@ const ListingForm = ({
                 <span className="text-[10px] font-bold text-gray-400 w-8 text-center pt-2">
                   1990
                 </span>
-                
+
                 <div className="flex-1 relative h-6 flex items-center">
                   <label htmlFor="model-year-slider" className="sr-only">
                     Model Year Slider
                   </label>
-                  
+
                   {/* Track Background */}
                   <div className="absolute w-full h-1.5 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden">
                     {/* Active Track Fill */}
@@ -463,12 +463,12 @@ const ListingForm = ({
                   {/* Visual Handle with Tooltip */}
                   <div
                     className="absolute w-5 h-5 bg-white dark:bg-gray-100 rounded-full border-2 border-emerald-500 shadow-md shadow-emerald-500/20 transform -translate-x-1/2 pointer-events-none z-10 flex items-center justify-center transition-transform active:scale-90 group-hover:scale-110"
-                    style={{ left: `${((Number(formData.year || new Date().getFullYear()) - 1990) / (new Date().getFullYear() - 1990)) * 100}%` }}
+                    style={{
+                      left: `${((Number(formData.year || new Date().getFullYear()) - 1990) / (new Date().getFullYear() - 1990)) * 100}%`,
+                    }}
                   >
                     {/* Floating tooltip */}
-                    <div 
-                      className="absolute -top-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-2 py-1 rounded-md shadow-lg text-[10px] font-black min-w-[36px] text-center"
-                    >
+                    <div className="absolute -top-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-2 py-1 rounded-md shadow-lg text-[10px] font-black min-w-[36px] text-center">
                       {formData.year || new Date().getFullYear()}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-solid border-t-gray-900 dark:border-t-white border-t-[4px] border-l-transparent border-l-[4px] border-r-transparent border-r-[4px]" />
                     </div>
@@ -491,7 +491,7 @@ const ListingForm = ({
                     }}
                   />
                 </div>
-                
+
                 <span className="text-[10px] font-bold text-gray-400 w-8 text-center pt-2">
                   {new Date().getFullYear()}
                 </span>
