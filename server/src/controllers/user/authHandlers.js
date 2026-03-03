@@ -369,7 +369,9 @@ export const resendVerificationCode = async (req, res) => {
   try {
     const { email } = req.body;
     if (typeof email !== "string" || !email.trim()) {
-      return res.status(400).json({ success: false, msg: "Email must be a valid string." });
+      return res
+        .status(400)
+        .json({ success: false, msg: "Email must be a valid string." });
     }
 
     const user = await User.findOne({ email }).select(
@@ -451,7 +453,9 @@ export const requestPasswordReset = async (req, res) => {
   try {
     const { email } = req.body;
     if (typeof email !== "string" || !email.trim()) {
-      return res.status(400).json({ success: false, msg: "Email must be a valid string" });
+      return res
+        .status(400)
+        .json({ success: false, msg: "Email must be a valid string" });
     }
 
     const user = await User.findOne({ email });
