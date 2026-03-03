@@ -51,3 +51,8 @@ cypress/screenshots
 CHECK_LATER.md
 DATABASE_SCHEMA.md
 PR_DETAILS.md
+PR_PLAN.md
+rules.md
+server/combined.log
+server/error.log
+server/*.log
