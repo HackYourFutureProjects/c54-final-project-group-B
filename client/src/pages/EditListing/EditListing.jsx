@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router";
 import useApi from "../../hooks/useApi";
 import { useAuth } from "../../hooks/useAuth";
 import ListingForm from "../../components/ListingForm/ListingForm";
@@ -47,7 +47,7 @@ const EditListing = () => {
     const route =
       user?.role === "admin" ? `/admin/listings/${id}` : `/listings/${id}`;
     const data = await executeUpdate(route, {
-      method: "PATCH",
+      method: "PUT",
       body: { listing: formData },
     });
 

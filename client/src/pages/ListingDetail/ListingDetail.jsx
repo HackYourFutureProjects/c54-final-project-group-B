@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { motion } from "framer-motion";
 import ReviewModal from "../../components/ReviewModal/ReviewModal";
 import ReviewsList from "../../components/ReviewsList/ReviewsList";
 import ListingImageCarousel from "../../components/ListingImageCarousel/ListingImageCarousel";
 import SellerCard from "../../components/SellerCard/SellerCard";
-import MarkAsSoldModal from "./components/MarkAsSoldModal";
+import MarkAsSoldModal from "../../components/MarkAsSoldModal";
 
 const LocationMap = lazy(() => import("../../components/Map/LocationMap"));
 
