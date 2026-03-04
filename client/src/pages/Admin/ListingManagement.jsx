@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import useApi from "../../hooks/useApi";
 
 const ListingManagement = () => {
   const [listings, setListings] = useState([]);
@@ -7,12 +8,12 @@ const ListingManagement = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const { execute } = useApi();
 
   const fetchListings = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/listings");
-      const data = await response.json();
+      const data = await execute("/admin/listings");
 
       if (data.success) {
         setListings(data.listings);
@@ -32,10 +33,9 @@ const ListingManagement = () => {
 
   const handleToggleFeatured = async (id) => {
     try {
-      const response = await fetch(`/api/admin/listings/${id}/featured`, {
+      const data = await execute(`/admin/listings/${id}/featured`, {
         method: "PATCH",
       });
-      const data = await response.json();
       if (data.success) {
         setListings((prev) =>
           prev.map((l) =>
@@ -57,10 +57,9 @@ const ListingManagement = () => {
       return;
 
     try {
-      const response = await fetch(`/api/admin/listings/${id}`, {
+      const data = await execute(`/admin/listings/${id}`, {
         method: "DELETE",
       });
-      const data = await response.json();
       if (data.success) {
         setListings((prev) => prev.filter((l) => l._id !== id));
       }

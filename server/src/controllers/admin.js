@@ -6,10 +6,7 @@ import Message from "../models/Message.js";
 import { logError } from "../utils/logging.js";
 import { getIO } from "../socket/socketHandler.js";
 import { ALLOWED_LISTING_WRITE_FIELDS } from "../utils/listingConstants.js";
-
-// Helper to check if value is a non-null, non-array object
-const isPlainObject = (val) =>
-  val != null && typeof val === "object" && !Array.isArray(val);
+import { isPlainObject } from "../utils/helpers.js";
 
 export const getAdminStats = async (req, res) => {
   try {
