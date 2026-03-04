@@ -9,7 +9,7 @@ import { NotificationProvider } from "./contexts/NotificationContext.jsx";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { LoadingState } from "./components/ui";
 
-import Favorites from "./pages/Favorites/Favorites";
+const Favorites = lazy(() => import("./pages/Favorites/Favorites"));
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";

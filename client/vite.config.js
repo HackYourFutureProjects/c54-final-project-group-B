@@ -29,10 +29,17 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 600,
       rollupOptions: {
         output: {
-          // Removing manualChunks to avoid circular dependencies that cause blank pages
+          // framer-motion is now fully lazy (only used inside React.lazy() pages).
+          // Splitting it into a dedicated chunk is safe — it will only be downloaded
+          // when the first lazy route that needs it is navigated to.
+          // socket.io-client is NOT split here because SocketProvider imports it
+          // synchronously at app startup — splitting it would cause a load-order error.
+          manualChunks: {
+            "vendor-animations": ["framer-motion"],
+          },
         },
       },
     },
