@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { ListingCardSkeleton } from "../../components/ui/SkeletonLoaders.jsx";
 import TEST_ID from "./Home.testid";
 
-
 const ListingCard = lazy(() => import("../../components/ListingCard.jsx"));
 const HeroFilter = lazy(
   () => import("../../components/HeroFilter/HeroFilter.jsx"),
@@ -38,7 +37,6 @@ const Home = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
@@ -452,9 +450,7 @@ const Home = () => {
                         }}
                         className="h-full"
                       >
-                        <ListingCard
-                          listing={listing}
-                        />
+                        <ListingCard listing={listing} />
                       </motion.div>
                     );
                   })}
@@ -483,8 +479,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 };

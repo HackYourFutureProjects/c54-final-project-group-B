@@ -127,11 +127,7 @@ CardCarousel.propTypes = {
 };
 
 /* ─── Listing Card ────────────────────────────────────────────── */
-const ListingCard = ({
-  listing,
-  isOwnerView = false,
-  onUpdated,
-}) => {
+const ListingCard = ({ listing, isOwnerView = false, onUpdated }) => {
   const { _id, title, images, location, condition } = listing;
   const [isUpdating, setIsUpdating] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
@@ -277,7 +273,6 @@ const ListingCard = ({
         <div className="absolute top-3 right-3 z-20">
           <FavoriteButton listingId={_id} />
         </div>
-
       </div>
 
       {/* ── Content Section ── */}
