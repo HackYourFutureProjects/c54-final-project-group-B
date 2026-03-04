@@ -44,7 +44,7 @@ export const NotificationProvider = ({ children }) => {
   // Fixed: always call fetchNotifications safely
   useEffect(() => {
     if (!user) {
-      Promise.resolve().then(() => {
+      queueMicrotask(() => {
         setItems([]);
         setUnread(0);
       });
@@ -70,7 +70,7 @@ export const NotificationProvider = ({ children }) => {
   // Handle logout/reset
   useEffect(() => {
     if (!user) {
-      Promise.resolve().then(() => {
+      queueMicrotask(() => {
         setItems([]);
         setUnread(0);
       });
