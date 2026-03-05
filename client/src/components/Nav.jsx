@@ -169,6 +169,20 @@ const Nav = () => {
               {/* Theme Toggle */}
               <ThemeToggle />
 
+              {/* About Link (PC Right Zone for guests only) */}
+              {!isMinimalNav && !user && (
+                <Link
+                  to="/about"
+                  aria-label="About BiCycleL"
+                  className="group/aboutlink hidden md:flex items-center h-9 px-3 rounded-xl text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-100 dark:hover:bg-white/5 focus-visible:text-emerald-600 dark:focus-visible:text-emerald-400 focus-visible:bg-gray-100 dark:focus-visible:bg-white/5 transition-all duration-200"
+                >
+                  <span className="flex-shrink-0">{Icons.about(16)}</span>
+                  <span className="overflow-hidden max-w-0 group-hover/aboutlink:max-w-[60px] group-focus-within/aboutlink:max-w-[60px] opacity-0 group-hover/aboutlink:opacity-100 group-focus-within/aboutlink:opacity-100 transition-all duration-200 ease-out whitespace-nowrap text-xs font-bold ml-0 group-hover/aboutlink:ml-1.5 group-focus-within/aboutlink:ml-1.5">
+                    About
+                  </span>
+                </Link>
+              )}
+
               {/* Sell Button (PC Right Zone for regular users only) */}
               {!isMinimalNav && user && user.role !== "admin" && (
                 <Link
@@ -395,6 +409,13 @@ const Nav = () => {
                               <SettingsIcon />
                               Account Settings
                             </Link>
+                            <Link
+                              to="/about"
+                              className="flex items-center gap-3 px-4 py-2.5 mx-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#10B77F] hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors"
+                            >
+                              {Icons.about(16)}
+                              About BiCycleL
+                            </Link>
                             <div className="my-1.5 mx-3 border-t border-gray-100 dark:border-white/5" />
                             <button
                               onClick={handleLogout}
@@ -477,6 +498,16 @@ const Nav = () => {
                   <SettingsIcon />
                 </span>
                 <span>Account Settings</span>
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => setIsMobileSettingsOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 mb-1 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-colors"
+              >
+                <span className="w-9 h-9 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/10 rounded-xl">
+                  {Icons.about(18)}
+                </span>
+                <span>About BiCycleL</span>
               </Link>
               <div className="my-2 border-t border-gray-100 dark:border-white/5" />
               <button

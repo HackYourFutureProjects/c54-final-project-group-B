@@ -19,6 +19,13 @@ export const getNavLinks = (user) => {
       { path: "/", label: "Home", iconKey: "home" },
       { path: "/login", label: "Login", iconKey: "login" },
       { path: "/signup", label: "Sign Up", iconKey: "signup" },
+      // About: desktop right zone + mobile bottom bar
+      {
+        path: "/about",
+        label: "About",
+        iconKey: "about",
+        rightZone: true,
+      },
     ];
   }
 
@@ -111,6 +118,7 @@ export const getNavLinks = (user) => {
       rightZone: true, // Appears in right zone on PC
       desktopOnly: true, // shown on desktop right zone only
     },
+
     // Inbox (Now in Profile Dropdown only on PC)
     {
       path: "/inbox",
