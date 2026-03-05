@@ -118,13 +118,7 @@ export const getNavLinks = (user) => {
       rightZone: true, // Appears in right zone on PC
       desktopOnly: true, // shown on desktop right zone only
     },
-    // About — desktop profile dropdown + mobile settings sheet only
-    {
-      path: "/about",
-      label: "About BiCycleL",
-      iconKey: "about",
-      profileDropdownOnly: true,
-    },
+
     // Inbox (Now in Profile Dropdown only on PC)
     {
       path: "/inbox",
