@@ -17,7 +17,6 @@ import ListingSpecs from "./components/ListingSpecs";
 import StickyContactBar from "./components/StickyContactBar";
 import { ListingDetailSkeleton } from "../../components/ui/SkeletonLoaders";
 import ReportModal from "../../components/ReportModal/ReportModal";
-import ProfileModal from "../../components/ProfileModal/ProfileModal";
 
 // Hooks
 import useListingDetail from "./hooks/useListingDetail";
@@ -66,9 +65,7 @@ const ListingDetail = () => {
     setReportModalOpen,
     isSubmittingReport,
     handleReportSubmit,
-    profileModalOpen,
-    setProfileModalOpen,
-    handleMessageSeller,
+    navigate,
   } = useListingDetail();
 
   useEffect(() => {
@@ -213,7 +210,9 @@ const ListingDetail = () => {
                   isSold={listing.status === "sold"}
                   onRate={() => setReviewModalOpen(true)}
                   onViewReviews={() => setReviewsListOpen(true)}
-                  onViewProfile={() => setProfileModalOpen(true)}
+                  onViewProfile={() =>
+                    navigate(`/profile/${sellerData._id}?fromListing=${id}`)
+                  }
                 />
               </div>
 
@@ -254,7 +253,9 @@ const ListingDetail = () => {
                 isSold={listing.status === "sold"}
                 onRate={() => setReviewModalOpen(true)}
                 onViewReviews={() => setReviewsListOpen(true)}
-                onViewProfile={() => setProfileModalOpen(true)}
+                onViewProfile={() =>
+                  navigate(`/profile/${sellerData._id}?fromListing=${id}`)
+                }
               />
             </FadeIn>
 
@@ -310,13 +311,6 @@ const ListingDetail = () => {
           onSubmit={handleReportSubmit}
           isSubmitting={isSubmittingReport}
           targetTitle={listing.title}
-        />
-
-        <ProfileModal
-          isOpen={profileModalOpen}
-          onClose={() => setProfileModalOpen(false)}
-          seller={sellerData}
-          onMessage={handleMessageSeller}
         />
 
         {/* Sticky Mobile Bar */}
