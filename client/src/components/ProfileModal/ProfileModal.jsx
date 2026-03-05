@@ -86,7 +86,14 @@ const ProfileModal = ({ isOpen, onClose, seller, onMessage }) => {
             <div className="w-full flex flex-col gap-3">
               <button
                 onClick={() => {
-                  onMessage();
+                  const params = new URLSearchParams(window.location.search);
+                  const fromListing = params.get("fromListing");
+                  if (fromListing) {
+                    // Navigate directly to the chat if context is available
+                    window.location.href = `/chat/${fromListing}?receiverId=${seller._id}`;
+                  } else {
+                    onMessage();
+                  }
                   onClose();
                 }}
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-14 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/25 active:scale-[0.98] flex items-center justify-center gap-3"

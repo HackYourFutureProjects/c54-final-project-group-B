@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense, useRef } from "react";
 import { motion } from "framer-motion";
-import { useParams, Link, useNavigate } from "react-router";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
 import useFetch from "../../hooks/useFetch";
 
@@ -63,6 +63,7 @@ const UserAvatar = ({ user, className }) =>
 /* ─── Main Component ─────────────────────────────────────────── */
 const ProfileView = () => {
   const { username, id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
@@ -269,8 +270,22 @@ const ProfileView = () => {
             {/* Action buttons */}
             <div className="flex gap-2 sm:mb-1">
               {!isOwnProfile && (
-                <Link
-                  to={`/inbox?contact=${encodeURIComponent(user.name)}`}
+                <button
+                  onClick={() => {
+                    const fromListing = searchParams.get("fromListing");
+                    if (
+                      fromListing &&
+                      listings?.some((l) => l._id === fromListing)
+                    ) {
+                      // Navigate to specific chat if we came from a listing
+                      navigate(`/chat/${fromListing}?receiverId=${user._id}`);
+                    } else {
+                      // Fallback to inbox search for this user
+                      navigate(
+                        `/inbox?contact=${encodeURIComponent(user.name)}`,
+                      );
+                    }
+                  }}
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20"
                 >
                   <svg
@@ -286,7 +301,7 @@ const ProfileView = () => {
                     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                   </svg>
                   Message
-                </Link>
+                </button>
               )}
               {isOwnProfile && (
                 <Link

@@ -27,7 +27,12 @@ const InboxToolbar = ({
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </span>
+        <label htmlFor="inbox-search" className="sr-only">
+          Search conversations
+        </label>
         <input
+          id="inbox-search"
+          name="search"
           type="text"
           placeholder="Search by name or listing…"
           value={searchQuery}

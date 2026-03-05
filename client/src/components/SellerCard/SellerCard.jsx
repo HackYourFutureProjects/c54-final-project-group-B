@@ -99,7 +99,16 @@ const SellerCard = ({
 
         <button
           className="w-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-gray-300 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group/profile"
-          onClick={onViewProfile}
+          onClick={() => {
+            // Get current listing ID from context if possible
+            const listingId = window.location.pathname.split("/").pop();
+            if (listingId && listingId.length > 20) {
+              // Ensure it looks like a Mongo ID
+              window.location.href = `/profile/${encodeURIComponent(name)}?fromListing=${listingId}`;
+            } else {
+              onViewProfile();
+            }
+          }}
         >
           <svg
             width="14"

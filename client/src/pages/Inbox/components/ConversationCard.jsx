@@ -40,7 +40,18 @@ const ConversationCard = ({
     >
       {/* Selection Indicator */}
       {selectionType && (
-        <div className="absolute top-1/2 -translate-y-1/2 left-4 z-20">
+        <label
+          className="absolute top-1/2 -translate-y-1/2 left-4 z-20 cursor-pointer"
+          htmlFor={`select-${conv.room}`}
+        >
+          <input
+            id={`select-${conv.room}`}
+            type="checkbox"
+            className="sr-only"
+            checked={isSelected}
+            onChange={() => onToggleSelection(conv.room)}
+            name={`select-conversation-${conv.room}`}
+          />
           <div
             className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
               isSelected
@@ -63,7 +74,7 @@ const ConversationCard = ({
               </svg>
             )}
           </div>
-        </div>
+        </label>
       )}
 
       {/* Unread accent */}

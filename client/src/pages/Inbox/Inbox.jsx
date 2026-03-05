@@ -75,7 +75,7 @@ const Inbox = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] dark:bg-[#121212] transition-colors duration-300">
+    <div className="min-h-[100dvh] bg-[#FAFAF8] dark:bg-[#121212] transition-colors duration-300 overscroll-none">
       <div className="max-w-2xl mx-auto px-4 py-8 pb-24 md:pb-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
