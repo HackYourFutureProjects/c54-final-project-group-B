@@ -5,7 +5,6 @@ const About = () => {
   return (
     <div className="min-h-screen bg-[#FAFAF8] dark:bg-[#121212] transition-colors duration-300 pb-20">
       <div className="max-w-7xl mx-auto px-6 pt-12 md:pt-20">
-
         {/* HERO SECTION */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -14,19 +13,19 @@ const About = () => {
           className="text-center mb-16 md:mb-24"
         >
           <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
-            Moving the World, <span className="text-emerald-500">One Bike</span> at a Time.
+            Moving the World, <span className="text-emerald-500">One Bike</span>{" "}
+            at a Time.
           </h1>
 
           <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            BiCycleL is a community-driven marketplace designed specifically for cyclists.
-            We make it easy to pass on your pre-loved ride or find your next adventure.
+            BiCycleL is a community-driven marketplace designed specifically for
+            cyclists. We make it easy to pass on your pre-loved ride or find
+            your next adventure.
           </p>
         </motion.section>
 
-
         {/* MISSION & WHY SECTION */}
         <div className="grid md:grid-cols-2 gap-12 items-center mb-24">
-
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -38,10 +37,11 @@ const About = () => {
             </h2>
 
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Buying and selling bicycles shouldn’t be complicated or unsafe. Unlike generic marketplaces,
-              BiCycleL is built only for bikes. We focused on creating a space where serious riders and
-              casual commuters can connect through a platform that understands the specific needs of
-              the cycling community.
+              Buying and selling bicycles shouldn’t be complicated or unsafe.
+              Unlike generic marketplaces, BiCycleL is built only for bikes. We
+              focused on creating a space where serious riders and casual
+              commuters can connect through a platform that understands the
+              specific needs of the cycling community.
             </p>
           </motion.div>
 
@@ -53,19 +53,15 @@ const About = () => {
           >
             <span className="text-6xl">🚲</span>
           </motion.div>
-
         </div>
-
 
         {/* HOW IT WORKS */}
         <section className="mb-24">
-
           <h2 className="text-3xl font-black text-center mb-12 dark:text-white">
             From Listing to Riding
           </h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
             {[
               {
                 title: "Discover",
@@ -117,10 +113,8 @@ const About = () => {
                 </p>
               </motion.div>
             ))}
-
           </div>
         </section>
-
 
         {/* TRUST & SAFETY */}
         <motion.section
@@ -129,9 +123,7 @@ const About = () => {
           viewport={{ once: true }}
           className="bg-emerald-500 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden mb-24"
         >
-
           <div className="relative z-10">
-
             <h2 className="text-4xl font-black mb-6">
               Your Trust is Our Priority.
             </h2>
@@ -147,13 +139,10 @@ const About = () => {
             >
               BROWSE LISTINGS
             </Link>
-
           </div>
 
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-
         </motion.section>
-
       </div>
     </div>
   );
