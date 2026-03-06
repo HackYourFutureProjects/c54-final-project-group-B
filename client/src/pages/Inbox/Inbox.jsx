@@ -28,7 +28,7 @@ const Inbox = () => {
     totalUnread,
   } = useInbox();
 
-  if (isLoading) {
+  if (isLoading && conversations.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="mb-8">
@@ -45,7 +45,7 @@ const Inbox = () => {
     );
   }
 
-  if (error) {
+  if (error && conversations.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex flex-col items-center gap-3 py-16 text-center">
