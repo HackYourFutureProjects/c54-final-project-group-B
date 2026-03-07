@@ -14,7 +14,7 @@ import {
  * An internal Leaflet-aware component that imperatively controls the map view.
  * Must be rendered inside a <MapContainer>.
  */
-const MapController = ({ bikePos, userPos, mode }) => {
+const MapController = ({ bikePos, userPos, mode, recenterTrigger }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const MapController = ({ bikePos, userPos, mode }) => {
     } else {
       map.setView(bikePos, BIKE_ZOOM);
     }
-  }, [bikePos, userPos, mode, map]);
+  }, [recenterTrigger, mode, map]); // Only snap if recenterTrigger or view mode changes
 
   return null;
 };
@@ -38,6 +38,7 @@ MapController.propTypes = {
   bikePos: PropTypes.arrayOf(PropTypes.number).isRequired,
   userPos: PropTypes.arrayOf(PropTypes.number),
   mode: PropTypes.oneOf(Object.values(VIEW_MODE)).isRequired,
+  recenterTrigger: PropTypes.number,
 };
 
 export default MapController;

@@ -23,6 +23,7 @@ const ListingForm = ({
     formError,
     expandedSections,
     previewCoords,
+    recenterTrigger,
     totalImages,
     MAX_IMAGES,
     toggleSection,
@@ -93,6 +94,7 @@ const ListingForm = ({
           handleUseMyLocation={handleUseMyLocation}
           isLocating={isLocating}
           previewCoords={previewCoords}
+          recenterTrigger={recenterTrigger}
           handleMapLocationChange={handleMapLocationChange}
         />
       )}

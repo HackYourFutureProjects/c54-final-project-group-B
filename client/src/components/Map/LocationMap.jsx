@@ -36,6 +36,7 @@ const LocationMap = ({
   title = "Bike Location",
   draggable = false,
   onLocationChange = null,
+  recenterTrigger = 0,
 }) => {
   const [viewMode, setViewMode] = useState(VIEW_MODE.BIKE);
 
@@ -190,6 +191,7 @@ const LocationMap = ({
             bikePos={bikePosition}
             userPos={userPosition}
             mode={viewMode}
+            recenterTrigger={recenterTrigger}
           />
           <TileLayer url={TILE_URL} />
 
@@ -302,6 +304,7 @@ LocationMap.propTypes = {
   title: PropTypes.string,
   draggable: PropTypes.bool,
   onLocationChange: PropTypes.func,
+  recenterTrigger: PropTypes.number,
 };
 
 export default LocationMap;
