@@ -71,6 +71,7 @@ const UserAvatarIcon = () => (
 const Nav = () => {
   const { user, logout, loading: authLoading } = useAuth();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
 
   const isKeyboardOpen = useKeyboardFocus();
@@ -86,13 +87,25 @@ const Nav = () => {
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
     setIsNotifOpen(false);
+    setIsProfileOpen(false);
     setIsMobileSettingsOpen(false);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [location.pathname]);
 
   useEffect(() => {
-    // No-op handler for settingsRef if needed, but the click-outside logic for click-based states is removed
-  }, []);
+    const handleClickOutside = (event) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isProfileOpen]);
 
   const handleLogout = async () => {
     setIsMobileSettingsOpen(false);
@@ -315,7 +328,7 @@ const Nav = () => {
                         <button
                           className="flex items-center justify-center w-10 h-10 rounded-full ring-2 ring-transparent transition-all hover:ring-[#10B77F]/20 group-hover/profile:ring-[#10B77F]/40 group-hover/profile:bg-[#10B77F]/10"
                           aria-label="User menu"
-                          onClick={() => navigate(profileHref)}
+                          onClick={() => setIsProfileOpen(!isProfileOpen)}
                         >
                           {user.avatarUrl ? (
                             <img
@@ -330,8 +343,14 @@ const Nav = () => {
                           )}
                         </button>
 
-                        {/* Hover Dropdown */}
-                        <div className="absolute right-0 top-full pt-2 pointer-events-none opacity-0 translate-y-2 group-hover/profile:pointer-events-auto group-hover/profile:opacity-100 group-hover/profile:translate-y-0 transition-all duration-300 z-[120]">
+                        {/* Hover & Click Dropdown */}
+                        <div
+                          className={`absolute right-0 top-full pt-2 transition-all duration-300 z-[120] ${
+                            isProfileOpen
+                              ? "opacity-100 translate-y-0 pointer-events-auto"
+                              : "opacity-0 translate-y-2 pointer-events-none group-hover/profile:opacity-100 group-hover/profile:translate-y-0 group-hover/profile:pointer-events-auto"
+                          }`}
+                        >
                           <div className="w-64 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl py-2 overflow-hidden backdrop-blur-xl">
                             {/* User Header */}
                             <div className="px-4 py-3 mb-1 border-b border-gray-100 dark:border-white/5">
