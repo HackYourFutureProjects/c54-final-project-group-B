@@ -17,7 +17,9 @@ export const NotificationProvider = ({ children }) => {
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
     try {
-      const data = await execute("/api/notifications");
+      const data = await execute(`/api/notifications?_t=${Date.now()}`, {
+        cache: "no-store",
+      });
       if (data?.success) {
         setItems(data.result);
       }
@@ -29,7 +31,10 @@ export const NotificationProvider = ({ children }) => {
   const fetchUnread = useCallback(async () => {
     if (!user) return;
     try {
-      const data = await execute("/api/notifications/unread-count");
+      const data = await execute(
+        `/api/notifications/unread-count?_t=${Date.now()}`,
+        { cache: "no-store" },
+      );
       if (data?.success) {
         setUnread(data.result);
       }

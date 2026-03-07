@@ -35,28 +35,40 @@ export const getMessagesByRoom = async (req, res) => {
     );
 
     // Sync Notifications: Mark "message" notifications for this room as read
-    const roomIdParts = room.split("_");
-    const listingId = roomIdParts[0];
-
-    if (mongoose.Types.ObjectId.isValid(listingId)) {
-      // Find the other user in the room to target only their messages
-      const otherUserId = roomIdParts.find(
-        (id) => id !== userId.toString() && mongoose.Types.ObjectId.isValid(id),
-      );
-
+    if (room.startsWith("admin-warning-")) {
       await Notification.updateMany(
-        {
-          recipientId: userId,
-          listingId,
-          senderId: otherUserId,
-          type: "message",
-          read: false,
-        },
+        { recipientId: userId, type: "message", read: false },
         { read: true },
       );
+    } else {
+      const roomIdParts = room.split("_");
+      // Format: listingId_user1_user2
+      if (roomIdParts.length === 3) {
+        const listingId = roomIdParts[0];
+        const otherUserId = roomIdParts.find(
+          (id) =>
+            id !== userId.toString() && mongoose.Types.ObjectId.isValid(id),
+        );
 
-      const io = getIO();
-      if (io) io.to(`user_${userId}`).emit("notifications_updated");
+        if (mongoose.Types.ObjectId.isValid(listingId)) {
+          await Notification.updateMany(
+            {
+              recipientId: userId,
+              listingId,
+              senderId: otherUserId,
+              type: "message",
+              read: false,
+            },
+            { read: true },
+          );
+        }
+      }
+    }
+
+    const io = getIO();
+    if (io) {
+      io.to(`user_${userId}`).emit("notifications_updated");
+      io.to(`user_${userId}`).emit("messages_read", { room });
     }
 
     res.status(200).json({ success: true, result });
@@ -209,18 +221,37 @@ export const getInbox = async (req, res) => {
     const result = conversations.map((conv) => {
       const msg = conv.lastMessage;
       const status = conv.statusArr[0] ?? null;
-      const rawListing = conv.listingArr[0];
-      const listing = rawListing ?? {
-        _id: "system",
-        title: "Administrator Warning",
-        images: [
-          "https://placehold.co/400x400/6a1b9a/ffffff?text=System+Notice",
-        ],
-      };
+      let otherUser = conv.otherUserArr[0] ?? null;
+
+      const isAdminWarning = msg.room.startsWith("admin-warning-");
+
+      const listing = isAdminWarning
+        ? {
+            _id: "system",
+            title: "Administrator Warning",
+            images: [
+              "https://placehold.co/400x400/6a1b9a/ffffff?text=System+Notice",
+            ],
+          }
+        : (conv.listingArr[0] ?? {
+            _id: "deleted",
+            title: "Listing Removed",
+            images: ["https://placehold.co/400x400/eeeeee/999999?text=N/A"],
+          });
+
+      // Mask admin identity for the user
+      if (isAdminWarning) {
+        otherUser = {
+          _id: "system",
+          name: "BiCycleL Team",
+          avatarUrl: "https://placehold.co/100x100/10B77F/ffffff?text=BC",
+        };
+      }
+
       return {
         room: msg.room,
         lastMessage: msg,
-        otherUser: conv.otherUserArr[0] ?? null,
+        otherUser,
         listing,
         unreadCount: unreadByRoom[msg.room] ?? 0,
         isArchived: status ? status.isArchived : false,

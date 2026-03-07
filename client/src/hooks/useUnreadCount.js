@@ -21,8 +21,9 @@ const useUnreadCount = (user, intervalMs = 30000) => {
 
     const fetchCount = async () => {
       try {
-        const res = await fetch("/api/messages/unread-total", {
+        const res = await fetch(`/api/messages/unread-total?_t=${Date.now()}`, {
           credentials: "include",
+          cache: "no-store",
         });
         if (!res.ok) {
           if (res.status === 401) return; // Silently ignore auth errors
@@ -40,16 +41,24 @@ const useUnreadCount = (user, intervalMs = 30000) => {
     fetchCount();
     const id = setInterval(fetchCount, intervalMs);
 
+    const handleNewMessage = (msg) => {
+      // Optimistically increment if the message is for the current user
+      if (msg && msg.receiverId === user._id) {
+        setUnreadCount((prev) => prev + 1);
+      }
+      fetchCount();
+    };
+
     if (socket && user) {
       socket.emit("join_room", { userId: user._id, room: `user_${user._id}` });
-      socket.on("receive_message", fetchCount);
+      socket.on("receive_message", handleNewMessage);
       socket.on("messages_read", fetchCount);
     }
 
     return () => {
       clearInterval(id);
       if (socket) {
-        socket.off("receive_message", fetchCount);
+        socket.off("receive_message", handleNewMessage);
         socket.off("messages_read", fetchCount);
       }
     };

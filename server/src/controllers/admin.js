@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import Listing from "../models/Listing.js";
 import Report from "../models/Report.js";
 import Message from "../models/Message.js";
+import Notification from "../models/Notification.js";
 import { logError } from "../utils/logging.js";
 import { getIO } from "../socket/socketHandler.js";
 
@@ -198,10 +199,21 @@ export const sendAdminWarning = async (req, res) => {
       read: false,
     });
 
+    // Create a notification for the warning
+    await Notification.create({
+      recipientId: user._id,
+      senderId: req.user._id,
+      type: "message",
+      title: "BiCycleL Team Warning",
+      body: "You have a new warning from the BiCycleL Team.",
+      link: `/messages/${room}`,
+    });
+
     // Notify the user in real-time if they are online
     const io = req.app.get("io");
     if (io) {
       io.to(`user_${user._id}`).emit("receive_message", savedMessage);
+      io.to(`user_${user._id}`).emit("new_notification");
     }
 
     res

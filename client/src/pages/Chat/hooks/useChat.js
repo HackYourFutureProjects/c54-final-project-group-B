@@ -67,9 +67,6 @@ const useChat = (listingId, user, receiverId, roomParam) => {
     socketRef.current.emit("join_room", { room, userId: user._id });
     socketRef.current.emit("check_online_status", sellerId);
 
-    // Sync 'mark as read' state app-wide instantly on entry
-    socketRef.current.emit("read_room", { room, userId: user._id });
-
     socketRef.current.on("receive_message", (message) => {
       if (message.room === room) {
         setMessages((prev) => [...prev, message]);
