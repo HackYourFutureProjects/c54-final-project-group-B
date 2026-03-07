@@ -1,4 +1,5 @@
 import Message from "../models/Message.js";
+import Notification from "../models/Notification.js";
 import { logError } from "../utils/logging.js";
 import ConversationStatus from "../models/ConversationStatus.js";
 import mongoose from "mongoose";
@@ -32,6 +33,20 @@ export const getMessagesByRoom = async (req, res) => {
       { lastReadAt: new Date(), isArchived: false },
       { upsert: true },
     );
+
+    // Sync Notifications: Mark "message" notifications for this room as read
+    const roomIdParts = room.split("_");
+    const listingId = roomIdParts[0];
+
+    if (mongoose.Types.ObjectId.isValid(listingId)) {
+      await Notification.updateMany(
+        { recipientId: userId, listingId, type: "message", read: false },
+        { read: true },
+      );
+
+      const io = getIO();
+      if (io) io.to(`user_${userId}`).emit("notifications_updated");
+    }
 
     res.status(200).json({ success: true, result });
   } catch (error) {
@@ -364,9 +379,16 @@ export const markAllRead = async (req, res) => {
 
     await ConversationStatus.updateMany({ userId }, { lastReadAt: new Date() });
 
+    // Mark ALL message notifications as read
+    await Notification.updateMany(
+      { recipientId: userId, type: "message", read: false },
+      { read: true },
+    );
+
     const io = getIO();
     if (io) {
       io.to(`user_${userId}`).emit("messages_read", { room: "all" });
+      io.to(`user_${userId}`).emit("notifications_updated");
     }
 
     res
