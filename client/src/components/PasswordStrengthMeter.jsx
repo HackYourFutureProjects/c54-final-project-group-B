@@ -6,7 +6,10 @@ const PasswordStrengthMeter = ({ password }) => {
     { label: "At least 1 uppercase letter", test: (p) => /[A-Z]/.test(p) },
     { label: "At least 1 lowercase letter", test: (p) => /[a-z]/.test(p) },
     { label: "At least 1 number", test: (p) => /[0-9]/.test(p) },
-    { label: "At least 1 special character (@$!%*?&)", test: (p) => /[@$!%*?&]/.test(p) },
+    {
+      label: "At least 1 special character (@$!%*?&)",
+      test: (p) => /[@$!%*?&]/.test(p),
+    },
   ];
 
   const getStrength = (password) => {
@@ -57,7 +60,9 @@ const PasswordStrengthMeter = ({ password }) => {
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
           Password Strength
         </span>
-        <span className={`text-[10px] font-black uppercase tracking-widest ${strengthColors.text[strength]}`}>
+        <span
+          className={`text-[10px] font-black uppercase tracking-widest ${strengthColors.text[strength]}`}
+        >
           {getStrengthText(strength)}
         </span>
       </div>
