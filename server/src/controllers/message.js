@@ -39,8 +39,19 @@ export const getMessagesByRoom = async (req, res) => {
     const listingId = roomIdParts[0];
 
     if (mongoose.Types.ObjectId.isValid(listingId)) {
+      // Find the other user in the room to target only their messages
+      const otherUserId = roomIdParts.find(
+        (id) => id !== userId.toString() && mongoose.Types.ObjectId.isValid(id),
+      );
+
       await Notification.updateMany(
-        { recipientId: userId, listingId, type: "message", read: false },
+        {
+          recipientId: userId,
+          listingId,
+          senderId: otherUserId,
+          type: "message",
+          read: false,
+        },
         { read: true },
       );
 

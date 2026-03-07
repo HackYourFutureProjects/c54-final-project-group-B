@@ -58,6 +58,8 @@ const ConversationCard = ({
                 strokeWidth="4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
+                focusable="false"
               >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
@@ -152,6 +154,8 @@ const ConversationCard = ({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    aria-hidden="true"
+                    focusable="false"
                   >
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                     <circle cx="8.5" cy="8.5" r="1.5" />
@@ -170,6 +174,8 @@ const ConversationCard = ({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    aria-hidden="true"
+                    focusable="false"
                   >
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                     <circle cx="12" cy="10" r="3" />

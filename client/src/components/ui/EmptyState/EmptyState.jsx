@@ -10,7 +10,9 @@ const EmptyState = ({
 }) => {
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 px-6 animate-fadeIn">
-      <div className="text-5xl mb-4">{icon}</div>
+      <div className="text-5xl mb-4" aria-hidden="true">
+        {icon}
+      </div>
       <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
         {title}
       </h2>

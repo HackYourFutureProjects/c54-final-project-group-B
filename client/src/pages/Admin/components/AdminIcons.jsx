@@ -14,6 +14,8 @@ const Icon = ({ size = 18, className = "", children, ...props }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className={className}
+    aria-hidden="true"
+    focusable="false"
     {...props}
   >
     {children}

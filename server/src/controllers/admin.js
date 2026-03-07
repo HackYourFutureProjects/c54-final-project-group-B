@@ -21,7 +21,7 @@ const findOrFail = async (Model, id, res, label = "Resource") => {
 /** Prevent admin from modifying their own account */
 const preventSelfAction = (userId, currentUserId, res, action = "modify") => {
   if (userId.toString() === currentUserId.toString()) {
-    res.status(400).json({ success: false, msg: `Cannot ${action} yourself` });
+    res.status(400).json({ success: false, msg: `Cannot ${action}` });
     return true;
   }
   return false;
