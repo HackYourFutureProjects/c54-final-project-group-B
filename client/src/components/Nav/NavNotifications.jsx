@@ -144,7 +144,8 @@ const NavNotifications = ({ user, isOpen, setIsOpen }) => {
                           n.type === "review") &&
                         n.listingId
                       ) {
-                        navigate(`/listings/${n.listingId}`);
+                        const lid = n.listingId._id || n.listingId;
+                        navigate(`/listings/${lid}`);
                       } else {
                         navigate(n.link || "/inbox");
                       }
