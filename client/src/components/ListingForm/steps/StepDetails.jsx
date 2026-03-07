@@ -8,6 +8,7 @@ const StepDetails = ({
   handleUseMyLocation,
   isLocating,
   previewCoords,
+  recenterTrigger,
   handleMapLocationChange,
 }) => {
   return (
@@ -170,6 +171,7 @@ const StepDetails = ({
             coordinates={previewCoords}
             draggable={true}
             onLocationChange={handleMapLocationChange}
+            recenterTrigger={recenterTrigger}
             title="Set Listing Location"
           />
         </div>
@@ -184,6 +186,7 @@ StepDetails.propTypes = {
   handleUseMyLocation: PropTypes.func.isRequired,
   isLocating: PropTypes.bool.isRequired,
   previewCoords: PropTypes.array,
+  recenterTrigger: PropTypes.number,
   handleMapLocationChange: PropTypes.func.isRequired,
 };
 

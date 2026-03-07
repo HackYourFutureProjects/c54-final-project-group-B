@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { uploadToCloudinary } from "../../../utils/cloudinary";
 
 const MAX_IMAGES = 5;
@@ -25,6 +25,8 @@ export const useListingForm = ({ initialValues, onSubmit, isEditMode }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [formError, setFormError] = useState("");
+  const [recenterTrigger, setRecenterTrigger] = useState(0);
+  const skipGeocodeRef = useRef(false);
 
   const [expandedSections, setExpandedSections] = useState({
     category: true,
@@ -61,6 +63,11 @@ export const useListingForm = ({ initialValues, onSubmit, isEditMode }) => {
     if (!formData.location || formData.location.length <= 2) return;
 
     const timer = setTimeout(async () => {
+      if (skipGeocodeRef.current) {
+        skipGeocodeRef.current = false;
+        return;
+      }
+
       try {
         const res = await fetch(
           `/api/utils/geocode?q=${encodeURIComponent(formData.location)}`,
@@ -68,6 +75,7 @@ export const useListingForm = ({ initialValues, onSubmit, isEditMode }) => {
         const data = await res.json();
         if (data.success) {
           setFormData((prev) => ({ ...prev, coordinates: data.result }));
+          setRecenterTrigger((prev) => prev + 1);
         }
       } catch (err) {
         console.error("Geocoding preview failed", err);
@@ -104,6 +112,7 @@ export const useListingForm = ({ initialValues, onSubmit, isEditMode }) => {
           );
           const data = await res.json();
           if (data.success) {
+            skipGeocodeRef.current = true;
             setFormData((prev) => ({
               ...prev,
               location: data.result,
@@ -112,6 +121,7 @@ export const useListingForm = ({ initialValues, onSubmit, isEditMode }) => {
                 coordinates: [longitude, latitude],
               },
             }));
+            setRecenterTrigger((prev) => prev + 1);
           }
         } catch (err) {
           console.error("Reverse geocoding failed", err);
@@ -144,6 +154,7 @@ export const useListingForm = ({ initialValues, onSubmit, isEditMode }) => {
       );
       const data = await res.json();
       if (data.success) {
+        skipGeocodeRef.current = true;
         setFormData((prev) => ({ ...prev, location: data.result }));
       }
     } catch (err) {
@@ -289,6 +300,7 @@ export const useListingForm = ({ initialValues, onSubmit, isEditMode }) => {
     formError,
     expandedSections,
     previewCoords,
+    recenterTrigger,
     totalImages,
     MAX_IMAGES,
     toggleSection,

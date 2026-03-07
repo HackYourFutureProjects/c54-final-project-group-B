@@ -198,7 +198,7 @@ const seedDemoData = async () => {
       while (receiver._id === sender._id) receiver = getRandom(users);
 
       const listing = getRandom(listings);
-      const room = [sender._id, receiver._id].sort().join("_");
+      const room = `${listing._id}_${[sender._id, receiver._id].sort().join("_")}`;
 
       await Message.create([
         {
