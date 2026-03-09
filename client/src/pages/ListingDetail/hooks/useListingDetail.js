@@ -221,9 +221,8 @@ const useListingDetail = () => {
       navigate("/login", { state: { from: `/listings/${id}` } });
       return;
     }
-    // Navigate to chat room based on listingId and users
-    const room = `${id}_${user._id}_${listing.ownerId?._id || listing.ownerId}`;
-    navigate(`/chat/${room}`);
+    const sellerId = listing.ownerId?._id || listing.ownerId;
+    navigate(`/chat/${id}?receiverId=${sellerId}`);
   };
 
   const displayPrice = listing ? formatPrice(listing.price) : "";
